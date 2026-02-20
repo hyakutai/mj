@@ -9,7 +9,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1a202c">
     
-    <title>麻雀点数計算機 Pro v1.6</title>
+    <title>麻雀点数計算機 Pro v1.7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { theme: { extend: { screens: { 'landscape': {'raw': '(orientation: landscape)'}, 'portrait': {'raw': '(orientation: portrait)'} } } } }
@@ -33,39 +33,54 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .press-active { transform: scale(0.98); transition: transform 0.1s; }
         .snap-x-mandatory { scroll-snap-type: x mandatory; } .snap-center { scroll-snap-align: center; }
-        
-        /* ラジオボタン風UI用 */
         .btn-select.active { background-color: #ecc94b; color: #1a202c; border-color: #d69e2e; }
     </style>
 </head>
 <body>
-<div id="app-container" class="pt-[max(8px,env(safe-area-inset-top))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))]">
+<div id="app-container" class="pt-[max(8px,env(safe-area-inset-top))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))] flex flex-col h-full">
 
-    <div class="flex w-full justify-between items-center px-2 pt-1 pb-0.5 shrink-0">
-        <div class="flex gap-2">
-            <button onclick="window.createRoom()" class="bg-indigo-700 hover:bg-indigo-600 text-white font-bold text-[10px] px-2 py-1.5 rounded shadow transition-colors border border-indigo-500">🌐 卓作成</button>
-            <button onclick="window.joinRoom()" class="bg-gray-700 hover:bg-gray-600 text-white font-bold text-[10px] px-2 py-1.5 rounded shadow transition-colors border border-gray-500">🚪 参加</button>
+    <div class="flex-1 min-h-0 flex flex-col landscape:grid landscape:grid-cols-10 landscape:grid-rows-[auto_1fr] gap-2 p-2 pt-1 landscape:pt-2">
+
+        <div class="hidden landscape:flex landscape:col-span-3 landscape:col-start-1 landscape:row-start-1 gap-2 items-center">
+            <button class="bg-gray-800 hover:bg-gray-700 text-gray-500 border border-gray-700 text-[10px] font-bold px-2 py-1.5 rounded shadow flex-1 transition-colors">準備中</button>
+            <button class="bg-gray-800 hover:bg-gray-700 text-gray-500 border border-gray-700 text-[10px] font-bold px-2 py-1.5 rounded shadow flex-1 transition-colors">準備中</button>
         </div>
-        
-        <div id="scoreboard" class="flex-1 mx-2 bg-gray-900 rounded border border-gray-700 px-2 py-1 flex justify-between items-center">
-            <span class="text-[9px] text-gray-400">ID:<span id="room-id-display" class="text-yellow-400 font-bold ml-1">ローカル</span></span>
-            <div class="flex gap-2 text-[10px] font-bold">
-                <div class="text-red-400">A:<span id="score-0">25000</span></div>
-                <div class="text-blue-400">B:<span id="score-1">25000</span></div>
-                <div class="text-green-400">C:<span id="score-2">25000</span></div>
-                <div class="text-yellow-400">D:<span id="score-3">25000</span></div>
+
+        <div class="flex flex-col landscape:flex-row gap-1.5 landscape:gap-2 justify-between items-stretch landscape:items-center w-full landscape:col-span-7 landscape:col-start-4 landscape:row-start-1 shrink-0">
+            
+            <div class="flex justify-between items-center w-full landscape:w-auto">
+                <div class="flex gap-2">
+                    <button onclick="window.createRoom()" class="bg-indigo-700 hover:bg-indigo-600 text-white font-bold text-[11px] px-3 py-1.5 rounded shadow transition-colors border border-indigo-500">🌐 卓作成</button>
+                    <button onclick="window.joinRoom()" class="bg-gray-700 hover:bg-gray-600 text-white font-bold text-[11px] px-3 py-1.5 rounded shadow transition-colors border border-gray-500">🚪 参加</button>
+                </div>
+                
+                <div class="flex landscape:hidden items-center gap-1.5">
+                    <button class="bg-gray-800 text-gray-500 border border-gray-700 text-[9px] px-1.5 py-1 rounded shadow">拡張</button>
+                    <span class="text-[9px] text-gray-500 font-mono tracking-wider ml-0.5">v1.7</span>
+                    <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform">📖</button>
+                </div>
+            </div>
+
+            <div id="scoreboard" class="flex-1 bg-gray-900 rounded border border-gray-700 px-2 py-1 flex flex-col landscape:flex-row justify-center landscape:justify-between items-center gap-0.5 landscape:gap-0 shadow-inner">
+                <div class="w-full landscape:w-auto text-center landscape:text-left mb-0.5 landscape:mb-0">
+                    <span class="text-[9px] text-gray-400">ID:<span id="room-id-display" class="text-yellow-400 font-bold ml-1">ローカル</span></span>
+                </div>
+                
+                <div class="grid grid-cols-2 landscape:flex gap-x-6 gap-y-0.5 landscape:gap-3 text-[12px] landscape:text-[10px] font-bold w-fit mx-auto landscape:mx-0">
+                    <div class="text-red-400 flex justify-between w-[4.5rem] landscape:w-auto"><span>A:</span><span id="score-0">25000</span></div>
+                    <div class="text-blue-400 flex justify-between w-[4.5rem] landscape:w-auto"><span>B:</span><span id="score-1">25000</span></div>
+                    <div class="text-green-400 flex justify-between w-[4.5rem] landscape:w-auto"><span>C:</span><span id="score-2">25000</span></div>
+                    <div class="text-yellow-400 flex justify-between w-[4.5rem] landscape:w-auto"><span>D:</span><span id="score-3">25000</span></div>
+                </div>
+            </div>
+
+            <div class="hidden landscape:flex items-center gap-2 shrink-0 pl-1">
+                <span class="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5">v1.7</span>
+                <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform" title="ルールを確認">📖</button>
             </div>
         </div>
 
-        <div class="flex items-center gap-2 shrink-0">
-            <span class="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5">v1.6</span>
-            <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform" title="ルールを確認">📖</button>
-        </div>
-    </div>
-
-    <div class="flex flex-1 gap-2 p-2 pt-1 flex-col landscape:flex-row min-h-0">
-        
-        <div class="bg-gray-800 rounded-lg p-2 flex flex-col gap-1.5 shadow-lg overflow-y-auto no-scrollbar border border-gray-700 w-full landscape:w-[30%] shrink-0 landscape:shrink">
+        <div class="bg-gray-800 rounded-lg p-2 flex flex-col gap-1.5 shadow-lg overflow-y-auto no-scrollbar border border-gray-700 w-full landscape:col-span-3 landscape:col-start-1 landscape:row-start-2 min-h-0">
             <div class="grid grid-cols-2 gap-1.5 mt-1">
                 <button id="btn-prevalent" class="bg-gray-700 py-1.5 portrait:py-1 rounded text-xs font-bold border border-gray-600 transition-all" onclick="togglePrevalent()">東場</button>
                 <button id="btn-seat" class="bg-red-900 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-700 transition-all" onclick="toggleSeat()">東家(親)</button>
@@ -105,23 +120,22 @@
             </div>
         </div>
 
-        <div class="w-full landscape:w-[70%] flex flex-col flex-1 min-h-0 gap-2 landscape:gap-1.5">
-            <div class="bg-gray-800 rounded-lg p-2 flex flex-col shadow-lg border border-gray-700 flex-1 min-h-0">
-                <div class="flex gap-1 mb-1.5 shrink-0">
-                    <button onclick="renderPalette('man')" class="flex-1 py-1.5 rounded-t bg-blue-600 text-white text-xs font-bold tab-btn" data-type="man">萬子</button>
-                    <button onclick="renderPalette('pin')" class="flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="pin">筒子</button>
-                    <button onclick="renderPalette('sou')" class="flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="sou">索子</button>
-                    <button onclick="renderPalette('ji')" class="flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="ji">字牌</button>
-                </div>
-                <div id="tile-container" class="grid grid-cols-9 gap-1 auto-rows-min overflow-y-auto flex-1 content-start p-1 bg-gray-900 rounded inner-shadow mb-2"></div>
-                
-                <div class="flex gap-1.5 shrink-0">
-                    <button onclick="openCamera()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 portrait:py-2.5 rounded font-bold text-sm shadow flex items-center justify-center gap-1 border border-blue-400 active:scale-95 transition-transform">📷 撮影</button>
-                    <button onclick="clearHand()" class="flex-1 bg-red-800 hover:bg-red-700 text-white py-2 portrait:py-2.5 rounded font-bold text-sm shadow border border-red-700 active:scale-95 transition-transform">クリア</button>
-                    <button onclick="calculateFull()" class="flex-[2] bg-yellow-600 hover:bg-yellow-500 text-white py-2 portrait:py-2.5 rounded font-bold text-base shadow border border-yellow-400 active:scale-95 transition-transform">計算する</button>
-                </div>
+        <div class="bg-gray-800 rounded-lg p-2 flex flex-col shadow-lg border border-gray-700 w-full landscape:col-span-7 landscape:col-start-4 landscape:row-start-2 min-h-0">
+            <div class="flex gap-1 mb-1.5 shrink-0">
+                <button onclick="renderPalette('man')" class="flex-1 py-1.5 rounded-t bg-blue-600 text-white text-xs font-bold tab-btn" data-type="man">萬子</button>
+                <button onclick="renderPalette('pin')" class="flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="pin">筒子</button>
+                <button onclick="renderPalette('sou')" class="flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="sou">索子</button>
+                <button onclick="renderPalette('ji')" class="flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="ji">字牌</button>
+            </div>
+            <div id="tile-container" class="grid grid-cols-9 gap-1 auto-rows-min overflow-y-auto flex-1 content-start p-1 bg-gray-900 rounded inner-shadow mb-2"></div>
+            
+            <div class="flex gap-1.5 shrink-0">
+                <button onclick="openCamera()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 portrait:py-2.5 rounded font-bold text-sm shadow flex items-center justify-center gap-1 border border-blue-400 active:scale-95 transition-transform">📷 撮影</button>
+                <button onclick="clearHand()" class="flex-1 bg-red-800 hover:bg-red-700 text-white py-2 portrait:py-2.5 rounded font-bold text-sm shadow border border-red-700 active:scale-95 transition-transform">クリア</button>
+                <button onclick="calculateFull()" class="flex-[2] bg-yellow-600 hover:bg-yellow-500 text-white py-2 portrait:py-2.5 rounded font-bold text-base shadow border border-yellow-400 active:scale-95 transition-transform">計算する</button>
             </div>
         </div>
+
     </div>
 
     <div class="shrink-0 w-full bg-green-900 border-t-4 border-green-950 shadow-[0_-4px_10px_rgba(0,0,0,0.3)] relative flex flex-col justify-center pt-2 pb-[max(12px,env(safe-area-inset-bottom))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))] z-20">
@@ -154,43 +168,11 @@
     <div id="transfer-modal" class="modal-overlay" onclick="closeTransferModal()">
         <div class="bg-gray-800 w-11/12 max-w-sm rounded-lg p-4 shadow-xl border border-gray-700 relative" onclick="event.stopPropagation()">
             <h3 class="text-lg font-bold text-yellow-400 mb-3 text-center border-b border-gray-700 pb-2">点数の移動</h3>
-            
-            <div class="mb-3">
-                <div class="text-xs text-gray-400 mb-1">🀄 アガった人</div>
-                <div class="flex gap-1">
-                    <button id="ta-0" onclick="setTransferAgari(0)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold active">Aさん</button>
-                    <button id="ta-1" onclick="setTransferAgari(1)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Bさん</button>
-                    <button id="ta-2" onclick="setTransferAgari(2)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Cさん</button>
-                    <button id="ta-3" onclick="setTransferAgari(3)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Dさん</button>
-                </div>
-            </div>
-
-            <div id="transfer-furi-section" class="mb-3">
-                <div class="text-xs text-gray-400 mb-1">😭 振り込んだ人</div>
-                <div class="flex gap-1">
-                    <button id="tf-0" onclick="setTransferFuri(0)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Aさん</button>
-                    <button id="tf-1" onclick="setTransferFuri(1)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold active">Bさん</button>
-                    <button id="tf-2" onclick="setTransferFuri(2)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Cさん</button>
-                    <button id="tf-3" onclick="setTransferFuri(3)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Dさん</button>
-                </div>
-            </div>
-
-            <div id="transfer-oya-section" class="mb-3 hidden">
-                <div class="text-xs text-gray-400 mb-1">👑 親は誰？ (親かぶり計算用)</div>
-                <div class="flex gap-1">
-                    <button id="to-0" onclick="setTransferOya(0)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Aさん</button>
-                    <button id="to-1" onclick="setTransferOya(1)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold active">Bさん</button>
-                    <button id="to-2" onclick="setTransferOya(2)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Cさん</button>
-                    <button id="to-3" onclick="setTransferOya(3)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Dさん</button>
-                </div>
-            </div>
-
+            <div class="mb-3"><div class="text-xs text-gray-400 mb-1">🀄 アガった人</div><div class="flex gap-1"><button id="ta-0" onclick="setTransferAgari(0)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold active">Aさん</button><button id="ta-1" onclick="setTransferAgari(1)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Bさん</button><button id="ta-2" onclick="setTransferAgari(2)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Cさん</button><button id="ta-3" onclick="setTransferAgari(3)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Dさん</button></div></div>
+            <div id="transfer-furi-section" class="mb-3"><div class="text-xs text-gray-400 mb-1">😭 振り込んだ人</div><div class="flex gap-1"><button id="tf-0" onclick="setTransferFuri(0)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Aさん</button><button id="tf-1" onclick="setTransferFuri(1)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold active">Bさん</button><button id="tf-2" onclick="setTransferFuri(2)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Cさん</button><button id="tf-3" onclick="setTransferFuri(3)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Dさん</button></div></div>
+            <div id="transfer-oya-section" class="mb-3 hidden"><div class="text-xs text-gray-400 mb-1">👑 親は誰？ (親かぶり計算用)</div><div class="flex gap-1"><button id="to-0" onclick="setTransferOya(0)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Aさん</button><button id="to-1" onclick="setTransferOya(1)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold active">Bさん</button><button id="to-2" onclick="setTransferOya(2)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Cさん</button><button id="to-3" onclick="setTransferOya(3)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Dさん</button></div></div>
             <div class="text-center font-bold text-yellow-400 text-2xl my-3" id="transfer-amount-text">0 点</div>
-
-            <div class="flex gap-2">
-                <button onclick="closeTransferModal()" class="w-1/3 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded shadow border border-gray-600">キャンセル</button>
-                <button onclick="executeTransfer()" class="w-2/3 bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded shadow-lg border border-yellow-400 active:scale-95 transition-transform">決定して反映</button>
-            </div>
+            <div class="flex gap-2"><button onclick="closeTransferModal()" class="w-1/3 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded shadow border border-gray-600">キャンセル</button><button onclick="executeTransfer()" class="w-2/3 bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded shadow-lg border border-yellow-400 active:scale-95 transition-transform">決定して反映</button></div>
         </div>
     </div>
 
@@ -242,7 +224,7 @@
         
         function clearHand() { 
             currentHand=[]; renderHand(); document.getElementById('result-score').textContent="--- 点"; document.getElementById('result-yaku').textContent="役なし"; lastCalculationResult = null; 
-            document.getElementById('btn-transfer').classList.add('hidden'); // ボタンを隠す
+            document.getElementById('btn-transfer').classList.add('hidden');
         }
         
         function openRulebook() { document.getElementById('rule-modal').classList.add('active'); }
@@ -255,12 +237,11 @@
         function takePhoto() { const video = document.getElementById('camera-video'); video.style.opacity = '0.2'; setTimeout(() => { video.style.opacity = '1'; }, 100); simulateImageRecognition(); closeCamera(); }
         function simulateImageRecognition() { clearHand(); const mockTiles = [{t:'man', v:2}, {t:'man', v:3}, {t:'man', v:4}, {t:'pin', v:3}, {t:'pin', v:4}, {t:'pin', v:5}, {t:'sou', v:6}, {t:'sou', v:7}, {t:'sou', v:8}, {t:'sou', v:2}, {t:'sou', v:2}, {t:'sou', v:2}, {t:'man', v:8}, {t:'man', v:8}]; mockTiles.forEach(item => { addTile(item.t, item.v, TILES[item.t][item.v - 1]); }); if(currentHand.length>0) { currentHand[currentHand.length-1].isAgari=true; renderHand(); } alert("📷 デモ: ダミーの手牌をセットしました"); }
 
-        // 長押し（イベントバブリング防止を追加）
         let pressTimer;
         function setupLongPress() {
             const target = document.getElementById('score-container');
             target.addEventListener('touchstart', (e) => { 
-                if (e.target.id === 'btn-transfer') return; // ボタン押下時は長押し無効
+                if (e.target.id === 'btn-transfer') return; 
                 if (!lastCalculationResult) return; 
                 target.classList.add('press-active'); 
                 pressTimer = setTimeout(() => { openDetail(lastCalculationResult); target.classList.remove('press-active'); }, 500); 
@@ -276,7 +257,6 @@
         }
         function closeDetail() { document.getElementById('detail-modal').classList.remove('active'); }
 
-        // ★計算ロジック（支払い内訳 payments を返すように修正）
         function calculateFull() {
             const resScore = document.getElementById('result-score'); const resYaku = document.getElementById('result-yaku');
             if (currentHand.length !== 14) { resScore.textContent = "枚数不足"; resYaku.textContent = "牌は14枚必要です"; lastCalculationResult = null; return; }
@@ -345,29 +325,14 @@
             let base = fu * Math.pow(2, han+2); if(han>=5) base=2000; if(han>=6) base=3000; if(han>=8) base=4000; if(han>=11) base=6000; if(han>=13) base=8000; 
             let score=0; let payments = { type: '', total: 0, ko: 0, oya: 0 };
             let honba = settings.honba;
-            
-            if(settings.seat===0){ // 親
-                if (settings.winType==='ron') { 
-                    score = Math.ceil((base*6)/100)*100; 
-                    payments = { type: 'ron', total: score + honba*300 };
-                } else { 
-                    let k = Math.ceil((base*2)/100)*100; 
-                    score = k * 3; 
-                    payments = { type: 'tsumo_oya', total: score + honba*300, ko: k + honba*100 };
-                }
-            } else { // 子
-                if (settings.winType==='ron') { 
-                    score = Math.ceil((base*4)/100)*100; 
-                    payments = { type: 'ron', total: score + honba*300 };
-                } else { 
-                    let o = Math.ceil((base*2)/100)*100; 
-                    let k = Math.ceil((base*1)/100)*100; 
-                    score = o + k*2; 
-                    payments = { type: 'tsumo_ko', total: score + honba*300, oya: o + honba*100, ko: k + honba*100 };
-                }
+            if(settings.seat===0){ 
+                if (settings.winType==='ron') { score = Math.ceil((base*6)/100)*100; payments = { type: 'ron', total: score + honba*300 }; } 
+                else { let k = Math.ceil((base*2)/100)*100; score = k * 3; payments = { type: 'tsumo_oya', total: score + honba*300, ko: k + honba*100 }; }
+            } else { 
+                if (settings.winType==='ron') { score = Math.ceil((base*4)/100)*100; payments = { type: 'ron', total: score + honba*300 }; } 
+                else { let o = Math.ceil((base*2)/100)*100; let k = Math.ceil((base*1)/100)*100; score = o + k*2; payments = { type: 'tsumo_ko', total: score + honba*300, oya: o + honba*100, ko: k + honba*100 }; }
             }
-            score += honba * 300; 
-            return { han, fu, score, yakuNames, fuDetails, payments }; 
+            score += honba * 300; return { han, fu, score, yakuNames, fuDetails, payments }; 
         }
         function displayResult(res, elScore, elYaku) { elScore.textContent = `${res.score}点`; elYaku.textContent = `${res.han}飜 ${res.fu}符\n${res.yakuNames.join(' ')}`; }
         init();
@@ -419,7 +384,6 @@
             document.getElementById('room-id-display').textContent = roomId;
         }
 
-        // --- 点数反映モーダルのUI制御 ---
         let t_agari = 0, t_furi = 1, t_oya = 1;
 
         window.openTransferModal = function(e) {
@@ -435,7 +399,7 @@
             } else if (p.type === 'tsumo_ko') {
                 document.getElementById('transfer-furi-section').classList.add('hidden');
                 document.getElementById('transfer-oya-section').classList.remove('hidden');
-            } else { // 親ツモ
+            } else { 
                 document.getElementById('transfer-furi-section').classList.add('hidden');
                 document.getElementById('transfer-oya-section').classList.add('hidden');
             }
@@ -457,15 +421,12 @@
             }
         }
 
-        // --- 点数移動の実行（ローカル ＆ 通信 両対応） ---
         window.executeTransfer = async function() {
             const p = lastCalculationResult.payments;
             let diff = [0, 0, 0, 0];
             
-            // アガリ処理
             diff[t_agari] += p.total;
             
-            // 支払い処理
             if(p.type === 'ron') {
                 if(t_agari === t_furi) return alert("アガった人と振り込んだ人は同じにできません！");
                 diff[t_furi] -= p.total;
@@ -480,7 +441,6 @@
                 }
             }
 
-            // 現在のスコアに合算
             let newScores = [
                 parseInt(document.getElementById('score-0').textContent) + diff[0],
                 parseInt(document.getElementById('score-1').textContent) + diff[1],
@@ -488,7 +448,6 @@
                 parseInt(document.getElementById('score-3').textContent) + diff[3]
             ];
 
-            // データベースに送信するか、ローカルのみ書き換えるか
             if (currentRoomId && db) {
                 try {
                     await updateDoc(doc(db, "rooms", currentRoomId), { scores: newScores });
@@ -501,7 +460,7 @@
             }
 
             closeTransferModal();
-            clearHand(); // 終わったら自動で手牌をクリアしてスッキリさせる
+            clearHand(); 
         }
     </script>
 </body>
