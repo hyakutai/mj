@@ -9,7 +9,10 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1a202c">
     
-    <title>麻雀点数計算機 Pro v2.2</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:90px;%22>🀄</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231a202c%22/><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:75px;%22>🀄</text></svg>">
+
+    <title>麻雀点数計算機 Pro v2.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
@@ -62,36 +65,31 @@
                 </div>
                 
                 <div id="player-grid" class="flex flex-nowrap gap-1.5 items-center w-full overflow-x-auto no-scrollbar pl-2 h-full">
-                    
                     <div class="flex flex-col items-center bg-gray-800/80 px-1 py-0.5 rounded cursor-move active:bg-gray-700 transition-colors shrink-0 w-16 border border-transparent">
                         <span class="text-[7px] text-gray-500 leading-none mb-0.5 pointer-events-none">⣿</span>
                         <span id="name-0" class="text-[9px] text-gray-300 leading-none mb-1 pointer-events-none w-full truncate text-center">Aさん</span>
                         <span id="score-0" class="text-red-400 font-bold text-[12px] leading-none pointer-events-none">25000</span>
                     </div>
-                    
                     <div class="flex flex-col items-center bg-gray-800/80 px-1 py-0.5 rounded cursor-move active:bg-gray-700 transition-colors shrink-0 w-16 border border-transparent">
                         <span class="text-[7px] text-gray-500 leading-none mb-0.5 pointer-events-none">⣿</span>
                         <span id="name-1" class="text-[9px] text-gray-300 leading-none mb-1 pointer-events-none w-full truncate text-center">Bさん</span>
                         <span id="score-1" class="text-blue-400 font-bold text-[12px] leading-none pointer-events-none">25000</span>
                     </div>
-                    
                     <div class="flex flex-col items-center bg-gray-800/80 px-1 py-0.5 rounded cursor-move active:bg-gray-700 transition-colors shrink-0 w-16 border border-transparent">
                         <span class="text-[7px] text-gray-500 leading-none mb-0.5 pointer-events-none">⣿</span>
                         <span id="name-2" class="text-[9px] text-gray-300 leading-none mb-1 pointer-events-none w-full truncate text-center">Cさん</span>
                         <span id="score-2" class="text-green-400 font-bold text-[12px] leading-none pointer-events-none">25000</span>
                     </div>
-                    
                     <div class="flex flex-col items-center bg-gray-800/80 px-1 py-0.5 rounded cursor-move active:bg-gray-700 transition-colors shrink-0 w-16 border border-transparent">
                         <span class="text-[7px] text-gray-500 leading-none mb-0.5 pointer-events-none">⣿</span>
                         <span id="name-3" class="text-[9px] text-gray-300 leading-none mb-1 pointer-events-none w-full truncate text-center">Dさん</span>
                         <span id="score-3" class="text-yellow-400 font-bold text-[12px] leading-none pointer-events-none">25000</span>
                     </div>
-
                 </div>
             </div>
 
             <div class="flex items-center justify-center gap-2 shrink-0 pl-1">
-                <span class="text-[10px] text-gray-500 font-mono tracking-wider hidden landscape:inline">v2.2</span>
+                <span class="text-[10px] text-gray-500 font-mono tracking-wider hidden landscape:inline">v2.3</span>
                 <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform" title="ルールを確認">📖</button>
             </div>
         </div>
@@ -239,7 +237,6 @@
             updateUI();
         }
 
-        // ★修正: 関数定義を明示的にし、HTMLからのonclickイベントが確実に発火するようにする
         function openRoomModal() { document.getElementById('room-modal').classList.add('active'); }
         window.openRoomModal = openRoomModal;
         function closeRoomModal() { document.getElementById('room-modal').classList.remove('active'); }
@@ -567,16 +564,31 @@
                 }
             }
 
+            // ★変更: 画面上の「見た目の並び順（左から右）」で親を移動させる
             let next_bakaze = window.globalGameState.bakaze;
-            let next_oya = window.globalGameState.oya;
             let next_honba = window.globalGameState.honba;
+            let next_oya = window.globalGameState.oya;
+
+            // 画面の並び順を取得 (id="name-X" の X を抽出)
+            const gridChildren = Array.from(document.getElementById('player-grid').children);
+            const currentOrder = gridChildren.map(child => {
+                return parseInt(child.querySelector('[id^="name-"]').id.split('-')[1]);
+            });
+
+            // 現在の親が、画面上で左から何番目にいるか探す
+            let currentOyaGridIndex = currentOrder.indexOf(window.globalGameState.oya);
 
             if (t_agari === window.globalGameState.oya) {
+                // 親の和了：連荘（本場＋1）
                 next_honba++;
             } else {
-                next_oya = (next_oya + 1) % 4;
+                // 子の和了：親流れ（画面上の右隣へ、本場リセット）
+                let nextOyaGridIndex = (currentOyaGridIndex + 1) % 4;
+                next_oya = currentOrder[nextOyaGridIndex]; // 次の親を決定
                 next_honba = 0;
-                if (next_oya === 0) {
+                
+                // 一番右の人から一番左の人へ戻った時（一周した時）は場風を進める
+                if (nextOyaGridIndex === 0) {
                     next_bakaze++; 
                 }
             }
