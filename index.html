@@ -9,7 +9,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1a202c">
     
-    <title>麻雀点数計算機 Pro v1.8</title>
+    <title>麻雀点数計算機 Pro v1.8.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { theme: { extend: { screens: { 'landscape': {'raw': '(orientation: landscape)'}, 'portrait': {'raw': '(orientation: portrait)'} } } } }
@@ -45,60 +45,61 @@
             
             <div class="flex justify-between items-center w-full landscape:w-auto shrink-0">
                 <div class="flex gap-2">
-                    <button onclick="window.createRoom()" class="bg-indigo-700 hover:bg-indigo-600 text-white font-bold text-[11px] px-3 py-1.5 rounded shadow transition-colors border border-indigo-500">🌐 卓作成</button>
-                    <button onclick="window.joinRoom()" class="bg-gray-700 hover:bg-gray-600 text-white font-bold text-[11px] px-3 py-1.5 rounded shadow transition-colors border border-gray-500">🚪 参加</button>
+                    <button onclick="window.createRoom()" class="bg-indigo-700 hover:bg-indigo-600 text-white font-bold text-[11px] px-3 py-1.5 rounded shadow transition-colors border border-indigo-500 leading-none">🌐 卓作成</button>
+                    <button onclick="window.joinRoom()" class="bg-gray-700 hover:bg-gray-600 text-white font-bold text-[11px] px-3 py-1.5 rounded shadow transition-colors border border-gray-500 leading-none">🚪 参加</button>
                 </div>
                 
                 <div class="flex landscape:hidden items-center gap-2">
-                    <span class="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5">v1.8</span>
-                    <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform">📖</button>
+                    <span class="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5 leading-none">v1.8.1</span>
+                    <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform leading-none mt-0.5">📖</button>
                 </div>
             </div>
 
-            <div id="scoreboard" class="flex-1 bg-gray-900 rounded border border-gray-700 px-2 py-1 flex flex-col landscape:flex-row justify-center landscape:justify-between items-center gap-0.5 landscape:gap-0 shadow-inner overflow-hidden">
-                <div class="w-full landscape:w-auto text-center landscape:text-left mb-0.5 landscape:mb-0 shrink-0">
-                    <span class="text-[9px] text-gray-400">ID:<span id="room-id-display" class="text-yellow-400 font-bold ml-1">ローカル</span></span>
+            <div id="scoreboard" class="flex-1 bg-gray-900 rounded border border-gray-700 px-2 py-1.5 flex flex-col landscape:flex-row justify-center landscape:justify-between items-center shadow-inner overflow-hidden">
+                
+                <div class="w-full landscape:w-auto text-center landscape:text-left shrink-0 flex items-center justify-center landscape:justify-start">
+                    <span class="text-[10px] text-gray-400 leading-none mt-0.5">ID:<span id="room-id-display" class="text-yellow-400 font-bold ml-1">ローカル</span></span>
                 </div>
                 
-                <div class="grid grid-cols-2 landscape:flex gap-x-6 gap-y-0.5 landscape:gap-2 lg:landscape:gap-3 text-[12px] landscape:text-[10px] font-bold w-fit mx-auto landscape:mx-0 whitespace-nowrap shrink-0">
-                    <div class="text-red-400 flex justify-between landscape:justify-start landscape:gap-1 w-[4.5rem] landscape:w-auto"><span>A:</span><span id="score-0">25000</span></div>
-                    <div class="text-blue-400 flex justify-between landscape:justify-start landscape:gap-1 w-[4.5rem] landscape:w-auto"><span>B:</span><span id="score-1">25000</span></div>
-                    <div class="text-green-400 flex justify-between landscape:justify-start landscape:gap-1 w-[4.5rem] landscape:w-auto"><span>C:</span><span id="score-2">25000</span></div>
-                    <div class="text-yellow-400 flex justify-between landscape:justify-start landscape:gap-1 w-[4.5rem] landscape:w-auto"><span>D:</span><span id="score-3">25000</span></div>
+                <div class="grid grid-cols-2 landscape:flex gap-x-6 gap-y-1.5 landscape:gap-2 lg:landscape:gap-3 text-[12px] landscape:text-[10px] font-bold w-fit mx-auto landscape:mx-0 whitespace-nowrap shrink-0 mt-1.5 landscape:mt-0 items-center">
+                    <div class="text-red-400 flex items-center justify-between landscape:justify-start landscape:gap-1 w-[4.5rem] landscape:w-auto leading-none mt-0.5"><span>A:</span><span id="score-0">25000</span></div>
+                    <div class="text-blue-400 flex items-center justify-between landscape:justify-start landscape:gap-1 w-[4.5rem] landscape:w-auto leading-none mt-0.5"><span>B:</span><span id="score-1">25000</span></div>
+                    <div class="text-green-400 flex items-center justify-between landscape:justify-start landscape:gap-1 w-[4.5rem] landscape:w-auto leading-none mt-0.5"><span>C:</span><span id="score-2">25000</span></div>
+                    <div class="text-yellow-400 flex items-center justify-between landscape:justify-start landscape:gap-1 w-[4.5rem] landscape:w-auto leading-none mt-0.5"><span>D:</span><span id="score-3">25000</span></div>
                 </div>
             </div>
 
             <div class="hidden landscape:flex items-center gap-2 shrink-0 pl-1">
-                <span class="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5">v1.8</span>
-                <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform" title="ルールを確認">📖</button>
+                <span class="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5 leading-none">v1.8.1</span>
+                <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform leading-none mt-0.5" title="ルールを確認">📖</button>
             </div>
         </div>
 
         <div class="order-2 landscape:order-none bg-gray-800 rounded-lg p-2 flex flex-col gap-1.5 shadow-lg overflow-y-auto no-scrollbar border border-gray-700 w-full landscape:col-span-3 landscape:col-start-1 landscape:row-start-1 landscape:row-span-2 min-h-0">
             <div class="grid grid-cols-2 gap-1.5 mt-1">
-                <button id="btn-prevalent" class="bg-gray-700 py-1.5 portrait:py-1 rounded text-xs font-bold border border-gray-600 transition-all" onclick="togglePrevalent()">東場</button>
-                <button id="btn-seat" class="bg-red-900 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-700 transition-all" onclick="toggleSeat()">東家(親)</button>
+                <button id="btn-prevalent" class="bg-gray-700 py-1.5 portrait:py-1 rounded text-xs font-bold border border-gray-600 transition-all leading-tight" onclick="togglePrevalent()">東場</button>
+                <button id="btn-seat" class="bg-red-900 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-700 transition-all leading-tight" onclick="toggleSeat()">東家(親)</button>
             </div>
             <div class="grid grid-cols-2 gap-1.5">
-                <button id="btn-win-type" class="bg-red-800 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-600 transition-all" onclick="toggleWinType()">ロンあがり</button>
-                <button id="btn-reach" class="bg-gray-700 py-1.5 portrait:py-1 rounded text-xs font-bold border border-gray-600 text-gray-400 transition-all" onclick="toggleReach()">立直なし</button>
+                <button id="btn-win-type" class="bg-red-800 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-600 transition-all leading-tight" onclick="toggleWinType()">ロンあがり</button>
+                <button id="btn-reach" class="bg-gray-700 py-1.5 portrait:py-1 rounded text-xs font-bold border border-gray-600 text-gray-400 transition-all leading-tight" onclick="toggleReach()">立直なし</button>
             </div>
             
             <div class="flex gap-1.5">
-                <div class="flex-1 flex items-center justify-between bg-gray-700 px-2 py-1 rounded border border-gray-600">
-                    <span class="text-[11px] font-bold text-gray-300">ドラ</span>
-                    <div class="flex items-center gap-1">
-                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm active:bg-gray-500" onclick="updCnt('dora',-1)">-</button>
-                        <span id="dora-disp" class="font-mono text-sm w-4 text-center text-yellow-400">0</span>
-                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm active:bg-gray-500" onclick="updCnt('dora',1)">+</button>
+                <div class="flex-1 flex items-center justify-between bg-gray-700 px-2 py-1 rounded border border-gray-600 h-8">
+                    <span class="text-[11px] font-bold text-gray-300 leading-none mt-0.5">ドラ</span>
+                    <div class="flex items-center gap-1 h-full">
+                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm leading-none active:bg-gray-500 pb-0.5" onclick="updCnt('dora',-1)">-</button>
+                        <span id="dora-disp" class="font-mono text-sm w-4 text-center text-yellow-400 leading-none mt-0.5">0</span>
+                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm leading-none active:bg-gray-500 pb-0.5" onclick="updCnt('dora',1)">+</button>
                     </div>
                 </div>
-                <div class="flex-1 flex items-center justify-between bg-gray-700 px-2 py-1 rounded border border-gray-600">
-                    <span class="text-[11px] font-bold text-gray-300">本場</span>
-                    <div class="flex items-center gap-1">
-                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm active:bg-gray-500" onclick="updCnt('honba',-1)">-</button>
-                        <span id="honba-disp" class="font-mono text-sm w-4 text-center">0</span>
-                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm active:bg-gray-500" onclick="updCnt('honba',1)">+</button>
+                <div class="flex-1 flex items-center justify-between bg-gray-700 px-2 py-1 rounded border border-gray-600 h-8">
+                    <span class="text-[11px] font-bold text-gray-300 leading-none mt-0.5">本場</span>
+                    <div class="flex items-center gap-1 h-full">
+                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm leading-none active:bg-gray-500 pb-0.5" onclick="updCnt('honba',-1)">-</button>
+                        <span id="honba-disp" class="font-mono text-sm w-4 text-center leading-none mt-0.5">0</span>
+                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm leading-none active:bg-gray-500 pb-0.5" onclick="updCnt('honba',1)">+</button>
                     </div>
                 </div>
             </div>
@@ -129,7 +130,6 @@
                 <button onclick="calculateFull()" class="flex-[2] bg-yellow-600 hover:bg-yellow-500 text-white py-2 portrait:py-2.5 rounded font-bold text-base shadow border border-yellow-400 active:scale-95 transition-transform">計算する</button>
             </div>
         </div>
-
     </div>
 
     <div class="shrink-0 w-full bg-green-900 border-t-4 border-green-950 shadow-[0_-4px_10px_rgba(0,0,0,0.3)] relative flex flex-col justify-center pt-2 pb-[max(12px,env(safe-area-inset-bottom))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))] z-20">
@@ -184,9 +184,9 @@
         function init() { renderPalette('man'); renderHand(); updateUI(); setupLongPress(); }
         function updateUI() {
             document.getElementById('btn-prevalent').textContent = WINDS[settings.prevalent] + "場";
-            const sBtn = document.getElementById('btn-seat'); sBtn.textContent = WINDS[settings.seat] + "家" + (settings.seat===0?"(親)":"(子)"); sBtn.className = settings.seat===0 ? "bg-red-900 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-700 transition-all" : "bg-blue-900 py-1.5 portrait:py-1 rounded text-xs font-bold border border-blue-700 transition-all";
-            const wBtn = document.getElementById('btn-win-type'); wBtn.textContent = settings.winType === 'ron' ? "ロンあがり" : "ツモあがり"; wBtn.className = settings.winType === 'ron' ? "bg-red-800 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-600 transition-all" : "bg-green-700 py-1.5 portrait:py-1 rounded text-xs font-bold border border-green-600 transition-all";
-            const rBtn = document.getElementById('btn-reach'); rBtn.textContent = ["立直なし", "立直(1飜)", "W立直(2飜)"][settings.reach]; rBtn.className = ["bg-gray-700 text-gray-400","bg-red-600 text-white","bg-yellow-600 text-white"][settings.reach] + " py-1.5 portrait:py-1 rounded text-xs font-bold border border-gray-600 transition-all";
+            const sBtn = document.getElementById('btn-seat'); sBtn.textContent = WINDS[settings.seat] + "家" + (settings.seat===0?"(親)":"(子)"); sBtn.className = settings.seat===0 ? "bg-red-900 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-700 transition-all leading-tight" : "bg-blue-900 py-1.5 portrait:py-1 rounded text-xs font-bold border border-blue-700 transition-all leading-tight";
+            const wBtn = document.getElementById('btn-win-type'); wBtn.textContent = settings.winType === 'ron' ? "ロンあがり" : "ツモあがり"; wBtn.className = settings.winType === 'ron' ? "bg-red-800 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-600 transition-all leading-tight" : "bg-green-700 py-1.5 portrait:py-1 rounded text-xs font-bold border border-green-600 transition-all leading-tight";
+            const rBtn = document.getElementById('btn-reach'); rBtn.textContent = ["立直なし", "立直(1飜)", "W立直(2飜)"][settings.reach]; rBtn.className = ["bg-gray-700 text-gray-400","bg-red-600 text-white","bg-yellow-600 text-white"][settings.reach] + " py-1.5 portrait:py-1 rounded text-xs font-bold border border-gray-600 transition-all leading-tight";
             document.getElementById('dora-disp').textContent = settings.dora; document.getElementById('honba-disp').textContent = settings.honba;
         }
         function togglePrevalent() { settings.prevalent = (settings.prevalent+1)%2; updateUI(); }
