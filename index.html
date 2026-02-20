@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="麻雀計算">
@@ -11,338 +11,400 @@
     
     <title>麻雀点数計算機 Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    screens: {
+                        'landscape': {'raw': '(orientation: landscape)'},
+                        'portrait': {'raw': '(orientation: portrait)'}
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { font-family: sans-serif; background-color: #1a202c; color: white; height: 100vh; overflow: hidden; user-select: none; touch-action: manipulation; }
-        .tile { width: 2.8rem; height: 3.8rem; display: flex; align-items: center; justify-content: center; background-color: #f7fafc; border-radius: 0.25rem; font-size: 2.2rem; line-height: 1; box-shadow: 0 3px 5px rgba(0,0,0,0.4); cursor: pointer; position: relative; transition: transform 0.1s; touch-action: none; color: #333; }
+        body { font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; background-color: #1a202c; color: white; height: 100vh; height: -webkit-fill-available; overflow: hidden; user-select: none; touch-action: manipulation; }
+        html { height: -webkit-fill-available; }
+
+        /* 牌のスタイル調整（縦画面時に少し小さく） */
+        .tile {
+            width: 2.6rem; height: 3.6rem;
+            display: flex; align-items: center; justify-content: center;
+            background-color: #f7fafc; border-radius: 0.25rem;
+            font-size: 2rem; line-height: 1;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.4); cursor: pointer; position: relative; transition: transform 0.1s; touch-action: none; color: #333;
+            flex-shrink: 0; /* 縦画面スクロール時に縮まないように */
+        }
+        @media (orientation: portrait) {
+            .tile { width: 2.2rem; height: 3.1rem; font-size: 1.7rem; }
+            .palette-tile { font-size: 1.8rem !important; height: 3rem !important; }
+        }
+
         .tile-man { color: #c53030; } .tile-pin { color: #2b6cb0; } .tile-sou { color: #2f855a; } .tile-ji { color: #000; }
         .tile-empty { background-color: transparent; border: 2px dashed #4a5568; box-shadow: none; color: transparent; }
         .agari-tile { border: 3px solid #ecc94b; transform: translateY(-4px); z-index: 10; }
         .agari-tile::after { content: '和'; position: absolute; top: -10px; right: -8px; background-color: #e53e3e; color: white; font-size: 0.6rem; width: 1.2rem; height: 1.2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid white; font-weight: bold; }
         .palette-tile { width: 100%; height: 3.5rem; display: flex; align-items: center; justify-content: center; background-color: #f7fafc; border-radius: 0.25rem; font-size: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* カメラ用スタイル */
-        #camera-modal { display: none; }
-        #camera-modal.active { display: flex; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* モーダル共通スタイル */
+        .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.8); z-index: 50; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* 長押し演出用 */
+        .press-active { transform: scale(0.98); transition: transform 0.1s; }
     </style>
 </head>
-<body class="flex flex-col h-full p-2 box-border text-gray-100 relative">
+<body class="flex flex-col h-full p-2 box-border text-gray-100 relative safe-area-inset">
 
-    <div class="flex flex-1 gap-2 mb-2 min-h-0">
-        <div class="w-1/3 bg-gray-800 rounded-lg p-3 flex flex-col gap-2 shadow-lg overflow-y-auto no-scrollbar border border-gray-700">
+    <div class="flex flex-1 gap-2 mb-2 min-h-0 flex-col landscape:flex-row">
+        
+        <div class="bg-gray-800 rounded-lg p-2 flex flex-col gap-2 shadow-lg overflow-y-auto no-scrollbar border border-gray-700 w-full landscape:w-1/3 shrink-0 landscape:shrink">
             <div class="grid grid-cols-2 gap-2">
-                <button id="btn-prevalent" class="bg-gray-700 py-1 rounded text-xs font-bold border border-gray-600" onclick="togglePrevalent()">東場</button>
-                <button id="btn-seat" class="bg-red-900 py-1 rounded text-xs font-bold border border-red-700" onclick="toggleSeat()">東家(親)</button>
+                <button id="btn-prevalent" class="bg-gray-700 py-1.5 rounded text-xs font-bold border border-gray-600 transition-all" onclick="togglePrevalent()">東場</button>
+                <button id="btn-seat" class="bg-red-900 py-1.5 rounded text-xs font-bold border border-red-700 transition-all" onclick="toggleSeat()">東家(親)</button>
             </div>
             <div class="grid grid-cols-2 gap-2">
-                <button id="btn-win-type" class="bg-red-800 py-1 rounded text-xs font-bold border border-red-600" onclick="toggleWinType()">ロンあがり</button>
-                <button id="btn-reach" class="bg-gray-700 py-1 rounded text-xs font-bold border border-gray-600 text-gray-400" onclick="toggleReach()">立直なし</button>
+                <button id="btn-win-type" class="bg-red-800 py-1.5 rounded text-xs font-bold border border-red-600 transition-all" onclick="toggleWinType()">ロンあがり</button>
+                <button id="btn-reach" class="bg-gray-700 py-1.5 rounded text-xs font-bold border border-gray-600 text-gray-400 transition-all" onclick="toggleReach()">立直なし</button>
             </div>
-            <div class="flex items-center justify-between bg-gray-700 px-2 py-1 rounded border border-gray-600">
-                <span class="text-xs">ドラ</span>
-                <div class="flex items-center gap-2">
-                    <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm" onclick="updCnt('dora',-1)">-</button>
-                    <span id="dora-disp" class="font-mono text-sm w-4 text-center text-yellow-400">0</span>
-                    <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm" onclick="updCnt('dora',1)">+</button>
+            <div class="flex gap-2">
+                <div class="flex-1 flex items-center justify-between bg-gray-700 px-2 py-1 rounded border border-gray-600">
+                    <span class="text-xs">ドラ</span>
+                    <div class="flex items-center gap-1">
+                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm active:bg-gray-500" onclick="updCnt('dora',-1)">-</button>
+                        <span id="dora-disp" class="font-mono text-sm w-5 text-center text-yellow-400">0</span>
+                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm active:bg-gray-500" onclick="updCnt('dora',1)">+</button>
+                    </div>
+                </div>
+                <div class="flex-1 flex items-center justify-between bg-gray-700 px-2 py-1 rounded border border-gray-600">
+                    <span class="text-xs">本場</span>
+                    <div class="flex items-center gap-1">
+                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm active:bg-gray-500" onclick="updCnt('honba',-1)">-</button>
+                        <span id="honba-disp" class="font-mono text-sm w-5 text-center">0</span>
+                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm active:bg-gray-500" onclick="updCnt('honba',1)">+</button>
+                    </div>
                 </div>
             </div>
-            <div class="flex items-center justify-between bg-gray-700 px-2 py-1 rounded border border-gray-600">
-                <span class="text-xs">本場</span>
-                <div class="flex items-center gap-2">
-                    <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm" onclick="updCnt('honba',-1)">-</button>
-                    <span id="honba-disp" class="font-mono text-sm w-4 text-center">0</span>
-                    <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm" onclick="updCnt('honba',1)">+</button>
-                </div>
-            </div>
 
-            <div class="mt-auto bg-gray-900 p-2 rounded border border-gray-700 flex flex-col justify-center min-h-[5rem]">
+            <div id="score-container" class="mt-auto bg-gray-900 p-2 rounded border border-gray-700 flex flex-col justify-center min-h-[4.5rem] cursor-pointer transition-colors active:bg-gray-800">
                 <div id="result-score" class="text-center text-2xl font-bold text-yellow-400">--- 点</div>
                 <div id="result-yaku" class="text-center text-[10px] text-gray-300 mt-1 leading-tight whitespace-pre-wrap">役なし</div>
+                <div class="text-center text-[8px] text-gray-500 mt-1 portrait:hidden">※長押しで詳細を表示</div>
             </div>
         </div>
 
-        <div class="w-2/3 bg-gray-800 rounded-lg p-2 flex flex-col shadow-lg border border-gray-700">
-            <div class="flex gap-1 mb-1">
-                <button onclick="renderPalette('man')" class="flex-1 py-1 rounded-t bg-blue-600 text-white text-xs font-bold tab-btn" data-type="man">萬子</button>
-                <button onclick="renderPalette('pin')" class="flex-1 py-1 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="pin">筒子</button>
-                <button onclick="renderPalette('sou')" class="flex-1 py-1 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="sou">索子</button>
-                <button onclick="renderPalette('ji')" class="flex-1 py-1 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="ji">字牌</button>
+        <div class="bg-gray-800 rounded-lg p-2 flex flex-col shadow-lg border border-gray-700 w-full landscape:w-2/3 flex-1 min-h-0">
+            <div class="flex gap-1 mb-1 shrink-0">
+                <button onclick="renderPalette('man')" class="flex-1 py-1.5 rounded-t bg-blue-600 text-white text-xs font-bold tab-btn" data-type="man">萬子</button>
+                <button onclick="renderPalette('pin')" class="flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="pin">筒子</button>
+                <button onclick="renderPalette('sou')" class="flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="sou">索子</button>
+                <button onclick="renderPalette('ji')" class="flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="ji">字牌</button>
             </div>
-            <div id="tile-container" class="grid grid-cols-9 gap-1 auto-rows-min overflow-y-auto flex-1 content-start p-1 bg-gray-900 rounded"></div>
+            <div id="tile-container" class="grid grid-cols-9 gap-1 auto-rows-min overflow-y-auto flex-1 content-start p-1 bg-gray-900 rounded inner-shadow mb-2"></div>
+            
+            <div class="flex gap-2 shrink-0">
+                <button onclick="openCamera()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded font-bold text-sm shadow flex items-center justify-center gap-1 border border-blue-400 active:scale-95 transition-transform">
+                    📷 撮影
+                </button>
+                <button onclick="clearHand()" class="flex-1 bg-red-800 hover:bg-red-700 text-white py-3 rounded font-bold text-sm shadow border border-red-700 active:scale-95 transition-transform">
+                    クリア
+                </button>
+                <button onclick="calculateFull()" class="flex-[2] bg-yellow-600 hover:bg-yellow-500 text-white py-3 rounded font-bold text-lg shadow border border-yellow-400 active:scale-95 transition-transform">
+                    計算
+                </button>
+            </div>
         </div>
     </div>
 
-    <div class="h-28 bg-green-900 rounded-lg p-1 flex flex-col items-center justify-center relative border-b-4 border-green-950 shadow-inner overflow-hidden">
-        <div class="text-[10px] text-green-200 opacity-60 font-mono absolute top-1 left-2">TAP:上がり牌指定 / UP-FLICK:削除</div>
+    <div class="portrait:h-20 landscape:h-24 shrink-0 bg-green-900 rounded-lg p-1 flex flex-col justify-center relative border-b-4 border-green-950 shadow-inner overflow-hidden">
+        <div class="text-[9px] text-green-200 opacity-60 font-mono absolute top-0.5 left-2">TAP:上がり牌 / UP-FLICK:削除 <span class="portrait:inline hidden">/ 横フリック:スクロール</span></div>
         
-        <div id="hand-container" class="flex gap-1 z-10 mt-2 scale-90 sm:scale-100"></div>
-        
-        <div class="absolute left-2 bottom-2 z-20">
-            <button onclick="openCamera()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded text-xs font-bold shadow-lg flex items-center gap-1 border border-blue-400">
-                📷 撮影
-            </button>
-        </div>
-        <div class="absolute right-2 bottom-2 flex gap-2 z-20">
-            <button onclick="clearHand()" class="bg-red-900/80 hover:bg-red-800 text-white px-3 py-2 rounded text-xs font-bold border border-red-700">クリア</button>
-            <button onclick="calculateFull()" class="bg-yellow-600 hover:bg-yellow-500 text-white px-6 py-2 rounded font-bold text-sm shadow-lg border border-yellow-400">計算</button>
+        <div id="hand-scroll-view" class="w-full overflow-x-auto no-scrollbar flex items-center landscape:justify-center mt-3 z-10">
+            <div id="hand-container" class="flex gap-1 px-1 flex-nowrap"></div>
         </div>
     </div>
 
-    <div id="camera-modal" class="fixed inset-0 bg-black z-50 flex-col items-center justify-center">
+    <div id="camera-modal" class="modal-overlay flex-col">
         <video id="camera-video" class="w-full h-full object-cover" autoplay playsinline></video>
-        
         <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div class="w-11/12 h-1/3 border-4 border-yellow-400 rounded-lg flex items-center justify-center bg-black/20 backdrop-blur-sm">
                 <span class="text-yellow-400 font-bold opacity-70 tracking-widest text-xl">枠内に牌を並べてください</span>
             </div>
         </div>
-
-        <div class="absolute bottom-6 w-full flex justify-around items-center px-8">
+        <div class="absolute bottom-8 w-full flex justify-around items-center px-8 safe-area-bottom">
             <button onclick="closeCamera()" class="text-white bg-gray-800 px-6 py-3 rounded-full font-bold">キャンセル</button>
             <button onclick="takePhoto()" class="w-20 h-20 bg-white rounded-full border-4 border-gray-300 shadow-xl active:bg-gray-200"></button>
-            <div class="w-24"></div> </div>
-
+            <div class="w-24"></div>
+        </div>
         <canvas id="camera-canvas" class="hidden"></canvas>
     </div>
 
+    <div id="detail-modal" class="modal-overlay" onclick="closeDetail()">
+        <div class="bg-gray-800 w-11/12 max-w-md rounded-lg p-4 shadow-xl border border-gray-700 relative max-h-[80vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <button onclick="closeDetail()" class="absolute top-2 right-2 text-gray-400 hover:text-white bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center">✕</button>
+            <h3 class="text-lg font-bold text-yellow-400 mb-3 text-center border-b border-gray-700 pb-2">計算詳細</h3>
+            <div id="detail-content" class="text-sm space-y-4">
+                </div>
+        </div>
+    </div>
+
     <script>
-        // --- 1. グローバル変数・初期設定 (既存のまま) ---
-        const TILES = {
-            man: ['🀇','🀈','🀉','🀊','🀋','🀌','🀍','🀎','🀏'],
-            pin: ['🀙','🀚','🀛','🀜','🀝','🀞','🀟','🀠','🀡'],
-            sou: ['🀐','🀑','🀒','🀓','🀔','🀕','🀖','🀗','🀘'],
-            ji:  ['🀀','🀁','🀂','🀃','🀆','🀅','🀄']
-        };
+        // --- 1. 定数・状態管理 ---
+        const TILES = { man: ['🀇','🀈','🀉','🀊','🀋','🀌','🀍','🀎','🀏'], pin: ['🀙','🀚','🀛','🀜','🀝','🀞','🀟','🀠','🀡'], sou: ['🀐','🀑','🀒','🀓','🀔','🀕','🀖','🀗','🀘'], ji: ['🀀','🀁','🀂','🀃','🀆','🀅','🀄'] };
         const TYPE_ORDER = { 'man':0, 'pin':1, 'sou':2, 'ji':3 };
         const WINDS = ['東','南','西','北'];
-        let currentHand = []; 
-        let idCounter = 0;
-        
+        let currentHand = []; let idCounter = 0;
         let settings = { prevalent: 0, seat: 0, winType: 'ron', reach: 0, dora: 0, honba: 0 };
+        let lastCalculationResult = null; // 最後の計算結果を保持
 
-        function init() { renderPalette('man'); renderHand(); updateUI(); }
+        function init() { renderPalette('man'); renderHand(); updateUI(); setupLongPress(); }
 
-        // --- 2. UI操作系 (既存のまま) ---
+        // --- 2. UI操作系 ---
         function updateUI() {
             document.getElementById('btn-prevalent').textContent = WINDS[settings.prevalent] + "場";
             const sBtn = document.getElementById('btn-seat');
             sBtn.textContent = WINDS[settings.seat] + "家" + (settings.seat===0?"(親)":"(子)");
-            sBtn.className = settings.seat===0 ? "bg-red-900 py-1 rounded text-xs font-bold border border-red-700 w-full" : "bg-blue-900 py-1 rounded text-xs font-bold border border-blue-700 w-full";
+            sBtn.className = settings.seat===0 ? "bg-red-900 py-1.5 rounded text-xs font-bold border border-red-700 transition-all" : "bg-blue-900 py-1.5 rounded text-xs font-bold border border-blue-700 transition-all";
             const wBtn = document.getElementById('btn-win-type');
             wBtn.textContent = settings.winType === 'ron' ? "ロンあがり" : "ツモあがり";
-            wBtn.className = settings.winType === 'ron' ? "bg-red-800 py-1 rounded text-xs font-bold border border-red-600 w-full" : "bg-green-700 py-1 rounded text-xs font-bold border border-green-600 w-full";
+            wBtn.className = settings.winType === 'ron' ? "bg-red-800 py-1.5 rounded text-xs font-bold border border-red-600 transition-all" : "bg-green-700 py-1.5 rounded text-xs font-bold border border-green-600 transition-all";
             const rBtn = document.getElementById('btn-reach');
             rBtn.textContent = ["立直なし", "立直(1飜)", "W立直(2飜)"][settings.reach];
-            rBtn.className = ["bg-gray-700 text-gray-400","bg-red-600 text-white","bg-yellow-600 text-white"][settings.reach] + " py-1 rounded text-xs font-bold border border-gray-600 w-full";
+            rBtn.className = ["bg-gray-700 text-gray-400","bg-red-600 text-white","bg-yellow-600 text-white"][settings.reach] + " py-1.5 rounded text-xs font-bold border border-gray-600 transition-all";
             document.getElementById('dora-disp').textContent = settings.dora;
             document.getElementById('honba-disp').textContent = settings.honba;
         }
-
         function togglePrevalent() { settings.prevalent = (settings.prevalent+1)%2; updateUI(); }
         function toggleSeat() { settings.seat = (settings.seat+1)%4; updateUI(); }
         function toggleWinType() { settings.winType = settings.winType==='ron'?'tsumo':'ron'; updateUI(); }
         function toggleReach() { settings.reach = (settings.reach+1)%3; updateUI(); }
         function updCnt(k, d) { settings[k] = Math.max(0, settings[k]+d); updateUI(); }
 
-        // --- 3. 手牌・パレット操作 (既存のまま) ---
+        // --- 3. 手牌・パレット操作 ---
         function renderPalette(type) {
             document.querySelectorAll('.tab-btn').forEach(b => {
-                b.className = b.dataset.type===type 
-                    ? "flex-1 py-1 rounded-t bg-blue-600 text-white text-xs font-bold tab-btn"
-                    : "flex-1 py-1 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn";
+                b.className = b.dataset.type===type ? "flex-1 py-1.5 rounded-t bg-blue-600 text-white text-xs font-bold tab-btn transition-colors" : "flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn transition-colors";
             });
-            const c = document.getElementById('tile-container');
-            c.innerHTML = '';
+            const c = document.getElementById('tile-container'); c.innerHTML = '';
             TILES[type].forEach((char, i) => {
-                const d = document.createElement('div');
-                d.className = `palette-tile ${['tile-man','tile-pin','tile-sou','tile-ji'][TYPE_ORDER[type]]}`;
-                d.textContent = char;
-                d.onclick = () => addTile(type, i+1, char);
-                c.appendChild(d);
+                const d = document.createElement('div'); d.className = `palette-tile ${['tile-man','tile-pin','tile-sou','tile-ji'][TYPE_ORDER[type]]}`;
+                d.textContent = char; d.onclick = () => addTile(type, i+1, char); c.appendChild(d);
             });
         }
-
         function addTile(type, val, char) {
             if (currentHand.length < 14) {
                 currentHand.push({ type, value: val, char, id: idCounter++, isAgari: false });
-                currentHand.sort((a,b) => {
-                    if (TYPE_ORDER[a.type] !== TYPE_ORDER[b.type]) return TYPE_ORDER[a.type] - TYPE_ORDER[b.type];
-                    return a.value - b.value;
-                });
+                currentHand.sort((a,b) => { if (TYPE_ORDER[a.type] !== TYPE_ORDER[b.type]) return TYPE_ORDER[a.type] - TYPE_ORDER[b.type]; return a.value - b.value; });
                 renderHand();
             }
         }
-
         function renderHand() {
-            const c = document.getElementById('hand-container');
-            c.innerHTML = '';
+            const c = document.getElementById('hand-container'); c.innerHTML = '';
             currentHand.forEach(t => {
-                const d = document.createElement('div');
-                d.className = `tile ${['tile-man','tile-pin','tile-sou','tile-ji'][TYPE_ORDER[t.type]]}`;
-                if (t.isAgari) d.classList.add('agari-tile');
-                d.textContent = t.char;
-                
+                const d = document.createElement('div'); d.className = `tile ${['tile-man','tile-pin','tile-sou','tile-ji'][TYPE_ORDER[t.type]]}`;
+                if (t.isAgari) d.classList.add('agari-tile'); d.textContent = t.char;
                 let sy=0, isDrag=false;
                 d.addEventListener('touchstart', e=>{ sy=e.touches[0].clientY; isDrag=true; d.style.transition='none'; }, {passive:false});
-                d.addEventListener('touchmove', e=>{
-                    if(!isDrag)return;
-                    let dy = e.touches[0].clientY - sy;
-                    if(dy<0) { e.preventDefault(); d.style.transform=`translateY(${dy}px)`; d.style.opacity = dy<-50?'0.5':'1'; }
-                }, {passive:false});
-                d.addEventListener('touchend', e=>{
-                    if(!isDrag)return; isDrag=false;
-                    let dy = e.changedTouches[0].clientY - sy;
-                    d.style.transition='transform 0.2s, opacity 0.2s';
-                    if(dy < -50) { 
-                        d.style.transform='translateY(-100px)'; d.style.opacity='0';
-                        setTimeout(()=>{ currentHand = currentHand.filter(x=>x.id!==t.id); renderHand(); }, 200);
-                    } else if(Math.abs(dy)<10) {
-                        d.style.transform=''; d.style.opacity='1';
-                        currentHand.forEach(x => x.isAgari = (x.id === t.id));
-                        renderHand();
-                    } else { d.style.transform=''; d.style.opacity='1'; }
-                });
-                d.addEventListener('click', ()=> { currentHand.forEach(x => x.isAgari = (x.id === t.id)); renderHand(); });
-                d.addEventListener('contextmenu', e=>{ e.preventDefault(); currentHand = currentHand.filter(x=>x.id!==t.id); renderHand(); });
+                d.addEventListener('touchmove', e=>{ if(!isDrag)return; let dy = e.touches[0].clientY - sy; if(dy<0) { e.preventDefault(); d.style.transform=`translateY(${dy}px)`; d.style.opacity = dy<-50?'0.5':'1'; } }, {passive:false});
+                d.addEventListener('touchend', e=>{ if(!isDrag)return; isDrag=false; let dy = e.changedTouches[0].clientY - sy; d.style.transition='transform 0.2s, opacity 0.2s'; if(dy < -50) { d.style.transform='translateY(-100px)'; d.style.opacity='0'; setTimeout(()=>{ currentHand = currentHand.filter(x=>x.id!==t.id); renderHand(); }, 200); } else if(Math.abs(dy)<10) { d.style.transform=''; d.style.opacity='1'; currentHand.forEach(x => x.isAgari = (x.id === t.id)); renderHand(); } else { d.style.transform=''; d.style.opacity='1'; } });
                 c.appendChild(d);
             });
-            for(let i=currentHand.length; i<14; i++){
-                const d = document.createElement('div'); d.className='tile tile-empty'; c.appendChild(d);
-            }
+            for(let i=currentHand.length; i<14; i++){ const d = document.createElement('div'); d.className='tile tile-empty'; c.appendChild(d); }
+            // 手牌追加時にスクロールを右端へ
+            const scrollView = document.getElementById('hand-scroll-view'); scrollView.scrollLeft = scrollView.scrollWidth;
         }
-        function clearHand() { currentHand=[]; renderHand(); document.getElementById('result-score').textContent="--- 点"; }
+        function clearHand() { currentHand=[]; renderHand(); document.getElementById('result-score').textContent="--- 点"; lastCalculationResult = null; }
 
-        // --- ★新機能：カメラ制御ロジック★ ---
+        // --- 4. カメラ機能（デモ） ---
         let videoStream = null;
-
-        // カメラ起動
         async function openCamera() {
-            const modal = document.getElementById('camera-modal');
-            const video = document.getElementById('camera-video');
-            modal.classList.add('active');
-
-            try {
-                // スマホの背面カメラ（環境カメラ）を優先して要求
-                videoStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment' },
-                    audio: false
-                });
-                video.srcObject = videoStream;
-            } catch (err) {
-                alert("カメラの起動に失敗しました。ブラウザの権限設定を確認してください。");
-                closeCamera();
-            }
+            const modal = document.getElementById('camera-modal'); const video = document.getElementById('camera-video'); modal.classList.add('active');
+            try { videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }); video.srcObject = videoStream; } catch (err) { alert("カメラの起動に失敗しました。権限を確認してください。"); closeCamera(); }
         }
-
-        // カメラ停止・閉じる
         function closeCamera() {
-            const modal = document.getElementById('camera-modal');
-            modal.classList.remove('active');
-            if (videoStream) {
-                videoStream.getTracks().forEach(track => track.stop());
-                videoStream = null;
-            }
+            const modal = document.getElementById('camera-modal'); modal.classList.remove('active');
+            if (videoStream) { videoStream.getTracks().forEach(track => track.stop()); videoStream = null; }
         }
-
-        // 撮影と認識の実行（※現在はデモ動作）
         function takePhoto() {
-            // シャッターエフェクト
-            const video = document.getElementById('camera-video');
-            video.style.opacity = '0.2';
-            setTimeout(() => { video.style.opacity = '1'; }, 100);
-
-            // ① 画像データの取得
-            const canvas = document.getElementById('camera-canvas');
-            const context = canvas.getContext('2d');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            // （ここに本来なら、取得した画像をAIモデルに渡して解析する処理が入ります）
-            
-            // ② 認識結果のデモ（今回はランダムな14枚の手牌を生成）
-            simulateImageRecognition();
-            
-            closeCamera();
+            const video = document.getElementById('camera-video'); video.style.opacity = '0.2'; setTimeout(() => { video.style.opacity = '1'; }, 100);
+            simulateImageRecognition(); closeCamera();
         }
-
-        // ダミー認識処理（適当な14枚をセットする）
         function simulateImageRecognition() {
             clearHand();
-            // 例：タンヤオ・平和っぽい手牌をランダム生成するデモ
-            const mockTiles = [
-                {t:'man', v:2}, {t:'man', v:3}, {t:'man', v:4},
-                {t:'pin', v:3}, {t:'pin', v:4}, {t:'pin', v:5},
-                {t:'sou', v:6}, {t:'sou', v:7}, {t:'sou', v:8},
-                {t:'sou', v:2}, {t:'sou', v:2}, {t:'sou', v:2},
-                {t:'man', v:8}, {t:'man', v:8}
-            ];
-            
-            mockTiles.forEach(item => {
-                const char = TILES[item.t][item.v - 1];
-                addTile(item.t, item.v, char);
-            });
-            // 自動で上がり牌も適当に設定
-            if(currentHand.length > 0) {
-                currentHand[currentHand.length - 1].isAgari = true;
-                renderHand();
-            }
-            alert("📷 牌を読み込みました！\n（※現在はテスト動作のため、ダミーの手牌がセットされます）");
+            const mockTiles = [{t:'man', v:2}, {t:'man', v:3}, {t:'man', v:4}, {t:'pin', v:3}, {t:'pin', v:4}, {t:'pin', v:5}, {t:'sou', v:6}, {t:'sou', v:7}, {t:'sou', v:8}, {t:'sou', v:2}, {t:'sou', v:2}, {t:'sou', v:2}, {t:'man', v:8}, {t:'man', v:8}];
+            mockTiles.forEach(item => { addTile(item.t, item.v, TILES[item.t][item.v - 1]); });
+            if(currentHand.length>0) { currentHand[currentHand.length-1].isAgari=true; renderHand(); }
+            alert("📷 デモ: ダミーの手牌をセットしました");
         }
 
-        // --- 4. 計算ロジック・コア (Pro版の計算式は省略せずにそのまま維持) ---
-        // ※コード制限のため、前回の `calculateFull()` 〜 `isKokushi()` までの関数を
-        // 全く変更せずにここに配置してください。
-        // （長すぎるので省略表示していますが、前のコードの計算部分をそのまま残してください）
+        // --- 5. 詳細表示モーダル制御（長押し） ---
+        let pressTimer;
+        function setupLongPress() {
+            const target = document.getElementById('score-container');
+            target.addEventListener('touchstart', (e) => {
+                if (!lastCalculationResult) return;
+                target.classList.add('press-active');
+                pressTimer = setTimeout(() => { openDetail(lastCalculationResult); target.classList.remove('press-active'); }, 500); // 0.5秒長押し
+            }, {passive: true});
+            ['touchend', 'touchmove', 'touchcancel'].forEach(evt => {
+                target.addEventListener(evt, () => { clearTimeout(pressTimer); target.classList.remove('press-active'); }, {passive: true});
+            });
+        }
+        function openDetail(res) {
+            if(!res || !res.fuDetails) return;
+            const modal = document.getElementById('detail-modal');
+            const content = document.getElementById('detail-content');
+            
+            let html = `
+                <div class="bg-gray-900/50 p-2 rounded border border-gray-700">
+                    <h4 class="font-bold text-yellow-300 mb-1">🀄 符計算の内訳</h4>
+                    <ul class="list-disc list-inside text-gray-300 space-y-1">
+            `;
+            let totalFuRaw = 0;
+            res.fuDetails.forEach(d => {
+                html += `<li class="flex justify-between"><span>${d.text}</span><span>+${d.points} 符</span></li>`;
+                totalFuRaw += d.points;
+            });
+            html += `</ul><div class="border-t border-gray-600 mt-2 pt-1 flex justify-between font-bold"><span>合計</span><span>${totalFuRaw} 符</span></div>`;
+            html += `<div class="flex justify-between text-yellow-400 mt-1"><span>切り上げ後</span><span class="text-lg">${res.fu} 符</span></div></div>`;
 
-        // ※以下、前回の calculateFull 等の関数を省略せずに貼り付けたものとして動きます。
-        // ↓↓↓↓↓ (前回の4〜6の計算ロジックをここに維持) ↓↓↓↓↓
+            html += `
+                <div class="bg-gray-900/50 p-2 rounded border border-gray-700 flex justify-between items-center">
+                    <span class="font-bold text-yellow-300">🀅 飜数</span>
+                    <span class="text-lg font-bold">${res.han} 飜</span>
+                </div>
+                <div class="text-center text-gray-400 text-xs mt-2">
+                    基本点 = 符 × 2^(飜数+2)<br>
+                    (満貫以上は固定点)
+                </div>
+            `;
+            content.innerHTML = html;
+            modal.classList.add('active');
+        }
+        function closeDetail() { document.getElementById('detail-modal').classList.remove('active'); }
+
+        // --- 6. 計算ロジック・コア (詳細記録に対応して拡張) ---
         function calculateFull() {
-            const resScore = document.getElementById('result-score');
-            const resYaku = document.getElementById('result-yaku');
+            const resScore = document.getElementById('result-score'); const resYaku = document.getElementById('result-yaku');
+            if (currentHand.length !== 14) { resScore.textContent = "枚数不足"; resYaku.textContent = "牌は14枚必要です"; lastCalculationResult = null; return; }
+            const agariTileData = currentHand.find(t => t.isAgari);
+            if (!agariTileData) { resScore.textContent = "指定なし"; resYaku.textContent = "上がり牌をタップしてください"; lastCalculationResult = null; return; }
+            // 上がり牌の文字列定義を作成 (例: 'man1')
+            const agariTileStr = agariTileData.type + agariTileData.value;
 
-            if (currentHand.length !== 14) {
-                resScore.textContent = "枚数不足"; resYaku.textContent = "牌は14枚必要です"; return;
-            }
-            const agariTile = currentHand.find(t => t.isAgari);
-            if (!agariTile) {
-                resScore.textContent = "指定なし"; resYaku.textContent = "上がり牌をタップしてください"; return;
-            }
-
-            const counts = {};
-            currentHand.forEach(t => { const k = t.type + t.value; counts[k] = (counts[k]||0) + 1; });
-
+            const counts = {}; currentHand.forEach(t => { const k = t.type + t.value; counts[k] = (counts[k]||0) + 1; });
             const pairs = Object.values(counts).filter(c => c === 2).length;
             if (pairs === 7) {
-                calcScoreAndDisplay(25, calcChiitoiYaku(counts), "七対子", resScore, resYaku); return;
+                const res = calcChiitoiResult(counts);
+                displayResult(res, resScore, resYaku); lastCalculationResult = res; return;
             }
-
             const decompositions = decompose(counts);
             if (decompositions.length === 0) {
-                if (isKokushi(counts)) { resScore.textContent = settings.seat===0 ? "48000点" : "32000点"; resYaku.textContent = "役満 国士無双"; return; }
-                resScore.textContent = "役なし"; resYaku.textContent = "アガリ形になっていません"; return;
+                if (isKokushi(counts)) {
+                    const score = settings.seat===0 ? 48000 : 32000;
+                    resScore.textContent = `${score}点`; resYaku.textContent = "役満 国士無双";
+                    lastCalculationResult = { han:13, fu:0, score: score+settings.honba*300, yakuNames:["国士無双"], fuDetails:[] }; return;
+                }
+                resScore.textContent = "役なし"; resYaku.textContent = "アガリ形になっていません"; lastCalculationResult = null; return;
             }
-
-            let bestResult = { han: 0, fu: 0, score: 0, yakuNames: [], yakuFull: "" };
+            let bestResult = { han: 0, fu: 0, score: 0, yakuNames: [], fuDetails: [] };
             decompositions.forEach(groups => {
-                const res = evalHand(groups, counts, agariTile);
+                const res = evalHand(groups, counts, agariTileStr); // 文字列で渡す
                 if (res.score > bestResult.score) bestResult = res;
             });
-
-            if (bestResult.han === 0) {
-                resScore.textContent = "役なし"; resYaku.textContent = "アガリ形ですが役がありません";
-            } else {
-                resScore.textContent = `${bestResult.score}点`;
-                resYaku.textContent = `${bestResult.han}飜 ${bestResult.fu}符\n${bestResult.yakuNames.join(' ')}`;
-            }
+            if (bestResult.han === 0) { resScore.textContent = "役なし"; resYaku.textContent = "アガリ形ですが役がありません"; lastCalculationResult = null; }
+            else { displayResult(bestResult, resScore, resYaku); lastCalculationResult = bestResult; }
         }
+
+        // ... (decompose, decomposeMentsu, isKokushi は変更なしのため省略。前のコードからそのまま維持してください) ...
         function decompose(counts) { const results = []; const keys = Object.keys(counts); keys.forEach(headKey => { if (counts[headKey] >= 2) { const workingCounts = {...counts}; workingCounts[headKey] -= 2; const headGroup = { type: 'head', tile: headKey }; const mentsuRes = decomposeMentsu(workingCounts); mentsuRes.forEach(mList => { results.push([headGroup, ...mList]); }); } }); return results; }
         function decomposeMentsu(c) { let first = null; const keys = ['man','pin','sou','ji']; for(let t of keys) { const limit = t==='ji'?7:9; for(let v=1; v<=limit; v++) { if (c[t+v] > 0) { first = t+v; break; } } if(first) break; } if (!first) return [[]]; const results = []; const type = first.substring(0, first.length-1); const val = parseInt(first.substring(first.length-1)); if (c[first] >= 3) { const nextC = {...c}; nextC[first] -= 3; const tails = decomposeMentsu(nextC); tails.forEach(t => { results.push([{type:'koutsu', tile:first}, ...t]); }); } if (type !== 'ji' && val <= 7) { const k1 = type + val; const k2 = type + (val+1); const k3 = type + (val+2); if (c[k1]>0 && c[k2]>0 && c[k3]>0) { const nextC = {...c}; nextC[k1]--; nextC[k2]--; nextC[k3]--; const tails = decomposeMentsu(nextC); tails.forEach(t => { results.push([{type:'shuntsu', tile:k1}, ...t]); }); } } return results; }
-        function evalHand(groups, counts, agariTile) { let han = 0; let yaku = []; if (settings.reach === 1) { han+=1; yaku.push("立直(1)"); } if (settings.reach === 2) { han+=2; yaku.push("W立直(2)"); } if (settings.winType === 'tsumo') { han+=1; yaku.push("門前清自摸(1)"); } if (settings.dora > 0) { han+=settings.dora; yaku.push(`ドラ(${settings.dora})`); } const head = groups.find(g => g.type === 'head'); const mentsu = groups.filter(g => g.type !== 'head'); const shuntsu = mentsu.filter(g => g.type === 'shuntsu'); const koutsu = mentsu.filter(g => g.type === 'koutsu'); const isTanyao = Object.keys(counts).every(k => { const t = k.slice(0,-1), v=parseInt(k.slice(-1)); return t!=='ji' && v>1 && v<9; }); if (isTanyao) { han+=1; yaku.push("断幺九(1)"); } let yakuhaiHan = 0; koutsu.forEach(k => { if (k.tile === 'ji5' || k.tile === 'ji6' || k.tile === 'ji7') yakuhaiHan++; if (k.tile === `ji${settings.prevalent+1}`) yakuhaiHan++; if (k.tile === `ji${settings.seat+1}`) yakuhaiHan++; }); if (yakuhaiHan>0) { han+=yakuhaiHan; yaku.push(`役牌(${yakuhaiHan})`); } const headVal = parseInt(head.tile.slice(-1)); const headType = head.tile.slice(0,-1); const isHeadYakuhai = (headType==='ji' && (headVal>=5 || headVal===settings.prevalent+1 || headVal===settings.seat+1)); const isPinfu = (shuntsu.length === 4 && !isHeadYakuhai); if (isPinfu) { han+=1; yaku.push("平和(1)"); } let iipeiko = 0; const seqStr = shuntsu.map(s => s.tile).sort(); for(let i=0; i<seqStr.length-1; i++) { if(seqStr[i] === seqStr[i+1]) { iipeiko++; i++; } } if(iipeiko === 1) { han+=1; yaku.push("一盃口(1)"); } if(iipeiko === 2) { han+=3; yaku.push("二盃口(3)"); } const types = new Set(Object.keys(counts).map(k=>k.slice(0,-1))); const hasJi = types.has('ji'); types.delete('ji'); if(types.size === 1) { if(hasJi) { han+=3; yaku.push("混一色(3)"); } else { han+=6; yaku.push("清一色(6)"); } } if (koutsu.length === 4) { han+=2; yaku.push("対々和(2)"); } if (koutsu.length === 3) { han+=2; yaku.push("三暗刻(2)"); } if (koutsu.length === 4) { han+=8; yaku.push("四暗刻(役満)"); } const sMap = {man:[], pin:[], sou:[]}; shuntsu.forEach(s => sMap[s.tile.slice(0,-1)].push(parseInt(s.tile.slice(-1)))); let sanshoku = false; sMap.man.forEach(v => { if(sMap.pin.includes(v) && sMap.sou.includes(v)) sanshoku = true; }); if(sanshoku) { han+=2; yaku.push("三色同順(2)"); } let ittsu = false; ['man','pin','sou'].forEach(t => { const vals = shuntsu.filter(s=>s.tile.startsWith(t)).map(s=>parseInt(s.tile.slice(-1))); if(vals.includes(1) && vals.includes(4) && vals.includes(7)) ittsu = true; }); if(ittsu) { han+=2; yaku.push("一気通貫(2)"); } let fu = 20; if (settings.winType === 'ron') fu += 10; if (settings.winType === 'tsumo') fu += 2; koutsu.forEach(k => { const t = k.tile.slice(0,-1), v=parseInt(k.tile.slice(-1)); const isYaochu = (t==='ji' || v===1 || v===9); fu += isYaochu ? 8 : 4; }); if (isHeadYakuhai) fu += 2; if (!isPinfu) fu += 2; if (isPinfu && settings.winType==='tsumo') fu = 20; else fu = Math.ceil(fu/10)*10; if (isChiitoi(yaku)) fu = 25; let base = fu * Math.pow(2, han+2); let score = 0; if (han >= 5) base = 2000; if (han >= 6) base = 3000; if (han >= 8) base = 4000; if (han >= 11) base = 6000; if (han >= 13) base = 8000; if (settings.seat === 0) { if (settings.winType === 'ron') score = Math.ceil((base*6)/100)*100; else score = Math.ceil((base*2)/100)*100 * 3; } else { if (settings.winType === 'ron') score = Math.ceil((base*4)/100)*100; else { const oyabun = Math.ceil((base*2)/100)*100; const kobun = Math.ceil((base*1)/100)*100; score = oyabun + kobun*2; } } score += settings.honba * 300; return { han, fu, score, yakuNames: yaku }; }
-        function isChiitoi(yakuList) { return yakuList.some(y => y.includes("七対子")); }
-        function calcChiitoiYaku(counts) { let han=2; let yaku=["七対子(2)"]; if(settings.reach===1) {han++; yaku.push("立直(1)");} if(settings.reach===2) {han+=2; yaku.push("W立直(2)");} if(settings.winType==='tsumo') {han++; yaku.push("門前清自摸(1)");} if(settings.dora>0) {han+=settings.dora; yaku.push(`ドラ(${settings.dora})`);} const isTanyao = Object.keys(counts).every(k => { const t = k.slice(0,-1), v=parseInt(k.slice(-1)); return t!=='ji' && v>1 && v<9; }); if (isTanyao) { han++; yaku.push("断幺九(1)"); } const types = new Set(Object.keys(counts).map(k=>k.slice(0,-1))); const hasJi = types.has('ji'); types.delete('ji'); if(types.size===1) { if(hasJi){han+=3;yaku.push("混一色(3)");} else{han+=6;yaku.push("清一色(6)");} } return { han, fu:25, score:0, yakuNames:yaku }; }
-        function calcScoreAndDisplay(fu, yakuRes, name, elScore, elYaku) { let base = fu * Math.pow(2, yakuRes.han+2); if(yakuRes.han>=5) base=2000; if(yakuRes.han>=6) base=3000; if(yakuRes.han>=8) base=4000; if(yakuRes.han>=13) base=8000; let score=0; if(settings.seat===0){ if(settings.winType==='ron') score = Math.ceil((base*6)/100)*100; else score = Math.ceil((base*2)/100)*100 * 3; } else { if(settings.winType==='ron') score = Math.ceil((base*4)/100)*100; else score = Math.ceil((base*2)/100)*100 + Math.ceil((base*1)/100)*100*2; } score += settings.honba * 300; elScore.textContent = `${score}点`; elYaku.textContent = `${yakuRes.han}飜 ${fu}符\n${yakuRes.yakuNames.join(' ')}`; }
         function isKokushi(c) { const yaochu = ['man1','man9','pin1','pin9','sou1','sou9','ji1','ji2','ji3','ji4','ji5','ji6','ji7']; const keys = Object.keys(c); if(keys.length !== 13) return false; return keys.every(k => yaochu.includes(k)); }
+
+        // --- 符計算の詳細記録機能を追加した evalHand ---
+        function evalHand(groups, counts, agariTileStr) {
+            let han = 0; let yaku = []; let fuDetails = [];
+            if (settings.reach === 1) { han+=1; yaku.push("立直(1)"); } if (settings.reach === 2) { han+=2; yaku.push("W立直(2)"); }
+            if (settings.winType === 'tsumo') { han+=1; yaku.push("門前清自摸(1)"); }
+            if (settings.dora > 0) { han+=settings.dora; yaku.push(`ドラ(${settings.dora})`); }
+            
+            const head = groups.find(g => g.type === 'head'); const mentsu = groups.filter(g => g.type !== 'head');
+            const shuntsu = mentsu.filter(g => g.type === 'shuntsu'); const koutsu = mentsu.filter(g => g.type === 'koutsu');
+
+            // (役判定ロジックは変更なし)
+            const isTanyao = Object.keys(counts).every(k => { const t = k.slice(0,-1), v=parseInt(k.slice(-1)); return t!=='ji' && v>1 && v<9; }); if (isTanyao) { han+=1; yaku.push("断幺九(1)"); }
+            let yakuhaiHan = 0; koutsu.forEach(k => { if (k.tile === 'ji5' || k.tile === 'ji6' || k.tile === 'ji7') yakuhaiHan++; if (k.tile === `ji${settings.prevalent+1}`) yakuhaiHan++; if (k.tile === `ji${settings.seat+1}`) yakuhaiHan++; }); if (yakuhaiHan>0) { han+=yakuhaiHan; yaku.push(`役牌(${yakuhaiHan})`); }
+            const headVal = parseInt(head.tile.slice(-1)); const headType = head.tile.slice(0,-1); const isHeadYakuhai = (headType==='ji' && (headVal>=5 || headVal===settings.prevalent+1 || headVal===settings.seat+1));
+            const isPinfu = (shuntsu.length === 4 && !isHeadYakuhai); if (isPinfu) { han+=1; yaku.push("平和(1)"); }
+            let iipeiko = 0; const seqStr = shuntsu.map(s => s.tile).sort(); for(let i=0; i<seqStr.length-1; i++) { if(seqStr[i] === seqStr[i+1]) { iipeiko++; i++; } } if(iipeiko === 1) { han+=1; yaku.push("一盃口(1)"); } if(iipeiko === 2) { han+=3; yaku.push("二盃口(3)"); }
+            const types = new Set(Object.keys(counts).map(k=>k.slice(0,-1))); const hasJi = types.has('ji'); types.delete('ji'); if(types.size === 1) { if(hasJi) { han+=3; yaku.push("混一色(3)"); } else { han+=6; yaku.push("清一色(6)"); } }
+            if (koutsu.length === 4) { han+=2; yaku.push("対々和(2)"); } if (koutsu.length === 3) { han+=2; yaku.push("三暗刻(2)"); } if (koutsu.length === 4) { han+=8; yaku.push("四暗刻(役満)"); }
+            const sMap = {man:[], pin:[], sou:[]}; shuntsu.forEach(s => sMap[s.tile.slice(0,-1)].push(parseInt(s.tile.slice(-1)))); let sanshoku = false; sMap.man.forEach(v => { if(sMap.pin.includes(v) && sMap.sou.includes(v)) sanshoku = true; }); if(sanshoku) { han+=2; yaku.push("三色同順(2)"); }
+            let ittsu = false; ['man','pin','sou'].forEach(t => { const vals = shuntsu.filter(s=>s.tile.startsWith(t)).map(s=>parseInt(s.tile.slice(-1))); if(vals.includes(1) && vals.includes(4) && vals.includes(7)) ittsu = true; }); if(ittsu) { han+=2; yaku.push("一気通貫(2)"); }
+
+            // --- 符計算（詳細記録） ---
+            fuDetails.push({ text: '副底', points: 20 });
+            let fu = 20;
+            if (settings.winType === 'ron') { fu += 10; fuDetails.push({ text: '門前加符', points: 10 }); }
+            if (settings.winType === 'tsumo') { fu += 2; fuDetails.push({ text: 'ツモ符', points: 2 }); }
+
+            // 刻子の符（明刻/暗刻の判定が必要。簡易的に、ロン上がりで対象牌なら明刻扱いとする）
+            koutsu.forEach(k => {
+                const t = k.tile.slice(0,-1), v=parseInt(k.tile.slice(-1));
+                const isYaochu = (t==='ji' || v===1 || v===9);
+                // 簡易判定：ロンあがりで、かつこの刻子がアガリ牌と同じなら明刻(Min)、それ以外は暗刻(An)
+                // ※本来は鳴き状態の管理が必要だが、門前前提アプリのためこの推定で進める
+                const isAnkou = (settings.winType === 'tsumo' || k.tile !== agariTileStr);
+                const p = isYaochu ? (isAnkou ? 8 : 4) : (isAnkou ? 4 : 2);
+                fu += p;
+                fuDetails.push({ text: `${isYaochu?'幺九':'中張'}${isAnkou?'暗刻':'明刻'}`, points: p });
+            });
+
+            // 雀頭の符
+            if (isHeadYakuhai) { fu += 2; fuDetails.push({ text: '役牌雀頭', points: 2 }); }
+
+            // 待ちの符 (簡易判定: 平和がつかないなら悪形とみなす)
+            if (!isPinfu) { fu += 2; fuDetails.push({ text: '待ち(嵌張/辺張/単騎)', points: 2 }); }
+
+            // 切り上げ処理
+            if (isPinfu && settings.winType==='tsumo') { fu = 20; fuDetails = [{ text: '平和ツモ(固定)', points: 20 }]; }
+            else { fu = Math.ceil(fu/10)*10; }
+
+            return calculateFinalScore(han, fu, yaku, fuDetails);
+        }
+
+        // 七対子用計算
+        function calcChiitoiResult(counts) {
+            let han=2; let yaku=["七対子(2)"];
+            // ... (役判定省略) ...
+            if(settings.reach===1) {han++; yaku.push("立直(1)");} if(settings.reach===2) {han+=2; yaku.push("W立直(2)");} if(settings.winType==='tsumo') {han++; yaku.push("門前清自摸(1)");} if(settings.dora>0) {han+=settings.dora; yaku.push(`ドラ(${settings.dora})`);}
+            const isTanyao = Object.keys(counts).every(k => { const t = k.slice(0,-1), v=parseInt(k.slice(-1)); return t!=='ji' && v>1 && v<9; }); if (isTanyao) { han++; yaku.push("断幺九(1)"); }
+            const types = new Set(Object.keys(counts).map(k=>k.slice(0,-1))); const hasJi = types.has('ji'); types.delete('ji'); if(types.size===1) { if(hasJi){han+=3;yaku.push("混一色(3)");} else{han+=6;yaku.push("清一色(6)");} }
+            // ...
+            const fuDetails = [{ text: '七対子(固定)', points: 25 }];
+            return calculateFinalScore(han, 25, yaku, fuDetails);
+        }
+
+        // 共通点数算出
+        function calculateFinalScore(han, fu, yakuNames, fuDetails) {
+            let base = fu * Math.pow(2, han+2);
+            if(han>=5) base=2000; if(han>=6) base=3000; if(han>=8) base=4000; if(han>=11) base=6000; if(han>=13) base=8000;
+            let score=0;
+            if(settings.seat===0){ score = settings.winType==='ron' ? Math.ceil((base*6)/100)*100 : Math.ceil((base*2)/100)*100 * 3; }
+            else { score = settings.winType==='ron' ? Math.ceil((base*4)/100)*100 : Math.ceil((base*2)/100)*100 + Math.ceil((base*1)/100)*100*2; }
+            score += settings.honba * 300;
+            return { han, fu, score, yakuNames, fuDetails };
+        }
+
+        function displayResult(res, elScore, elYaku) {
+            elScore.textContent = `${res.score}点`;
+            elYaku.textContent = `${res.han}飜 ${res.fu}符\n${res.yakuNames.join(' ')}`;
+        }
 
         init();
     </script>
