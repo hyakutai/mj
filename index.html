@@ -9,7 +9,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1a202c">
     
-    <title>麻雀点数計算機 Pro v1.7</title>
+    <title>麻雀点数計算機 Pro v1.8</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { theme: { extend: { screens: { 'landscape': {'raw': '(orientation: landscape)'}, 'portrait': {'raw': '(orientation: portrait)'} } } } }
@@ -41,46 +41,40 @@
 
     <div class="flex-1 min-h-0 flex flex-col landscape:grid landscape:grid-cols-10 landscape:grid-rows-[auto_1fr] gap-2 p-2 pt-1 landscape:pt-2">
 
-        <div class="hidden landscape:flex landscape:col-span-3 landscape:col-start-1 landscape:row-start-1 gap-2 items-center">
-            <button class="bg-gray-800 hover:bg-gray-700 text-gray-500 border border-gray-700 text-[10px] font-bold px-2 py-1.5 rounded shadow flex-1 transition-colors">準備中</button>
-            <button class="bg-gray-800 hover:bg-gray-700 text-gray-500 border border-gray-700 text-[10px] font-bold px-2 py-1.5 rounded shadow flex-1 transition-colors">準備中</button>
-        </div>
-
-        <div class="flex flex-col landscape:flex-row gap-1.5 landscape:gap-2 justify-between items-stretch landscape:items-center w-full landscape:col-span-7 landscape:col-start-4 landscape:row-start-1 shrink-0">
+        <div class="order-1 landscape:order-none flex flex-col landscape:flex-row gap-1.5 landscape:gap-2 justify-between items-stretch landscape:items-center w-full landscape:col-span-7 landscape:col-start-4 landscape:row-start-1 shrink-0">
             
-            <div class="flex justify-between items-center w-full landscape:w-auto">
+            <div class="flex justify-between items-center w-full landscape:w-auto shrink-0">
                 <div class="flex gap-2">
                     <button onclick="window.createRoom()" class="bg-indigo-700 hover:bg-indigo-600 text-white font-bold text-[11px] px-3 py-1.5 rounded shadow transition-colors border border-indigo-500">🌐 卓作成</button>
                     <button onclick="window.joinRoom()" class="bg-gray-700 hover:bg-gray-600 text-white font-bold text-[11px] px-3 py-1.5 rounded shadow transition-colors border border-gray-500">🚪 参加</button>
                 </div>
                 
-                <div class="flex landscape:hidden items-center gap-1.5">
-                    <button class="bg-gray-800 text-gray-500 border border-gray-700 text-[9px] px-1.5 py-1 rounded shadow">拡張</button>
-                    <span class="text-[9px] text-gray-500 font-mono tracking-wider ml-0.5">v1.7</span>
+                <div class="flex landscape:hidden items-center gap-2">
+                    <span class="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5">v1.8</span>
                     <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform">📖</button>
                 </div>
             </div>
 
-            <div id="scoreboard" class="flex-1 bg-gray-900 rounded border border-gray-700 px-2 py-1 flex flex-col landscape:flex-row justify-center landscape:justify-between items-center gap-0.5 landscape:gap-0 shadow-inner">
-                <div class="w-full landscape:w-auto text-center landscape:text-left mb-0.5 landscape:mb-0">
+            <div id="scoreboard" class="flex-1 bg-gray-900 rounded border border-gray-700 px-2 py-1 flex flex-col landscape:flex-row justify-center landscape:justify-between items-center gap-0.5 landscape:gap-0 shadow-inner overflow-hidden">
+                <div class="w-full landscape:w-auto text-center landscape:text-left mb-0.5 landscape:mb-0 shrink-0">
                     <span class="text-[9px] text-gray-400">ID:<span id="room-id-display" class="text-yellow-400 font-bold ml-1">ローカル</span></span>
                 </div>
                 
-                <div class="grid grid-cols-2 landscape:flex gap-x-6 gap-y-0.5 landscape:gap-3 text-[12px] landscape:text-[10px] font-bold w-fit mx-auto landscape:mx-0">
-                    <div class="text-red-400 flex justify-between w-[4.5rem] landscape:w-auto"><span>A:</span><span id="score-0">25000</span></div>
-                    <div class="text-blue-400 flex justify-between w-[4.5rem] landscape:w-auto"><span>B:</span><span id="score-1">25000</span></div>
-                    <div class="text-green-400 flex justify-between w-[4.5rem] landscape:w-auto"><span>C:</span><span id="score-2">25000</span></div>
-                    <div class="text-yellow-400 flex justify-between w-[4.5rem] landscape:w-auto"><span>D:</span><span id="score-3">25000</span></div>
+                <div class="grid grid-cols-2 landscape:flex gap-x-6 gap-y-0.5 landscape:gap-2 lg:landscape:gap-3 text-[12px] landscape:text-[10px] font-bold w-fit mx-auto landscape:mx-0 whitespace-nowrap shrink-0">
+                    <div class="text-red-400 flex justify-between landscape:justify-start landscape:gap-1 w-[4.5rem] landscape:w-auto"><span>A:</span><span id="score-0">25000</span></div>
+                    <div class="text-blue-400 flex justify-between landscape:justify-start landscape:gap-1 w-[4.5rem] landscape:w-auto"><span>B:</span><span id="score-1">25000</span></div>
+                    <div class="text-green-400 flex justify-between landscape:justify-start landscape:gap-1 w-[4.5rem] landscape:w-auto"><span>C:</span><span id="score-2">25000</span></div>
+                    <div class="text-yellow-400 flex justify-between landscape:justify-start landscape:gap-1 w-[4.5rem] landscape:w-auto"><span>D:</span><span id="score-3">25000</span></div>
                 </div>
             </div>
 
             <div class="hidden landscape:flex items-center gap-2 shrink-0 pl-1">
-                <span class="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5">v1.7</span>
+                <span class="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5">v1.8</span>
                 <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform" title="ルールを確認">📖</button>
             </div>
         </div>
 
-        <div class="bg-gray-800 rounded-lg p-2 flex flex-col gap-1.5 shadow-lg overflow-y-auto no-scrollbar border border-gray-700 w-full landscape:col-span-3 landscape:col-start-1 landscape:row-start-2 min-h-0">
+        <div class="order-2 landscape:order-none bg-gray-800 rounded-lg p-2 flex flex-col gap-1.5 shadow-lg overflow-y-auto no-scrollbar border border-gray-700 w-full landscape:col-span-3 landscape:col-start-1 landscape:row-start-1 landscape:row-span-2 min-h-0">
             <div class="grid grid-cols-2 gap-1.5 mt-1">
                 <button id="btn-prevalent" class="bg-gray-700 py-1.5 portrait:py-1 rounded text-xs font-bold border border-gray-600 transition-all" onclick="togglePrevalent()">東場</button>
                 <button id="btn-seat" class="bg-red-900 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-700 transition-all" onclick="toggleSeat()">東家(親)</button>
@@ -109,9 +103,9 @@
                 </div>
             </div>
 
-            <div id="score-container" class="mt-auto bg-gray-900 p-2 rounded border border-gray-700 flex flex-col justify-center min-h-[4rem] cursor-pointer transition-colors active:bg-gray-800 relative">
-                <div id="result-score" class="text-center text-2xl font-bold text-yellow-400">--- 点</div>
-                <div id="result-yaku" class="text-center text-[10px] text-gray-300 mt-1 leading-tight whitespace-pre-wrap">役なし</div>
+            <div id="score-container" class="mt-auto bg-gray-900 p-2 rounded border border-gray-700 flex flex-col justify-center min-h-[4rem] landscape:min-h-[5.5rem] cursor-pointer transition-colors active:bg-gray-800 relative">
+                <div id="result-score" class="text-center text-2xl landscape:text-3xl font-bold text-yellow-400">--- 点</div>
+                <div id="result-yaku" class="text-center text-[10px] landscape:text-[11px] text-gray-300 mt-1 leading-tight whitespace-pre-wrap">役なし</div>
                 <div class="text-center text-[8px] text-gray-500 mt-0.5 portrait:hidden">※長押しで詳細を表示</div>
                 
                 <button id="btn-transfer" onclick="openTransferModal(event)" class="hidden absolute bottom-1.5 right-1.5 bg-yellow-600 hover:bg-yellow-500 text-white text-[10px] font-bold px-3 py-1 rounded shadow-lg border border-yellow-400 z-10 active:scale-95 transition-transform">
@@ -120,7 +114,7 @@
             </div>
         </div>
 
-        <div class="bg-gray-800 rounded-lg p-2 flex flex-col shadow-lg border border-gray-700 w-full landscape:col-span-7 landscape:col-start-4 landscape:row-start-2 min-h-0">
+        <div class="order-3 landscape:order-none bg-gray-800 rounded-lg p-2 flex flex-col shadow-lg border border-gray-700 w-full landscape:col-span-7 landscape:col-start-4 landscape:row-start-2 min-h-0">
             <div class="flex gap-1 mb-1.5 shrink-0">
                 <button onclick="renderPalette('man')" class="flex-1 py-1.5 rounded-t bg-blue-600 text-white text-xs font-bold tab-btn" data-type="man">萬子</button>
                 <button onclick="renderPalette('pin')" class="flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="pin">筒子</button>
