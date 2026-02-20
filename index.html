@@ -9,7 +9,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1a202c">
     
-    <title>麻雀点数計算機 Pro v1.9.1</title>
+    <title>麻雀点数計算機 Pro v2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { theme: { extend: { screens: { 'landscape': {'raw': '(orientation: landscape)'}, 'portrait': {'raw': '(orientation: portrait)'} } } } }
@@ -51,41 +51,27 @@
                 </div>
                 
                 <div class="flex landscape:hidden items-center gap-2">
-                    <span class="text-[10px] text-gray-500 font-mono tracking-wider">v1.9.1</span>
+                    <span class="text-[10px] text-gray-500 font-mono tracking-wider">v2.0</span>
                     <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform">📖</button>
                 </div>
             </div>
 
             <div id="scoreboard" class="flex-1 bg-gray-900 rounded border border-gray-700 px-2 landscape:px-2 py-1.5 flex flex-col landscape:flex-row justify-center landscape:justify-between items-center shadow-inner overflow-hidden h-full">
-                
                 <div class="w-full landscape:w-auto text-center landscape:text-left shrink-0 flex items-center justify-center landscape:justify-start">
                     <span class="text-[10px] landscape:text-[11px] text-gray-400 font-mono leading-none">
                         ID:<span id="room-id-display" class="text-yellow-400 font-bold ml-1">ローカル</span><span id="room-type-display" class="text-gray-500 ml-1 text-[8px]"></span>
                     </span>
                 </div>
-                
                 <div class="grid grid-cols-2 landscape:flex gap-x-8 gap-y-1.5 landscape:gap-2.5 lg:landscape:gap-5 text-center whitespace-nowrap shrink-0 items-center justify-items-center w-fit mx-auto landscape:mx-0 mt-1.5 landscape:mt-0">
-                    <div class="flex flex-col items-center">
-                        <span id="name-0" class="text-[9px] text-gray-300 leading-none mb-1">Aさん</span>
-                        <span id="score-0" class="text-red-400 font-bold text-[13px] landscape:text-[12px] lg:landscape:text-[13px] leading-none">25000</span>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <span id="name-1" class="text-[9px] text-gray-300 leading-none mb-1">Bさん</span>
-                        <span id="score-1" class="text-blue-400 font-bold text-[13px] landscape:text-[12px] lg:landscape:text-[13px] leading-none">25000</span>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <span id="name-2" class="text-[9px] text-gray-300 leading-none mb-1">Cさん</span>
-                        <span id="score-2" class="text-green-400 font-bold text-[13px] landscape:text-[12px] lg:landscape:text-[13px] leading-none">25000</span>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <span id="name-3" class="text-[9px] text-gray-300 leading-none mb-1">Dさん</span>
-                        <span id="score-3" class="text-yellow-400 font-bold text-[13px] landscape:text-[12px] lg:landscape:text-[13px] leading-none">25000</span>
-                    </div>
+                    <div class="flex flex-col items-center"><span id="name-0" class="text-[9px] text-gray-300 leading-none mb-1">Aさん</span><span id="score-0" class="text-red-400 font-bold text-[13px] landscape:text-[12px] lg:landscape:text-[13px] leading-none">25000</span></div>
+                    <div class="flex flex-col items-center"><span id="name-1" class="text-[9px] text-gray-300 leading-none mb-1">Bさん</span><span id="score-1" class="text-blue-400 font-bold text-[13px] landscape:text-[12px] lg:landscape:text-[13px] leading-none">25000</span></div>
+                    <div class="flex flex-col items-center"><span id="name-2" class="text-[9px] text-gray-300 leading-none mb-1">Cさん</span><span id="score-2" class="text-green-400 font-bold text-[13px] landscape:text-[12px] lg:landscape:text-[13px] leading-none">25000</span></div>
+                    <div class="flex flex-col items-center"><span id="name-3" class="text-[9px] text-gray-300 leading-none mb-1">Dさん</span><span id="score-3" class="text-yellow-400 font-bold text-[13px] landscape:text-[12px] lg:landscape:text-[13px] leading-none">25000</span></div>
                 </div>
             </div>
 
             <div class="hidden landscape:flex items-center justify-center gap-2 shrink-0 pl-1">
-                <span class="text-[10px] text-gray-500 font-mono tracking-wider">v1.9.1</span>
+                <span class="text-[10px] text-gray-500 font-mono tracking-wider">v2.0</span>
                 <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform" title="ルールを確認">📖</button>
             </div>
         </div>
@@ -123,7 +109,6 @@
                 <div id="result-score" class="text-center text-2xl landscape:text-3xl font-bold text-yellow-400">--- 点</div>
                 <div id="result-yaku" class="text-center text-[10px] landscape:text-[11px] text-gray-300 mt-1 leading-tight whitespace-pre-wrap">役なし</div>
                 <div class="text-center text-[8px] text-gray-500 mt-0.5 portrait:hidden">※長押しで詳細を表示</div>
-                <button id="btn-transfer" onclick="openTransferModal(event)" class="hidden absolute bottom-1.5 right-1.5 bg-yellow-600 hover:bg-yellow-500 text-white text-[10px] font-bold px-3 py-1 rounded shadow-lg border border-yellow-400 z-10 active:scale-95 transition-transform">💰 送信</button>
             </div>
         </div>
 
@@ -136,10 +121,13 @@
             </div>
             <div id="tile-container" class="grid grid-cols-9 gap-1 auto-rows-min overflow-y-auto flex-1 content-start p-1 bg-gray-900 rounded inner-shadow mb-2"></div>
             
-            <div class="flex gap-1.5 shrink-0">
+            <div class="flex gap-1.5 shrink-0 w-full">
                 <button onclick="openCamera()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 portrait:py-2.5 rounded font-bold text-sm shadow flex items-center justify-center gap-1 border border-blue-400 active:scale-95 transition-transform">📷 撮影</button>
                 <button onclick="clearHand()" class="flex-1 bg-red-800 hover:bg-red-700 text-white py-2 portrait:py-2.5 rounded font-bold text-sm shadow border border-red-700 active:scale-95 transition-transform">クリア</button>
-                <button onclick="calculateFull()" class="flex-[2] bg-yellow-600 hover:bg-yellow-500 text-white py-2 portrait:py-2.5 rounded font-bold text-base shadow border border-yellow-400 active:scale-95 transition-transform">計算する</button>
+                
+                <button id="btn-calc" onclick="calculateFull()" class="flex-[2] bg-yellow-600 hover:bg-yellow-500 text-white py-2 portrait:py-2.5 rounded font-bold text-base shadow border border-yellow-400 active:scale-95 transition-transform">計算する</button>
+                <button id="btn-recalc" onclick="calculateFull()" class="hidden flex-[2] bg-yellow-600 hover:bg-yellow-500 text-white py-2 portrait:py-2.5 rounded font-bold text-base shadow border border-yellow-400 active:scale-95 transition-transform">再計算</button>
+                <button id="btn-transfer" onclick="openTransferModal(event)" class="hidden flex-1 bg-green-600 hover:bg-green-500 text-white py-2 portrait:py-2.5 rounded font-bold text-base shadow border border-green-400 active:scale-95 transition-transform">💰 送信</button>
             </div>
         </div>
     </div>
@@ -163,7 +151,6 @@
             </div>
 
             <div class="flex flex-col landscape:flex-row gap-3">
-                
                 <div class="flex-1 border border-gray-600 p-3 landscape:p-2 rounded-lg bg-gray-700/50 relative overflow-hidden flex flex-col justify-between">
                     <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
                     <div>
@@ -185,7 +172,6 @@
                         <button onclick="joinRoomFromModal()" class="w-full bg-green-700 hover:bg-green-600 text-white text-sm landscape:text-xs font-bold py-2 rounded shadow border border-green-500 transition-transform active:scale-95">🚪 IDを入力して参加</button>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -239,10 +225,40 @@
             for(let i=currentHand.length; i<14; i++){ const d = document.createElement('div'); d.className='tile tile-empty'; c.appendChild(d); }
             const scrollView = document.getElementById('hand-scroll-view'); scrollView.scrollLeft = scrollView.scrollWidth;
         }
+
+        // ★追加: ボタンの表示切替を制御するヘルパー関数
+        function updateActionButtons(isSuccess) {
+            const btnCalc = document.getElementById('btn-calc');
+            const btnRecalc = document.getElementById('btn-recalc');
+            const btnTransfer = document.getElementById('btn-transfer');
+
+            if (!isSuccess) {
+                // 計算前 or 計算失敗（役なし）
+                btnCalc.classList.remove('hidden');
+                btnRecalc.classList.add('hidden');
+                btnRecalc.classList.remove('flex-1');
+                btnRecalc.classList.add('flex-[2]'); // リセット
+                btnTransfer.classList.add('hidden');
+            } else {
+                // 計算成功
+                btnCalc.classList.add('hidden');
+                if (window.currentRoomId) { 
+                    // 通信対戦中 -> 4等分
+                    btnRecalc.classList.remove('hidden', 'flex-[2]');
+                    btnRecalc.classList.add('flex-1');
+                    btnTransfer.classList.remove('hidden');
+                } else { 
+                    // ローカル -> 1:1:2 (再計算が大きくなる)
+                    btnRecalc.classList.remove('hidden', 'flex-1');
+                    btnRecalc.classList.add('flex-[2]');
+                    btnTransfer.classList.add('hidden');
+                }
+            }
+        }
         
         function clearHand() { 
             currentHand=[]; renderHand(); document.getElementById('result-score').textContent="--- 点"; document.getElementById('result-yaku').textContent="役なし"; lastCalculationResult = null; 
-            document.getElementById('btn-transfer').classList.add('hidden');
+            updateActionButtons(false);
         }
         
         window.openRoomModal = function() { document.getElementById('room-modal').classList.add('active'); }
@@ -261,7 +277,6 @@
         function setupLongPress() {
             const target = document.getElementById('score-container');
             target.addEventListener('touchstart', (e) => { 
-                if (e.target.id === 'btn-transfer') return; 
                 if (!lastCalculationResult) return; 
                 target.classList.add('press-active'); 
                 pressTimer = setTimeout(() => { openDetail(lastCalculationResult); target.classList.remove('press-active'); }, 500); 
@@ -279,13 +294,13 @@
 
         function calculateFull() {
             const resScore = document.getElementById('result-score'); const resYaku = document.getElementById('result-yaku');
-            if (currentHand.length !== 14) { resScore.textContent = "枚数不足"; resYaku.textContent = "牌は14枚必要です"; lastCalculationResult = null; return; }
+            if (currentHand.length !== 14) { resScore.textContent = "枚数不足"; resYaku.textContent = "牌は14枚必要です"; lastCalculationResult = null; updateActionButtons(false); return; }
             const agariTileData = currentHand.find(t => t.isAgari);
-            if (!agariTileData) { resScore.textContent = "指定なし"; resYaku.textContent = "上がり牌をタップしてください"; lastCalculationResult = null; return; }
+            if (!agariTileData) { resScore.textContent = "指定なし"; resYaku.textContent = "上がり牌をタップしてください"; lastCalculationResult = null; updateActionButtons(false); return; }
             const agariTileStr = agariTileData.type + agariTileData.value;
             const counts = {}; currentHand.forEach(t => { const k = t.type + t.value; counts[k] = (counts[k]||0) + 1; });
             const pairs = Object.values(counts).filter(c => c === 2).length;
-            if (pairs === 7) { const res = calcChiitoiResult(counts); displayResult(res, resScore, resYaku); lastCalculationResult = res; document.getElementById('btn-transfer').classList.remove('hidden'); return; }
+            if (pairs === 7) { const res = calcChiitoiResult(counts); displayResult(res, resScore, resYaku); lastCalculationResult = res; updateActionButtons(true); return; }
             const decompositions = decompose(counts);
             if (decompositions.length === 0) { 
                 if (isKokushi(counts)) { 
@@ -297,16 +312,16 @@
                     }
                     resScore.textContent = `${score}点`; resYaku.textContent = "役満 国士無双"; 
                     lastCalculationResult = { han:13, fu:0, score: score+settings.honba*300, yakuNames:["国士無双"], fuDetails:[], payments: pay }; 
-                    document.getElementById('btn-transfer').classList.remove('hidden'); return; 
+                    updateActionButtons(true); return; 
                 } 
-                resScore.textContent = "役なし"; resYaku.textContent = "アガリ形になっていません"; lastCalculationResult = null; return; 
+                resScore.textContent = "役なし"; resYaku.textContent = "アガリ形になっていません"; lastCalculationResult = null; updateActionButtons(false); return; 
             }
             let bestResult = { han: 0, fu: 0, score: -1, yakuNames: [], fuDetails: [] };
             decompositions.forEach(groups => { const res = evalHand(groups, counts, agariTileStr); if (res.score > bestResult.score || (res.score === bestResult.score && res.han > bestResult.han)) { bestResult = res; } });
             if (bestResult.score === -1 || bestResult.han === 0) { 
-                resScore.textContent = "役なし"; resYaku.textContent = "アガリ形ですが役がありません"; lastCalculationResult = null; document.getElementById('btn-transfer').classList.add('hidden');
+                resScore.textContent = "役なし"; resYaku.textContent = "アガリ形ですが役がありません"; lastCalculationResult = null; updateActionButtons(false);
             } else { 
-                displayResult(bestResult, resScore, resYaku); lastCalculationResult = bestResult; document.getElementById('btn-transfer').classList.remove('hidden'); 
+                displayResult(bestResult, resScore, resYaku); lastCalculationResult = bestResult; updateActionButtons(true); 
             }
         }
         function decompose(counts) { const results = []; const keys = Object.keys(counts); keys.forEach(headKey => { if (counts[headKey] >= 2) { const workingCounts = {...counts}; workingCounts[headKey] -= 2; const headGroup = { type: 'head', tile: headKey }; const mentsuRes = decomposeMentsu(workingCounts); mentsuRes.forEach(mList => { results.push([headGroup, ...mList]); }); } }); return results; }
@@ -374,8 +389,13 @@
   };
         // ==========================================
 
-        let app, db, currentRoomId = null;
-        try { app = initializeApp(firebaseConfig); db = getFirestore(app); } catch(e) { console.error(e); }
+        let app;
+        window.currentRoomId = null;
+        window.dbInstance = null;
+        try { 
+            app = initializeApp(firebaseConfig); 
+            window.dbInstance = getFirestore(app); 
+        } catch(e) { console.error(e); }
 
         let selectedGameType = 'tonpu';
         window.setGameType = function(type) {
@@ -385,13 +405,13 @@
         }
 
         window.createRoomFromModal = async function() {
-            if (!db) return alert("データベースの設定が未完了です。");
+            if (!window.dbInstance) return alert("データベースの設定が未完了です。");
             const nameInput = document.getElementById('player-name').value.trim();
             const name = nameInput || "ホスト";
             
             const roomId = Math.floor(1000 + Math.random() * 9000).toString(); 
             try {
-                await setDoc(doc(db, "rooms", roomId), { 
+                await setDoc(doc(window.dbInstance, "rooms", roomId), { 
                     scores: [25000, 25000, 25000, 25000],
                     names: [name, "参加待", "参加待", "参加待"],
                     gameType: selectedGameType
@@ -403,7 +423,7 @@
         }
 
         window.joinRoomFromModal = async function() {
-            if (!db) return alert("データベースの設定が未完了です。");
+            if (!window.dbInstance) return alert("データベースの設定が未完了です。");
             const nameInput = document.getElementById('player-name').value.trim();
             const name = nameInput || "ゲスト";
             
@@ -411,7 +431,7 @@
             if(!roomId) return;
 
             try {
-                const roomRef = doc(db, "rooms", roomId);
+                const roomRef = doc(window.dbInstance, "rooms", roomId);
                 const docSnap = await getDoc(roomRef);
                 
                 if (docSnap.exists()) {
@@ -435,8 +455,8 @@
         }
 
         function startListening(roomId) {
-            currentRoomId = roomId;
-            onSnapshot(doc(db, "rooms", roomId), (docSnap) => {
+            window.currentRoomId = roomId;
+            onSnapshot(doc(window.dbInstance, "rooms", roomId), (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     const scores = data.scores || [25000, 25000, 25000, 25000];
@@ -455,6 +475,11 @@
                     document.getElementById('room-type-display').textContent = data.gameType === 'hanchan' ? '(半荘)' : '(東風)';
                 }
             });
+            
+            // すでに計算済みの結果があれば、送信ボタンを出現させる
+            if(lastCalculationResult) {
+                updateActionButtons(true);
+            }
         }
 
         let t_agari = 0, t_furi = 1, t_oya = 1;
@@ -521,9 +546,9 @@
                 parseInt(document.getElementById('score-3').textContent) + diff[3]
             ];
 
-            if (currentRoomId && db) {
+            if (window.currentRoomId && window.dbInstance) {
                 try {
-                    await updateDoc(doc(db, "rooms", currentRoomId), { scores: newScores });
+                    await updateDoc(doc(window.dbInstance, "rooms", window.currentRoomId), { scores: newScores });
                 } catch(e) { alert("通信エラー: " + e.message); return; }
             } else {
                 document.getElementById('score-0').textContent = newScores[0];
