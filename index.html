@@ -9,7 +9,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1a202c">
     
-    <title>麻雀点数計算機 Pro v1.5</title>
+    <title>麻雀点数計算機 Pro v1.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { theme: { extend: { screens: { 'landscape': {'raw': '(orientation: landscape)'}, 'portrait': {'raw': '(orientation: portrait)'} } } } }
@@ -33,30 +33,32 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .press-active { transform: scale(0.98); transition: transform 0.1s; }
         .snap-x-mandatory { scroll-snap-type: x mandatory; } .snap-center { scroll-snap-align: center; }
+        
+        /* ラジオボタン風UI用 */
+        .btn-select.active { background-color: #ecc94b; color: #1a202c; border-color: #d69e2e; }
     </style>
 </head>
 <body>
 <div id="app-container" class="pt-[max(8px,env(safe-area-inset-top))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))]">
 
     <div class="flex w-full justify-between items-center px-2 pt-1 pb-0.5 shrink-0">
-        <div class="flex gap-2" id="network-buttons">
-            <button onclick="window.createRoom()" class="bg-indigo-700 hover:bg-indigo-600 text-white font-bold text-[11px] px-3 py-1.5 rounded shadow transition-colors border border-indigo-500">🌐 卓を作る</button>
-            <button onclick="window.joinRoom()" class="bg-gray-700 hover:bg-gray-600 text-white font-bold text-[11px] px-3 py-1.5 rounded shadow transition-colors border border-gray-500">🚪 卓に入る</button>
+        <div class="flex gap-2">
+            <button onclick="window.createRoom()" class="bg-indigo-700 hover:bg-indigo-600 text-white font-bold text-[10px] px-2 py-1.5 rounded shadow transition-colors border border-indigo-500">🌐 卓作成</button>
+            <button onclick="window.joinRoom()" class="bg-gray-700 hover:bg-gray-600 text-white font-bold text-[10px] px-2 py-1.5 rounded shadow transition-colors border border-gray-500">🚪 参加</button>
         </div>
         
-        <div id="scoreboard" class="hidden flex-1 mx-2 bg-gray-900 rounded border border-gray-700 px-2 py-1 flex justify-between items-center">
-            <span class="text-[10px] text-gray-400">ID:<span id="room-id-display" class="text-yellow-400 font-bold ml-1">----</span></span>
+        <div id="scoreboard" class="flex-1 mx-2 bg-gray-900 rounded border border-gray-700 px-2 py-1 flex justify-between items-center">
+            <span class="text-[9px] text-gray-400">ID:<span id="room-id-display" class="text-yellow-400 font-bold ml-1">ローカル</span></span>
             <div class="flex gap-2 text-[10px] font-bold">
                 <div class="text-red-400">A:<span id="score-0">25000</span></div>
                 <div class="text-blue-400">B:<span id="score-1">25000</span></div>
                 <div class="text-green-400">C:<span id="score-2">25000</span></div>
                 <div class="text-yellow-400">D:<span id="score-3">25000</span></div>
             </div>
-            <button onclick="window.testSync()" class="bg-yellow-600 text-white px-2 py-0.5 rounded text-[9px]">テスト通信</button>
         </div>
 
         <div class="flex items-center gap-2 shrink-0">
-            <span class="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5">v1.5</span>
+            <span class="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5">v1.6</span>
             <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform" title="ルールを確認">📖</button>
         </div>
     </div>
@@ -96,6 +98,10 @@
                 <div id="result-score" class="text-center text-2xl font-bold text-yellow-400">--- 点</div>
                 <div id="result-yaku" class="text-center text-[10px] text-gray-300 mt-1 leading-tight whitespace-pre-wrap">役なし</div>
                 <div class="text-center text-[8px] text-gray-500 mt-0.5 portrait:hidden">※長押しで詳細を表示</div>
+                
+                <button id="btn-transfer" onclick="openTransferModal(event)" class="hidden absolute bottom-1.5 right-1.5 bg-yellow-600 hover:bg-yellow-500 text-white text-[10px] font-bold px-3 py-1 rounded shadow-lg border border-yellow-400 z-10 active:scale-95 transition-transform">
+                    💰 送信
+                </button>
             </div>
         </div>
 
@@ -107,7 +113,6 @@
                     <button onclick="renderPalette('sou')" class="flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="sou">索子</button>
                     <button onclick="renderPalette('ji')" class="flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="ji">字牌</button>
                 </div>
-                
                 <div id="tile-container" class="grid grid-cols-9 gap-1 auto-rows-min overflow-y-auto flex-1 content-start p-1 bg-gray-900 rounded inner-shadow mb-2"></div>
                 
                 <div class="flex gap-1.5 shrink-0">
@@ -145,6 +150,50 @@
             <div class="text-center text-[9px] text-gray-400 mt-1 shrink-0">◀ 左右にフリックして切り替え ▶</div>
         </div>
     </div>
+    
+    <div id="transfer-modal" class="modal-overlay" onclick="closeTransferModal()">
+        <div class="bg-gray-800 w-11/12 max-w-sm rounded-lg p-4 shadow-xl border border-gray-700 relative" onclick="event.stopPropagation()">
+            <h3 class="text-lg font-bold text-yellow-400 mb-3 text-center border-b border-gray-700 pb-2">点数の移動</h3>
+            
+            <div class="mb-3">
+                <div class="text-xs text-gray-400 mb-1">🀄 アガった人</div>
+                <div class="flex gap-1">
+                    <button id="ta-0" onclick="setTransferAgari(0)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold active">Aさん</button>
+                    <button id="ta-1" onclick="setTransferAgari(1)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Bさん</button>
+                    <button id="ta-2" onclick="setTransferAgari(2)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Cさん</button>
+                    <button id="ta-3" onclick="setTransferAgari(3)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Dさん</button>
+                </div>
+            </div>
+
+            <div id="transfer-furi-section" class="mb-3">
+                <div class="text-xs text-gray-400 mb-1">😭 振り込んだ人</div>
+                <div class="flex gap-1">
+                    <button id="tf-0" onclick="setTransferFuri(0)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Aさん</button>
+                    <button id="tf-1" onclick="setTransferFuri(1)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold active">Bさん</button>
+                    <button id="tf-2" onclick="setTransferFuri(2)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Cさん</button>
+                    <button id="tf-3" onclick="setTransferFuri(3)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Dさん</button>
+                </div>
+            </div>
+
+            <div id="transfer-oya-section" class="mb-3 hidden">
+                <div class="text-xs text-gray-400 mb-1">👑 親は誰？ (親かぶり計算用)</div>
+                <div class="flex gap-1">
+                    <button id="to-0" onclick="setTransferOya(0)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Aさん</button>
+                    <button id="to-1" onclick="setTransferOya(1)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold active">Bさん</button>
+                    <button id="to-2" onclick="setTransferOya(2)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Cさん</button>
+                    <button id="to-3" onclick="setTransferOya(3)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold">Dさん</button>
+                </div>
+            </div>
+
+            <div class="text-center font-bold text-yellow-400 text-2xl my-3" id="transfer-amount-text">0 点</div>
+
+            <div class="flex gap-2">
+                <button onclick="closeTransferModal()" class="w-1/3 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded shadow border border-gray-600">キャンセル</button>
+                <button onclick="executeTransfer()" class="w-2/3 bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded shadow-lg border border-yellow-400 active:scale-95 transition-transform">決定して反映</button>
+            </div>
+        </div>
+    </div>
+
     <div id="camera-modal" class="modal-overlay flex-col"><video id="camera-video" class="w-full h-full object-cover" autoplay playsinline></video><div class="absolute inset-0 flex items-center justify-center pointer-events-none"><div class="w-11/12 h-1/3 border-4 border-yellow-400 rounded-lg flex items-center justify-center bg-black/20 backdrop-blur-sm"><span class="text-yellow-400 font-bold opacity-70 tracking-widest text-xl">枠内に牌を並べてください</span></div></div><div class="absolute bottom-8 w-full flex justify-around items-center px-8 pb-[env(safe-area-inset-bottom)]"><button onclick="closeCamera()" class="text-white bg-gray-800 px-6 py-3 rounded-full font-bold shadow-lg">キャンセル</button><button onclick="takePhoto()" class="w-20 h-20 bg-white rounded-full border-4 border-gray-300 shadow-xl active:bg-gray-200"></button><div class="w-24"></div></div><canvas id="camera-canvas" class="hidden"></canvas></div>
     <div id="detail-modal" class="modal-overlay" onclick="closeDetail()"><div class="bg-gray-800 w-11/12 max-w-md rounded-lg p-4 shadow-xl border border-gray-700 relative max-h-[80vh] overflow-y-auto" onclick="event.stopPropagation()"><button onclick="closeDetail()" class="absolute top-2 right-2 text-gray-400 hover:text-white bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center">✕</button><h3 class="text-lg font-bold text-yellow-400 mb-3 text-center border-b border-gray-700 pb-2">計算詳細</h3><div id="detail-content" class="text-sm space-y-4"></div></div></div>
 
@@ -190,23 +239,32 @@
             for(let i=currentHand.length; i<14; i++){ const d = document.createElement('div'); d.className='tile tile-empty'; c.appendChild(d); }
             const scrollView = document.getElementById('hand-scroll-view'); scrollView.scrollLeft = scrollView.scrollWidth;
         }
-        function clearHand() { currentHand=[]; renderHand(); document.getElementById('result-score').textContent="--- 点"; document.getElementById('result-yaku').textContent="役なし"; lastCalculationResult = null; }
+        
+        function clearHand() { 
+            currentHand=[]; renderHand(); document.getElementById('result-score').textContent="--- 点"; document.getElementById('result-yaku').textContent="役なし"; lastCalculationResult = null; 
+            document.getElementById('btn-transfer').classList.add('hidden'); // ボタンを隠す
+        }
+        
         function openRulebook() { document.getElementById('rule-modal').classList.add('active'); }
         function closeRulebook() { document.getElementById('rule-modal').classList.remove('active'); }
         function updateRuleDots() { const container = document.getElementById('rule-scroll-container'); const dots = document.getElementById('rule-dots').children; const pageIndex = Math.round(container.scrollLeft / container.clientWidth); for(let i = 0; i < dots.length; i++) { dots[i].className = i === pageIndex ? "w-2 h-2 rounded-full bg-yellow-400 transition-colors" : "w-2 h-2 rounded-full bg-gray-600 transition-colors"; } }
 
-        // カメラ（デモ）
         let videoStream = null;
         async function openCamera() { const modal = document.getElementById('camera-modal'); const video = document.getElementById('camera-video'); modal.classList.add('active'); try { videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }); video.srcObject = videoStream; } catch (err) { alert("カメラの起動に失敗しました。権限を確認してください。"); closeCamera(); } }
         function closeCamera() { const modal = document.getElementById('camera-modal'); modal.classList.remove('active'); if (videoStream) { videoStream.getTracks().forEach(track => track.stop()); videoStream = null; } }
         function takePhoto() { const video = document.getElementById('camera-video'); video.style.opacity = '0.2'; setTimeout(() => { video.style.opacity = '1'; }, 100); simulateImageRecognition(); closeCamera(); }
         function simulateImageRecognition() { clearHand(); const mockTiles = [{t:'man', v:2}, {t:'man', v:3}, {t:'man', v:4}, {t:'pin', v:3}, {t:'pin', v:4}, {t:'pin', v:5}, {t:'sou', v:6}, {t:'sou', v:7}, {t:'sou', v:8}, {t:'sou', v:2}, {t:'sou', v:2}, {t:'sou', v:2}, {t:'man', v:8}, {t:'man', v:8}]; mockTiles.forEach(item => { addTile(item.t, item.v, TILES[item.t][item.v - 1]); }); if(currentHand.length>0) { currentHand[currentHand.length-1].isAgari=true; renderHand(); } alert("📷 デモ: ダミーの手牌をセットしました"); }
 
-        // 長押し
+        // 長押し（イベントバブリング防止を追加）
         let pressTimer;
         function setupLongPress() {
             const target = document.getElementById('score-container');
-            target.addEventListener('touchstart', (e) => { if (!lastCalculationResult) return; target.classList.add('press-active'); pressTimer = setTimeout(() => { openDetail(lastCalculationResult); target.classList.remove('press-active'); }, 500); }, {passive: true});
+            target.addEventListener('touchstart', (e) => { 
+                if (e.target.id === 'btn-transfer') return; // ボタン押下時は長押し無効
+                if (!lastCalculationResult) return; 
+                target.classList.add('press-active'); 
+                pressTimer = setTimeout(() => { openDetail(lastCalculationResult); target.classList.remove('press-active'); }, 500); 
+            }, {passive: true});
             ['touchend', 'touchmove', 'touchcancel'].forEach(evt => { target.addEventListener(evt, () => { clearTimeout(pressTimer); target.classList.remove('press-active'); }, {passive: true}); });
         }
         function openDetail(res) {
@@ -218,7 +276,7 @@
         }
         function closeDetail() { document.getElementById('detail-modal').classList.remove('active'); }
 
-        // 計算ロジック
+        // ★計算ロジック（支払い内訳 payments を返すように修正）
         function calculateFull() {
             const resScore = document.getElementById('result-score'); const resYaku = document.getElementById('result-yaku');
             if (currentHand.length !== 14) { resScore.textContent = "枚数不足"; resYaku.textContent = "牌は14枚必要です"; lastCalculationResult = null; return; }
@@ -227,12 +285,29 @@
             const agariTileStr = agariTileData.type + agariTileData.value;
             const counts = {}; currentHand.forEach(t => { const k = t.type + t.value; counts[k] = (counts[k]||0) + 1; });
             const pairs = Object.values(counts).filter(c => c === 2).length;
-            if (pairs === 7) { const res = calcChiitoiResult(counts); displayResult(res, resScore, resYaku); lastCalculationResult = res; return; }
+            if (pairs === 7) { const res = calcChiitoiResult(counts); displayResult(res, resScore, resYaku); lastCalculationResult = res; document.getElementById('btn-transfer').classList.remove('hidden'); return; }
             const decompositions = decompose(counts);
-            if (decompositions.length === 0) { if (isKokushi(counts)) { const score = settings.seat===0 ? 48000 : 32000; resScore.textContent = `${score}点`; resYaku.textContent = "役満 国士無双"; lastCalculationResult = { han:13, fu:0, score: score+settings.honba*300, yakuNames:["国士無双"], fuDetails:[] }; return; } resScore.textContent = "役なし"; resYaku.textContent = "アガリ形になっていません"; lastCalculationResult = null; return; }
+            if (decompositions.length === 0) { 
+                if (isKokushi(counts)) { 
+                    const score = settings.seat===0 ? 48000 : 32000; 
+                    const pay = settings.seat===0 ? { type: settings.winType, total: score + settings.honba*300 } : { type: settings.winType, total: score + settings.honba*300 };
+                    if(settings.winType !== 'ron') {
+                        if(settings.seat===0) { pay.type='tsumo_oya'; pay.ko = 16000 + settings.honba*100; }
+                        else { pay.type='tsumo_ko'; pay.oya = 16000 + settings.honba*100; pay.ko = 8000 + settings.honba*100; }
+                    }
+                    resScore.textContent = `${score}点`; resYaku.textContent = "役満 国士無双"; 
+                    lastCalculationResult = { han:13, fu:0, score: score+settings.honba*300, yakuNames:["国士無双"], fuDetails:[], payments: pay }; 
+                    document.getElementById('btn-transfer').classList.remove('hidden'); return; 
+                } 
+                resScore.textContent = "役なし"; resYaku.textContent = "アガリ形になっていません"; lastCalculationResult = null; return; 
+            }
             let bestResult = { han: 0, fu: 0, score: -1, yakuNames: [], fuDetails: [] };
             decompositions.forEach(groups => { const res = evalHand(groups, counts, agariTileStr); if (res.score > bestResult.score || (res.score === bestResult.score && res.han > bestResult.han)) { bestResult = res; } });
-            if (bestResult.score === -1 || bestResult.han === 0) { resScore.textContent = "役なし"; resYaku.textContent = "アガリ形ですが役がありません"; lastCalculationResult = null; } else { displayResult(bestResult, resScore, resYaku); lastCalculationResult = bestResult; }
+            if (bestResult.score === -1 || bestResult.han === 0) { 
+                resScore.textContent = "役なし"; resYaku.textContent = "アガリ形ですが役がありません"; lastCalculationResult = null; document.getElementById('btn-transfer').classList.add('hidden');
+            } else { 
+                displayResult(bestResult, resScore, resYaku); lastCalculationResult = bestResult; document.getElementById('btn-transfer').classList.remove('hidden'); 
+            }
         }
         function decompose(counts) { const results = []; const keys = Object.keys(counts); keys.forEach(headKey => { if (counts[headKey] >= 2) { const workingCounts = {...counts}; workingCounts[headKey] -= 2; const headGroup = { type: 'head', tile: headKey }; const mentsuRes = decomposeMentsu(workingCounts); mentsuRes.forEach(mList => { results.push([headGroup, ...mList]); }); } }); return results; }
         function decomposeMentsu(c) { let first = null; const keys = ['man','pin','sou','ji']; for(let t of keys) { const limit = t==='ji'?7:9; for(let v=1; v<=limit; v++) { if (c[t+v] > 0) { first = t+v; break; } } if(first) break; } if (!first) return [[]]; const results = []; const type = first.substring(0, first.length-1); const val = parseInt(first.substring(first.length-1)); if (c[first] >= 3) { const nextC = {...c}; nextC[first] -= 3; const tails = decomposeMentsu(nextC); tails.forEach(t => { results.push([{type:'koutsu', tile:first}, ...t]); }); } if (type !== 'ji' && val <= 7) { const k1 = type + val; const k2 = type + (val+1); const k3 = type + (val+2); if (c[k1]>0 && c[k2]>0 && c[k3]>0) { const nextC = {...c}; nextC[k1]--; nextC[k2]--; nextC[k3]--; const tails = decomposeMentsu(nextC); tails.forEach(t => { results.push([{type:'shuntsu', tile:k1}, ...t]); }); } } return results; }
@@ -266,7 +341,34 @@
             return bestRes.score === -1 ? { han: 0, fu: 0, score: 0, yakuNames: [], fuDetails: [] } : bestRes;
         }
         function calcChiitoiResult(counts) { let han=2; let yaku=["七対子(2)"]; if(settings.reach===1) {han++; yaku.push("立直(1)");} if(settings.reach===2) {han+=2; yaku.push("W立直(2)");} if(settings.winType==='tsumo') {han++; yaku.push("門前清自摸(1)");} if(settings.dora>0) {han+=settings.dora; yaku.push(`ドラ(${settings.dora})`);} const isTanyao = Object.keys(counts).every(k => { const t = k.slice(0,-1), v=parseInt(k.slice(-1)); return t!=='ji' && v>1 && v<9; }); if (isTanyao) { han++; yaku.push("断幺九(1)"); } const types = new Set(Object.keys(counts).map(k=>k.slice(0,-1))); const hasJi = types.has('ji'); types.delete('ji'); if(types.size===1) { if(hasJi){han+=3;yaku.push("混一色(3)");} else{han+=6;yaku.push("清一色(6)");} } const fuDetails = [{ text: '七対子(固定)', points: 25 }]; return calculateFinalScore(han, 25, yaku, fuDetails); }
-        function calculateFinalScore(han, fu, yakuNames, fuDetails) { let base = fu * Math.pow(2, han+2); if(han>=5) base=2000; if(han>=6) base=3000; if(han>=8) base=4000; if(han>=11) base=6000; if(han>=13) base=8000; let score=0; if(settings.seat===0){ score = settings.winType==='ron' ? Math.ceil((base*6)/100)*100 : Math.ceil((base*2)/100)*100 * 3; } else { score = settings.winType==='ron' ? Math.ceil((base*4)/100)*100 : Math.ceil((base*2)/100)*100 + Math.ceil((base*1)/100)*100*2; } score += settings.honba * 300; return { han, fu, score, yakuNames, fuDetails }; }
+        function calculateFinalScore(han, fu, yakuNames, fuDetails) { 
+            let base = fu * Math.pow(2, han+2); if(han>=5) base=2000; if(han>=6) base=3000; if(han>=8) base=4000; if(han>=11) base=6000; if(han>=13) base=8000; 
+            let score=0; let payments = { type: '', total: 0, ko: 0, oya: 0 };
+            let honba = settings.honba;
+            
+            if(settings.seat===0){ // 親
+                if (settings.winType==='ron') { 
+                    score = Math.ceil((base*6)/100)*100; 
+                    payments = { type: 'ron', total: score + honba*300 };
+                } else { 
+                    let k = Math.ceil((base*2)/100)*100; 
+                    score = k * 3; 
+                    payments = { type: 'tsumo_oya', total: score + honba*300, ko: k + honba*100 };
+                }
+            } else { // 子
+                if (settings.winType==='ron') { 
+                    score = Math.ceil((base*4)/100)*100; 
+                    payments = { type: 'ron', total: score + honba*300 };
+                } else { 
+                    let o = Math.ceil((base*2)/100)*100; 
+                    let k = Math.ceil((base*1)/100)*100; 
+                    score = o + k*2; 
+                    payments = { type: 'tsumo_ko', total: score + honba*300, oya: o + honba*100, ko: k + honba*100 };
+                }
+            }
+            score += honba * 300; 
+            return { han, fu, score, yakuNames, fuDetails, payments }; 
+        }
         function displayResult(res, elScore, elYaku) { elScore.textContent = `${res.score}点`; elYaku.textContent = `${res.han}飜 ${res.fu}符\n${res.yakuNames.join(' ')}`; }
         init();
     </script>
@@ -277,8 +379,6 @@
 
         // ==========================================
         // ★★★ ここを書き換える ★★★
-        // 先ほどコピーした firebaseConfig を下に貼り付けてください！
-        // ==========================================
   const firebaseConfig = {
     apiKey: "AIzaSyBNYx05vPh_8H217AP4sVYOq7Xu3k9vzVA",
     authDomain: "mj-score-app.firebaseapp.com",
@@ -289,82 +389,119 @@
   };
         // ==========================================
 
-        let app, db;
-        try {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            console.log("Firebase 準備完了！");
-        } catch(e) {
-            console.error("Firebase 初期化エラー:", e);
-        }
+        let app, db, currentRoomId = null;
+        try { app = initializeApp(firebaseConfig); db = getFirestore(app); } catch(e) { console.error(e); }
 
-        let currentRoomId = null;
-
-        // 【卓を作る（ホスト）】
         window.createRoom = async function() {
-            if (!db) return alert("データベースの設定が完了していません。");
-            
-            // 4桁のランダムな数字を作成
+            if (!db) return alert("データベースの設定が未完了です。");
             const roomId = Math.floor(1000 + Math.random() * 9000).toString(); 
             try {
-                // クラウド上に初期スコア(25000)を保存
-                await setDoc(doc(db, "rooms", roomId), {
-                    scores: [25000, 25000, 25000, 25000]
-                });
-                // 自動でその部屋に入る
+                await setDoc(doc(db, "rooms", roomId), { scores: [25000, 25000, 25000, 25000] });
                 window.joinRoom(roomId);
                 alert(`卓を作りました！\nみんなに ルームID:【 ${roomId} 】を教えてください。`);
-            } catch(e) {
-                alert("エラーが発生しました: " + e.message);
-            }
+            } catch(e) { alert("エラー: " + e.message); }
         }
 
-        // 【卓に入る（参加）】
         window.joinRoom = function(id) {
-            if (!db) return alert("データベースの設定が完了していません。");
-            
+            if (!db) return;
             const roomId = id || prompt("4桁のルームIDを入力してください");
             if(!roomId) return;
-
             currentRoomId = roomId;
-
-            // ★魔法のコード: クラウドのデータが変わるたびに自動でここが動く (リアルタイム同期)
             onSnapshot(doc(db, "rooms", roomId), (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    // 画面のスコアを更新
                     document.getElementById('score-0').textContent = data.scores[0];
                     document.getElementById('score-1').textContent = data.scores[1];
                     document.getElementById('score-2').textContent = data.scores[2];
                     document.getElementById('score-3').textContent = data.scores[3];
-                } else {
-                    if(!id) alert("そのIDの卓は見つかりませんでした。");
                 }
             });
-
-            // UIの切り替え（ボタンを隠してスコアボードを表示）
-            document.getElementById('network-buttons').classList.add('hidden');
-            document.getElementById('scoreboard').classList.remove('hidden');
             document.getElementById('room-id-display').textContent = roomId;
         }
 
-        // 【テスト通信（Aさんから1000点引いて、Bさんに1000点足す）】
-        window.testSync = async function() {
-            if (!currentRoomId) return;
-            try {
-                // 現在のスコアの数字を取得して計算
-                const s0 = parseInt(document.getElementById('score-0').textContent) - 1000;
-                const s1 = parseInt(document.getElementById('score-1').textContent) + 1000;
-                const s2 = parseInt(document.getElementById('score-2').textContent);
-                const s3 = parseInt(document.getElementById('score-3').textContent);
-                
-                // クラウドのデータを上書き（これが全員のスマホに一瞬で同期される）
-                await updateDoc(doc(db, "rooms", currentRoomId), {
-                    scores: [s0, s1, s2, s3]
-                });
-            } catch(e) {
-                alert("通信エラー: " + e.message);
+        // --- 点数反映モーダルのUI制御 ---
+        let t_agari = 0, t_furi = 1, t_oya = 1;
+
+        window.openTransferModal = function(e) {
+            if(e) e.stopPropagation();
+            if(!lastCalculationResult) return;
+            
+            const p = lastCalculationResult.payments;
+            document.getElementById('transfer-amount-text').textContent = p.total + " 点";
+            
+            if(p.type === 'ron') {
+                document.getElementById('transfer-furi-section').classList.remove('hidden');
+                document.getElementById('transfer-oya-section').classList.add('hidden');
+            } else if (p.type === 'tsumo_ko') {
+                document.getElementById('transfer-furi-section').classList.add('hidden');
+                document.getElementById('transfer-oya-section').classList.remove('hidden');
+            } else { // 親ツモ
+                document.getElementById('transfer-furi-section').classList.add('hidden');
+                document.getElementById('transfer-oya-section').classList.add('hidden');
             }
+            
+            document.getElementById('transfer-modal').classList.add('active');
+        }
+
+        window.closeTransferModal = function() { document.getElementById('transfer-modal').classList.remove('active'); }
+
+        window.setTransferAgari = function(val) { t_agari = val; updateTransferBtns('ta', val); }
+        window.setTransferFuri = function(val) { t_furi = val; updateTransferBtns('tf', val); }
+        window.setTransferOya = function(val) { t_oya = val; updateTransferBtns('to', val); }
+        
+        function updateTransferBtns(prefix, val) {
+            for(let i=0; i<4; i++) {
+                const btn = document.getElementById(`${prefix}-${i}`);
+                if(i === val) { btn.classList.add('active'); btn.classList.replace('text-gray-300', 'text-gray-900'); }
+                else { btn.classList.remove('active'); btn.classList.replace('text-gray-900', 'text-gray-300'); }
+            }
+        }
+
+        // --- 点数移動の実行（ローカル ＆ 通信 両対応） ---
+        window.executeTransfer = async function() {
+            const p = lastCalculationResult.payments;
+            let diff = [0, 0, 0, 0];
+            
+            // アガリ処理
+            diff[t_agari] += p.total;
+            
+            // 支払い処理
+            if(p.type === 'ron') {
+                if(t_agari === t_furi) return alert("アガった人と振り込んだ人は同じにできません！");
+                diff[t_furi] -= p.total;
+            } else if (p.type === 'tsumo_oya') {
+                for(let i=0; i<4; i++) { if(i !== t_agari) diff[i] -= p.ko; }
+            } else if (p.type === 'tsumo_ko') {
+                if(t_agari === t_oya) return alert("アガった人と親は同じにできません！");
+                for(let i=0; i<4; i++) {
+                    if(i === t_agari) continue;
+                    if(i === t_oya) diff[i] -= p.oya;
+                    else diff[i] -= p.ko;
+                }
+            }
+
+            // 現在のスコアに合算
+            let newScores = [
+                parseInt(document.getElementById('score-0').textContent) + diff[0],
+                parseInt(document.getElementById('score-1').textContent) + diff[1],
+                parseInt(document.getElementById('score-2').textContent) + diff[2],
+                parseInt(document.getElementById('score-3').textContent) + diff[3]
+            ];
+
+            // データベースに送信するか、ローカルのみ書き換えるか
+            if (currentRoomId && db) {
+                try {
+                    await updateDoc(doc(db, "rooms", currentRoomId), { scores: newScores });
+                } catch(e) { alert("通信エラー: " + e.message); return; }
+            } else {
+                document.getElementById('score-0').textContent = newScores[0];
+                document.getElementById('score-1').textContent = newScores[1];
+                document.getElementById('score-2').textContent = newScores[2];
+                document.getElementById('score-3').textContent = newScores[3];
+            }
+
+            closeTransferModal();
+            clearHand(); // 終わったら自動で手牌をクリアしてスッキリさせる
         }
     </script>
 </body>
