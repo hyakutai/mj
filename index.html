@@ -9,7 +9,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1a202c">
     
-    <title>麻雀点数計算機 Pro v1.2</title>
+    <title>麻雀点数計算機 Pro v1.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -67,6 +67,10 @@
         .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .press-active { transform: scale(0.98); transition: transform 0.1s; }
+
+        /* ルールブック用のスクロールスナップ設定 */
+        .snap-x-mandatory { scroll-snap-type: x mandatory; }
+        .snap-center { scroll-snap-align: center; }
     </style>
 </head>
 <body>
@@ -75,9 +79,11 @@
     <div class="flex flex-1 gap-2 p-2 pt-[max(8px,env(safe-area-inset-top))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))] flex-col landscape:flex-row min-h-0">
         
         <div class="relative bg-gray-800 rounded-lg p-2 flex flex-col gap-1.5 shadow-lg overflow-y-auto no-scrollbar border border-gray-700 w-full landscape:w-[30%] shrink-0 landscape:shrink">
-            <div class="absolute top-1 right-2 text-[10px] text-gray-500 font-mono tracking-wider z-10 pointer-events-none">v1.2</div>
+            
+            <button onclick="openRulebook()" class="absolute top-0.5 right-10 text-lg hover:scale-110 transition-transform z-20" title="ルールを確認">📖</button>
+            <div class="absolute top-1.5 right-2 text-[10px] text-gray-500 font-mono tracking-wider z-10 pointer-events-none">v1.3</div>
 
-            <div class="grid grid-cols-2 gap-1.5 mt-2">
+            <div class="grid grid-cols-2 gap-1.5 mt-3">
                 <button id="btn-prevalent" class="bg-gray-700 py-1.5 portrait:py-1 rounded text-xs font-bold border border-gray-600 transition-all" onclick="togglePrevalent()">東場</button>
                 <button id="btn-seat" class="bg-red-900 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-700 transition-all" onclick="toggleSeat()">東家(親)</button>
             </div>
@@ -145,6 +151,116 @@
         </div>
     </div>
 </div>
+
+    <div id="rule-modal" class="modal-overlay" onclick="closeRulebook()">
+        <div class="bg-gray-800 w-11/12 max-w-md rounded-lg p-3 shadow-xl border border-gray-700 relative max-h-[85vh] flex flex-col" onclick="event.stopPropagation()">
+            <button onclick="closeRulebook()" class="absolute top-2 right-2 text-gray-400 hover:text-white bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center z-20">✕</button>
+            <h3 class="text-base font-bold text-yellow-400 mb-2 text-center border-b border-gray-700 pb-2 shrink-0">📖 役・符計算ルール</h3>
+            
+            <div class="flex-1 overflow-x-auto overflow-y-hidden snap-x-mandatory flex no-scrollbar" id="rule-scroll-container" onscroll="updateRuleDots()">
+                
+                <div class="w-full shrink-0 snap-center overflow-y-auto px-2 max-h-full pb-4">
+                    <h4 class="text-sm font-bold text-white bg-blue-900 px-2 py-1 rounded border border-blue-700 sticky top-0">🀄 役の飜数一覧表</h4>
+                    
+                    <div class="mt-2">
+                        <div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">1飜</div>
+                        <div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2">
+                            <span>立直 (リーチ)</span><span>一発</span>
+                            <span>門前清自摸和 (ツモ)</span><span>断幺九 (タンヤオ)</span>
+                            <span>平和 (ピンフ)</span><span>一盃口 (イーペーコー)</span>
+                            <span>役牌 (白/發/中/場風/自風)</span><span>嶺上開花 / 槍槓</span>
+                            <span>海底撈月 / 河底撈魚</span>
+                        </div>
+                        
+                        <div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">2飜</div>
+                        <div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2">
+                            <span>三色同順 <span class="text-gray-500">(鳴1)</span></span><span>一気通貫 <span class="text-gray-500">(鳴1)</span></span>
+                            <span>混全帯幺九 <span class="text-gray-500">(鳴1)</span></span><span>七対子 (チートイツ)</span>
+                            <span>対々和 (トイトイ)</span><span>三暗刻 (サンアンコウ)</span>
+                            <span>三色同刻</span><span>三槓子</span>
+                            <span>小三元</span><span>ダブル立直</span>
+                        </div>
+
+                        <div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">3飜</div>
+                        <div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2">
+                            <span>混一色 <span class="text-gray-500">(鳴2)</span></span><span>純全帯幺九 <span class="text-gray-500">(鳴2)</span></span>
+                            <span>二盃口 (リャンペーコー)</span>
+                        </div>
+
+                        <div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">6飜</div>
+                        <div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2">
+                            <span>清一色 (チンイツ) <span class="text-gray-500">(鳴5)</span></span>
+                        </div>
+
+                        <div class="text-xs font-bold text-red-400 mb-1 border-b border-gray-600">役満</div>
+                        <div class="text-[10px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5">
+                            <span>国士無双 / 四暗刻</span><span>大三元 / 字一色</span>
+                            <span>小四喜 / 大四喜</span><span>緑一色 / 清老頭</span>
+                            <span>九蓮宝燈 / 四槓子</span><span>天和 / 地和</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full shrink-0 snap-center overflow-y-auto px-2 max-h-full pb-4">
+                    <h4 class="text-sm font-bold text-white bg-green-900 px-2 py-1 rounded border border-green-700 sticky top-0">🧮 符計算のルール</h4>
+                    
+                    <div class="mt-2 space-y-2">
+                        <div class="bg-gray-700/50 p-1.5 rounded">
+                            <div class="text-xs font-bold text-yellow-300">① 基本符 (副底)</div>
+                            <div class="text-[11px] text-gray-300 pl-2">一律 <span class="font-bold text-white">20符</span></div>
+                        </div>
+
+                        <div class="bg-gray-700/50 p-1.5 rounded">
+                            <div class="text-xs font-bold text-yellow-300">② アガリ方</div>
+                            <div class="text-[11px] text-gray-300 pl-2 flex justify-between">
+                                <span>門前ロン: <span class="text-white font-bold">+10符</span></span>
+                                <span>ツモ: <span class="text-white font-bold">+2符</span></span>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-700/50 p-1.5 rounded">
+                            <div class="text-xs font-bold text-yellow-300 mb-1">③ 面子 (メンツ)</div>
+                            <table class="w-full text-[10px] text-center border-collapse">
+                                <tr class="bg-gray-600 text-gray-200">
+                                    <th class="p-0.5 border border-gray-500">種類</th><th class="p-0.5 border border-gray-500">明刻</th><th class="p-0.5 border border-gray-500">暗刻</th><th class="p-0.5 border border-gray-500">明槓</th><th class="p-0.5 border border-gray-500">暗槓</th>
+                                </tr>
+                                <tr class="text-gray-300">
+                                    <td class="p-0.5 border border-gray-600">中張牌<br><span class="text-[8px]">(2〜8)</span></td><td class="border border-gray-600">2</td><td class="border border-gray-600">4</td><td class="border border-gray-600">8</td><td class="border border-gray-600">16</td>
+                                </tr>
+                                <tr class="text-gray-300">
+                                    <td class="p-0.5 border border-gray-600">幺九牌<br><span class="text-[8px]">(1,9,字)</span></td><td class="border border-gray-600">4</td><td class="border border-gray-600">8</td><td class="border border-gray-600">16</td><td class="border border-gray-600">32</td>
+                                </tr>
+                            </table>
+                            <div class="text-[9px] text-gray-400 mt-0.5">※順子(シュンツ)はすべて0符</div>
+                        </div>
+
+                        <div class="bg-gray-700/50 p-1.5 rounded">
+                            <div class="text-xs font-bold text-yellow-300">④ 雀頭 (アタマ) と ⑤ 待ち</div>
+                            <div class="text-[11px] text-gray-300 pl-2">
+                                役牌の雀頭: <span class="text-white font-bold">+2符</span><br>
+                                嵌張/辺張/単騎 待ち: <span class="text-white font-bold">+2符</span><br>
+                                <span class="text-[9px] text-gray-400">※両面・双碰待ちは0符</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-700/50 p-1.5 rounded border border-red-900/50">
+                            <div class="text-xs font-bold text-red-400">⑥ 例外ルール</div>
+                            <div class="text-[11px] text-gray-300 pl-2">
+                                七対子 (チートイツ): <span class="text-white font-bold">25符固定</span><br>
+                                平和ツモ: <span class="text-white font-bold">20符固定</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center items-center gap-2 pt-2 shrink-0 border-t border-gray-700" id="rule-dots">
+                <div class="w-2 h-2 rounded-full bg-yellow-400 transition-colors"></div>
+                <div class="w-2 h-2 rounded-full bg-gray-600 transition-colors"></div>
+            </div>
+            <div class="text-center text-[9px] text-gray-400 mt-1 shrink-0">◀ 左右にフリックして切り替え ▶</div>
+        </div>
+    </div>
 
     <div id="camera-modal" class="modal-overlay flex-col">
         <video id="camera-video" class="w-full h-full object-cover" autoplay playsinline></video>
@@ -254,6 +370,23 @@
 
         function clearHand() { currentHand=[]; renderHand(); document.getElementById('result-score').textContent="--- 点"; document.getElementById('result-yaku').textContent="役なし"; lastCalculationResult = null; }
 
+        // --- ルールブック機能 ---
+        function openRulebook() {
+            document.getElementById('rule-modal').classList.add('active');
+        }
+        function closeRulebook() {
+            document.getElementById('rule-modal').classList.remove('active');
+        }
+        function updateRuleDots() {
+            const container = document.getElementById('rule-scroll-container');
+            const dots = document.getElementById('rule-dots').children;
+            const pageIndex = Math.round(container.scrollLeft / container.clientWidth);
+            for(let i = 0; i < dots.length; i++) {
+                dots[i].className = i === pageIndex ? "w-2 h-2 rounded-full bg-yellow-400 transition-colors" : "w-2 h-2 rounded-full bg-gray-600 transition-colors";
+            }
+        }
+
+        // --- カメラ機能 ---
         let videoStream = null;
         async function openCamera() {
             const modal = document.getElementById('camera-modal'); const video = document.getElementById('camera-video'); modal.classList.add('active');
@@ -275,6 +408,7 @@
             alert("📷 デモ: ダミーの手牌をセットしました");
         }
 
+        // --- 詳細表示モーダル制御（長押し） ---
         let pressTimer;
         function setupLongPress() {
             const target = document.getElementById('score-container');
@@ -311,7 +445,7 @@
         }
         function closeDetail() { document.getElementById('detail-modal').classList.remove('active'); }
 
-        // --- ★v1.2: 精密計算エンジン ---
+        // --- 計算エンジン（変更なし・完全維持） ---
         function calculateFull() {
             const resScore = document.getElementById('result-score'); const resYaku = document.getElementById('result-yaku');
             if (currentHand.length !== 14) { resScore.textContent = "枚数不足"; resYaku.textContent = "牌は14枚必要です"; lastCalculationResult = null; return; }
@@ -353,16 +487,11 @@
         function decomposeMentsu(c) { let first = null; const keys = ['man','pin','sou','ji']; for(let t of keys) { const limit = t==='ji'?7:9; for(let v=1; v<=limit; v++) { if (c[t+v] > 0) { first = t+v; break; } } if(first) break; } if (!first) return [[]]; const results = []; const type = first.substring(0, first.length-1); const val = parseInt(first.substring(first.length-1)); if (c[first] >= 3) { const nextC = {...c}; nextC[first] -= 3; const tails = decomposeMentsu(nextC); tails.forEach(t => { results.push([{type:'koutsu', tile:first}, ...t]); }); } if (type !== 'ji' && val <= 7) { const k1 = type + val; const k2 = type + (val+1); const k3 = type + (val+2); if (c[k1]>0 && c[k2]>0 && c[k3]>0) { const nextC = {...c}; nextC[k1]--; nextC[k2]--; nextC[k3]--; const tails = decomposeMentsu(nextC); tails.forEach(t => { results.push([{type:'shuntsu', tile:k1}, ...t]); }); } } return results; }
         function isKokushi(c) { const yaochu = ['man1','man9','pin1','pin9','sou1','sou9','ji1','ji2','ji3','ji4','ji5','ji6','ji7']; const keys = Object.keys(c); if(keys.length !== 13) return false; return keys.every(k => yaochu.includes(k)); }
 
-        // --- ★v1.2: 待ちの全パターン評価ロジック ---
         function evalHand(groups, counts, agariTileStr) {
             let bestRes = { han: 0, fu: 0, score: -1, yakuNames: [], fuDetails: [] };
+            const head = groups.find(g => g.type === 'head'); const mentsu = groups.filter(g => g.type !== 'head');
+            const shuntsu = mentsu.filter(g => g.type === 'shuntsu'); const koutsu = mentsu.filter(g => g.type === 'koutsu');
 
-            const head = groups.find(g => g.type === 'head');
-            const mentsu = groups.filter(g => g.type !== 'head');
-            const shuntsu = mentsu.filter(g => g.type === 'shuntsu');
-            const koutsu = mentsu.filter(g => g.type === 'koutsu');
-
-            // 1. 上がり牌がどのメンツに属するか（待ちの形）を特定する
             let possibleWaits = [];
             if (head.tile === agariTileStr) possibleWaits.push({ type: 'tanki', fu: 2, pinfu: false, name: '単騎待ち' });
             koutsu.forEach(k => { if (k.tile === agariTileStr) possibleWaits.push({ type: 'shanpon', fu: 0, pinfu: false, name: '双碰待ち', targetGroup: k }); });
@@ -377,7 +506,6 @@
                 }
             });
 
-            // 2. 待ちに依存しない共通の役を計算
             let baseHan = 0; let baseYaku = [];
             if (settings.reach === 1) { baseHan+=1; baseYaku.push("立直(1)"); }
             if (settings.reach === 2) { baseHan+=2; baseYaku.push("W立直(2)"); }
@@ -408,22 +536,13 @@
             let ittsu = false; ['man','pin','sou'].forEach(t => { const vals = shuntsu.filter(s=>s.tile.startsWith(t)).map(s=>parseInt(s.tile.slice(-1))); if(vals.includes(1) && vals.includes(4) && vals.includes(7)) ittsu = true; });
             if(ittsu) { baseHan+=2; baseYaku.push("一気通貫(2)"); }
 
-            // 3. 各待ちパターンについて「符」と「待ち依存の役（平和・三暗刻など）」を計算し、最高得点を出す
             possibleWaits.forEach(wait => {
-                let han = baseHan;
-                let yaku = [...baseYaku];
-                let fuDetails = [{ text: '副底', points: 20 }];
-                let fu = 20;
-
+                let han = baseHan; let yaku = [...baseYaku]; let fuDetails = [{ text: '副底', points: 20 }]; let fu = 20;
                 const isPinfu = (shuntsu.length === 4 && !isHeadYakuhai && wait.pinfu);
                 if (isPinfu) { han += 1; yaku.push("平和(1)"); }
 
                 let ankouCount = 0;
-                koutsu.forEach(k => {
-                    let isAnkou = true;
-                    if (wait.type === 'shanpon' && wait.targetGroup === k && settings.winType === 'ron') { isAnkou = false; }
-                    if (isAnkou) ankouCount++;
-                });
+                koutsu.forEach(k => { let isAnkou = true; if (wait.type === 'shanpon' && wait.targetGroup === k && settings.winType === 'ron') { isAnkou = false; } if (isAnkou) ankouCount++; });
                 if (ankouCount === 3) { han += 2; yaku.push("三暗刻(2)"); }
                 if (ankouCount === 4) { han += 8; yaku.push("四暗刻(役満)"); }
 
@@ -431,36 +550,21 @@
                 if (settings.winType === 'tsumo') { fu += 2; fuDetails.push({ text: 'ツモ符', points: 2 }); }
 
                 koutsu.forEach(k => {
-                    const t = k.tile.slice(0,-1), v=parseInt(k.tile.slice(-1));
-                    const isYaochu = (t==='ji' || v===1 || v===9);
-                    let isAnkou = true;
-                    if (wait.type === 'shanpon' && wait.targetGroup === k && settings.winType === 'ron') { isAnkou = false; }
+                    const t = k.tile.slice(0,-1), v=parseInt(k.tile.slice(-1)); const isYaochu = (t==='ji' || v===1 || v===9);
+                    let isAnkou = true; if (wait.type === 'shanpon' && wait.targetGroup === k && settings.winType === 'ron') { isAnkou = false; }
                     const p = isYaochu ? (isAnkou ? 8 : 4) : (isAnkou ? 4 : 2);
-                    fu += p;
-                    fuDetails.push({ text: `${isYaochu?'幺九':'中張'}${isAnkou?'暗刻':'明刻'}`, points: p });
+                    fu += p; fuDetails.push({ text: `${isYaochu?'幺九':'中張'}${isAnkou?'暗刻':'明刻'}`, points: p });
                 });
 
                 if (isHeadYakuhai) { fu += 2; fuDetails.push({ text: '役牌雀頭', points: 2 }); }
+                if (wait.fu > 0) { fu += wait.fu; fuDetails.push({ text: wait.name, points: wait.fu }); }
 
-                if (wait.fu > 0) {
-                    fu += wait.fu;
-                    fuDetails.push({ text: wait.name, points: wait.fu });
-                }
-
-                if (isPinfu && settings.winType === 'tsumo') {
-                    fu = 20; fuDetails = [{ text: '平和ツモ(固定)', points: 20 }];
-                } else {
-                    fu = Math.ceil(fu/10)*10;
-                }
+                if (isPinfu && settings.winType === 'tsumo') { fu = 20; fuDetails = [{ text: '平和ツモ(固定)', points: 20 }]; } 
+                else { fu = Math.ceil(fu/10)*10; }
 
                 let res = calculateFinalScore(han, fu, yaku, fuDetails);
-                
-                // より高い点数、または同点でも飜数が高い待ちを採用する（高点法）
-                if (res.score > bestRes.score || (res.score === bestRes.score && res.han > bestRes.han)) {
-                    bestRes = res;
-                }
+                if (res.score > bestRes.score || (res.score === bestRes.score && res.han > bestRes.han)) { bestRes = res; }
             });
-
             return bestRes.score === -1 ? { han: 0, fu: 0, score: 0, yakuNames: [], fuDetails: [] } : bestRes;
         }
 
