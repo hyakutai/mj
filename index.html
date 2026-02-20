@@ -9,7 +9,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1a202c">
     
-    <title>麻雀点数計算機 Pro v1.8.1</title>
+    <title>麻雀点数計算機 Pro v1.8.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { theme: { extend: { screens: { 'landscape': {'raw': '(orientation: landscape)'}, 'portrait': {'raw': '(orientation: portrait)'} } } } }
@@ -44,34 +44,34 @@
         <div class="order-1 landscape:order-none flex flex-col landscape:flex-row gap-1.5 landscape:gap-2 justify-between items-stretch landscape:items-center w-full landscape:col-span-7 landscape:col-start-4 landscape:row-start-1 shrink-0">
             
             <div class="flex justify-between items-center w-full landscape:w-auto shrink-0">
-                <div class="flex gap-2">
-                    <button onclick="window.createRoom()" class="bg-indigo-700 hover:bg-indigo-600 text-white font-bold text-[11px] px-3 py-1.5 rounded shadow transition-colors border border-indigo-500 leading-none">🌐 卓作成</button>
-                    <button onclick="window.joinRoom()" class="bg-gray-700 hover:bg-gray-600 text-white font-bold text-[11px] px-3 py-1.5 rounded shadow transition-colors border border-gray-500 leading-none">🚪 参加</button>
+                <div class="flex landscape:flex-col gap-2 landscape:gap-1.5 justify-center h-full">
+                    <button onclick="window.createRoom()" class="bg-indigo-700 hover:bg-indigo-600 text-white font-bold text-[11px] landscape:text-[10px] px-3 landscape:px-2 py-1.5 landscape:py-1 rounded shadow transition-colors border border-indigo-500 text-center">🌐 卓作成</button>
+                    <button onclick="window.joinRoom()" class="bg-gray-700 hover:bg-gray-600 text-white font-bold text-[11px] landscape:text-[10px] px-3 landscape:px-2 py-1.5 landscape:py-1 rounded shadow transition-colors border border-gray-500 text-center">🚪 参 加</button>
                 </div>
                 
                 <div class="flex landscape:hidden items-center gap-2">
-                    <span class="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5 leading-none">v1.8.1</span>
-                    <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform leading-none mt-0.5">📖</button>
+                    <span class="text-[10px] text-gray-500 font-mono tracking-wider">v1.8.2</span>
+                    <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform">📖</button>
                 </div>
             </div>
 
-            <div id="scoreboard" class="flex-1 bg-gray-900 rounded border border-gray-700 px-2 py-1.5 flex flex-col landscape:flex-row justify-center landscape:justify-between items-center shadow-inner overflow-hidden">
+            <div id="scoreboard" class="flex-1 bg-gray-900 rounded border border-gray-700 px-2 landscape:px-3 py-1.5 flex flex-col landscape:flex-row justify-center landscape:justify-between items-center shadow-inner overflow-hidden h-full">
                 
                 <div class="w-full landscape:w-auto text-center landscape:text-left shrink-0 flex items-center justify-center landscape:justify-start">
-                    <span class="text-[10px] text-gray-400 leading-none mt-0.5">ID:<span id="room-id-display" class="text-yellow-400 font-bold ml-1">ローカル</span></span>
+                    <span class="text-[10px] landscape:text-[11px] text-gray-400 font-mono">ID:<span id="room-id-display" class="text-yellow-400 font-bold ml-1">ローカル</span></span>
                 </div>
                 
-                <div class="grid grid-cols-2 landscape:flex gap-x-6 gap-y-1.5 landscape:gap-2 lg:landscape:gap-3 text-[12px] landscape:text-[10px] font-bold w-fit mx-auto landscape:mx-0 whitespace-nowrap shrink-0 mt-1.5 landscape:mt-0 items-center">
-                    <div class="text-red-400 flex items-center justify-between landscape:justify-start landscape:gap-1 w-[4.5rem] landscape:w-auto leading-none mt-0.5"><span>A:</span><span id="score-0">25000</span></div>
-                    <div class="text-blue-400 flex items-center justify-between landscape:justify-start landscape:gap-1 w-[4.5rem] landscape:w-auto leading-none mt-0.5"><span>B:</span><span id="score-1">25000</span></div>
-                    <div class="text-green-400 flex items-center justify-between landscape:justify-start landscape:gap-1 w-[4.5rem] landscape:w-auto leading-none mt-0.5"><span>C:</span><span id="score-2">25000</span></div>
-                    <div class="text-yellow-400 flex items-center justify-between landscape:justify-start landscape:gap-1 w-[4.5rem] landscape:w-auto leading-none mt-0.5"><span>D:</span><span id="score-3">25000</span></div>
+                <div class="grid grid-cols-2 landscape:flex gap-x-6 gap-y-1.5 landscape:gap-3 lg:landscape:gap-4 text-[12px] landscape:text-[11px] font-bold w-fit mx-auto landscape:mx-0 whitespace-nowrap shrink-0 items-center mt-1 landscape:mt-0">
+                    <div class="text-red-400 flex items-center justify-between landscape:justify-start gap-1 w-[4.5rem] landscape:w-auto"><span>A:</span><span id="score-0">25000</span></div>
+                    <div class="text-blue-400 flex items-center justify-between landscape:justify-start gap-1 w-[4.5rem] landscape:w-auto"><span>B:</span><span id="score-1">25000</span></div>
+                    <div class="text-green-400 flex items-center justify-between landscape:justify-start gap-1 w-[4.5rem] landscape:w-auto"><span>C:</span><span id="score-2">25000</span></div>
+                    <div class="text-yellow-400 flex items-center justify-between landscape:justify-start gap-1 w-[4.5rem] landscape:w-auto"><span>D:</span><span id="score-3">25000</span></div>
                 </div>
             </div>
 
-            <div class="hidden landscape:flex items-center gap-2 shrink-0 pl-1">
-                <span class="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5 leading-none">v1.8.1</span>
-                <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform leading-none mt-0.5" title="ルールを確認">📖</button>
+            <div class="hidden landscape:flex items-center justify-center gap-2 shrink-0 pl-1">
+                <span class="text-[10px] text-gray-500 font-mono tracking-wider">v1.8.2</span>
+                <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform" title="ルールを確認">📖</button>
             </div>
         </div>
 
@@ -87,19 +87,19 @@
             
             <div class="flex gap-1.5">
                 <div class="flex-1 flex items-center justify-between bg-gray-700 px-2 py-1 rounded border border-gray-600 h-8">
-                    <span class="text-[11px] font-bold text-gray-300 leading-none mt-0.5">ドラ</span>
-                    <div class="flex items-center gap-1 h-full">
-                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm leading-none active:bg-gray-500 pb-0.5" onclick="updCnt('dora',-1)">-</button>
-                        <span id="dora-disp" class="font-mono text-sm w-4 text-center text-yellow-400 leading-none mt-0.5">0</span>
-                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm leading-none active:bg-gray-500 pb-0.5" onclick="updCnt('dora',1)">+</button>
+                    <span class="text-[11px] font-bold text-gray-300">ドラ</span>
+                    <div class="flex items-center gap-1.5 h-full">
+                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm font-bold active:bg-gray-500" onclick="updCnt('dora',-1)">-</button>
+                        <span id="dora-disp" class="font-mono text-sm w-4 text-center text-yellow-400">0</span>
+                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm font-bold active:bg-gray-500" onclick="updCnt('dora',1)">+</button>
                     </div>
                 </div>
                 <div class="flex-1 flex items-center justify-between bg-gray-700 px-2 py-1 rounded border border-gray-600 h-8">
-                    <span class="text-[11px] font-bold text-gray-300 leading-none mt-0.5">本場</span>
-                    <div class="flex items-center gap-1 h-full">
-                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm leading-none active:bg-gray-500 pb-0.5" onclick="updCnt('honba',-1)">-</button>
-                        <span id="honba-disp" class="font-mono text-sm w-4 text-center leading-none mt-0.5">0</span>
-                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm leading-none active:bg-gray-500 pb-0.5" onclick="updCnt('honba',1)">+</button>
+                    <span class="text-[11px] font-bold text-gray-300">本場</span>
+                    <div class="flex items-center gap-1.5 h-full">
+                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm font-bold active:bg-gray-500" onclick="updCnt('honba',-1)">-</button>
+                        <span id="honba-disp" class="font-mono text-sm w-4 text-center">0</span>
+                        <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm font-bold active:bg-gray-500" onclick="updCnt('honba',1)">+</button>
                     </div>
                 </div>
             </div>
@@ -108,10 +108,7 @@
                 <div id="result-score" class="text-center text-2xl landscape:text-3xl font-bold text-yellow-400">--- 点</div>
                 <div id="result-yaku" class="text-center text-[10px] landscape:text-[11px] text-gray-300 mt-1 leading-tight whitespace-pre-wrap">役なし</div>
                 <div class="text-center text-[8px] text-gray-500 mt-0.5 portrait:hidden">※長押しで詳細を表示</div>
-                
-                <button id="btn-transfer" onclick="openTransferModal(event)" class="hidden absolute bottom-1.5 right-1.5 bg-yellow-600 hover:bg-yellow-500 text-white text-[10px] font-bold px-3 py-1 rounded shadow-lg border border-yellow-400 z-10 active:scale-95 transition-transform">
-                    💰 送信
-                </button>
+                <button id="btn-transfer" onclick="openTransferModal(event)" class="hidden absolute bottom-1.5 right-1.5 bg-yellow-600 hover:bg-yellow-500 text-white text-[10px] font-bold px-3 py-1 rounded shadow-lg border border-yellow-400 z-10 active:scale-95 transition-transform">💰 送信</button>
             </div>
         </div>
 
@@ -147,7 +144,7 @@
             <div class="flex-1 overflow-x-auto overflow-y-hidden snap-x-mandatory flex no-scrollbar" id="rule-scroll-container" onscroll="updateRuleDots()">
                 <div class="w-full shrink-0 snap-center overflow-y-auto px-2 max-h-full pb-4">
                     <h4 class="text-sm font-bold text-white bg-blue-900 px-2 py-1 rounded border border-blue-700 sticky top-0">🀄 役の飜数一覧表</h4>
-                    <div class="mt-2"><div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">1飜</div><div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2"><span>立直 (リーチ)</span><span>一発</span><span>門前清自摸和 (ツモ)</span><span>断幺九 (タンヤオ)</span><span>平和 (ピンフ)</span><span>一盃口 (イーペーコー)</span><span>役牌 (白/發/中/場風/自風)</span><span>嶺上開花 / 槍槓</span><span>海底撈月 / 河底撈魚</span></div><div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">2飜</div><div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2"><span>三色同順 <span class="text-gray-500">(鳴1)</span></span><span>一気通貫 <span class="text-gray-500">(鳴1)</span></span><span>混全帯幺九 <span class="text-gray-500">(鳴1)</span></span><span>七対子 (チートイツ)</span><span>対々和 (トイトイ)</span><span>三暗刻 (サンアンコウ)</span><span>三色同刻</span><span>三槓子</span><span>小三元</span><span>ダブル立直</span></div><div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">3飜</div><div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2"><span>混一色 <span class="text-gray-500">(鳴2)</span></span><span>純全帯幺九 <span class="text-gray-500">(鳴2)</span></span><span>二盃口 (リャンペーコー)</span></div><div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">6飜</div><div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2"><span>清一色 (チンイツ) <span class="text-gray-500">(鳴5)</span></span></div><div class="text-xs font-bold text-red-400 mb-1 border-b border-gray-600">役満</div><div class="text-[10px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5"><span>国士無双 / 四暗刻</span><span>大三元 / 字一色</span><span>小四喜 / 大四喜</span><span>緑一色 / 清老頭</span><span>九蓮宝燈 / 四槓子</span><span>天和 / 地和</span></div></div>
+                    <div class="mt-2"><div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">1飜</div><div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2"><span>立直 (リーチ)</span><span>一発</span><span>門前清自摸和 (ツモ)</span><span>断幺九 (タンヤオ)</span><span>平和 (ピンフ)</span><span>一盃口 (イーペーコー)</span><span>役牌 (白/發/中/場風/自風)</span><span>嶺上開花 / 槍槓</span><span>海底捞月 / 河底撈魚</span></div><div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">2飜</div><div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2"><span>三色同順 <span class="text-gray-500">(鳴1)</span></span><span>一気通貫 <span class="text-gray-500">(鳴1)</span></span><span>混全帯幺九 <span class="text-gray-500">(鳴1)</span></span><span>七対子 (チートイツ)</span><span>対々和 (トイトイ)</span><span>三暗刻 (サンアンコウ)</span><span>三色同刻</span><span>三槓子</span><span>小三元</span><span>ダブル立直</span></div><div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">3飜</div><div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2"><span>混一色 <span class="text-gray-500">(鳴2)</span></span><span>純全帯幺九 <span class="text-gray-500">(鳴2)</span></span><span>二盃口 (リャンペーコー)</span></div><div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">6飜</div><div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2"><span>清一色 (チンイツ) <span class="text-gray-500">(鳴5)</span></span></div><div class="text-xs font-bold text-red-400 mb-1 border-b border-gray-600">役満</div><div class="text-[10px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5"><span>国士無双 / 四暗刻</span><span>大三元 / 字一色</span><span>小四喜 / 大四喜</span><span>緑一色 / 清老頭</span><span>九蓮宝燈 / 四槓子</span><span>天和 / 地和</span></div></div>
                 </div>
                 <div class="w-full shrink-0 snap-center overflow-y-auto px-2 max-h-full pb-4">
                     <h4 class="text-sm font-bold text-white bg-green-900 px-2 py-1 rounded border border-green-700 sticky top-0">🧮 符計算のルール</h4>
