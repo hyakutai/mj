@@ -9,84 +9,59 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1a202c">
     
-    <title>麻雀点数計算機 Pro v1.4</title>
+    <title>麻雀点数計算機 Pro v1.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    screens: {
-                        'landscape': {'raw': '(orientation: landscape)'},
-                        'portrait': {'raw': '(orientation: portrait)'}
-                    }
-                }
-            }
-        }
+        tailwind.config = { theme: { extend: { screens: { 'landscape': {'raw': '(orientation: landscape)'}, 'portrait': {'raw': '(orientation: portrait)'} } } } }
     </script>
     <style>
         html { background-color: #1a202c; }
-        body { 
-            font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; 
-            background-color: #1a202c; color: white; 
-            height: 100vh; height: 100dvh; 
-            overflow: hidden; user-select: none; touch-action: manipulation; 
-            margin: 0; padding: 0;
-        }
+        body { font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; background-color: #1a202c; color: white; height: 100vh; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation; margin: 0; padding: 0; }
         #app-container { max-width: 1024px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; }
-
-        .tile {
-            width: 2.6rem; height: 3.6rem;
-            display: flex; align-items: center; justify-content: center;
-            background-color: #f7fafc; border-radius: 0.25rem;
-            font-size: 2rem; line-height: 1;
-            box-shadow: 0 3px 5px rgba(0,0,0,0.4); cursor: pointer; position: relative; transition: transform 0.1s; 
-            touch-action: pan-x; color: #333; flex-shrink: 0;
-        }
-        @media (orientation: portrait) {
-            .tile { width: 2.2rem; height: 3.1rem; font-size: 1.7rem; }
-            .palette-tile { font-size: 1.8rem !important; height: 2.8rem !important; }
-        }
-
+        .tile { width: 2.6rem; height: 3.6rem; display: flex; align-items: center; justify-content: center; background-color: #f7fafc; border-radius: 0.25rem; font-size: 2rem; line-height: 1; box-shadow: 0 3px 5px rgba(0,0,0,0.4); cursor: pointer; position: relative; transition: transform 0.1s; touch-action: pan-x; color: #333; flex-shrink: 0; }
+        @media (orientation: portrait) { .tile { width: 2.2rem; height: 3.1rem; font-size: 1.7rem; } .palette-tile { font-size: 1.8rem !important; height: 2.8rem !important; } }
         .tile-man { color: #c53030; } .tile-pin { color: #2b6cb0; } .tile-sou { color: #2f855a; } .tile-ji { color: #000; }
         .tile-empty { background-color: transparent; border: 2px dashed #4a5568; box-shadow: none; color: transparent; }
-        
         .agari-tile { border: 3px solid #ecc94b; transform: translateY(-4px); z-index: 10; }
         .agari-tile::after { content: '和'; position: absolute; top: -10px; right: -8px; background-color: #e53e3e; color: white; font-size: 0.6rem; width: 1.2rem; height: 1.2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid white; font-weight: bold; }
-        
         .palette-tile { width: 100%; height: 3.2rem; display: flex; align-items: center; justify-content: center; background-color: #f7fafc; border-radius: 0.25rem; font-size: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
+        .no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         #hand-scroll-view { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.4) transparent; }
-        #hand-scroll-view::-webkit-scrollbar { height: 6px; }
-        #hand-scroll-view::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.15); border-radius: 10px; }
-        #hand-scroll-view::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.5); border-radius: 10px; }
-        
+        #hand-scroll-view::-webkit-scrollbar { height: 6px; } #hand-scroll-view::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.15); border-radius: 10px; } #hand-scroll-view::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.5); border-radius: 10px; }
         .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.8); z-index: 50; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
         .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .press-active { transform: scale(0.98); transition: transform 0.1s; }
-
-        .snap-x-mandatory { scroll-snap-type: x mandatory; }
-        .snap-center { scroll-snap-align: center; }
+        .snap-x-mandatory { scroll-snap-type: x mandatory; } .snap-center { scroll-snap-align: center; }
     </style>
 </head>
 <body>
 <div id="app-container" class="pt-[max(8px,env(safe-area-inset-top))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))]">
 
-    <div class="portrait:flex landscape:hidden w-full justify-between items-center px-2 pt-1 pb-0.5 shrink-0">
-        <div class="flex gap-2">
-            <button class="bg-gray-800 hover:bg-gray-700 text-gray-500 border border-gray-700 text-[10px] px-3 py-1.5 rounded shadow transition-colors">準備中</button>
-            <button class="bg-gray-800 hover:bg-gray-700 text-gray-500 border border-gray-700 text-[10px] px-3 py-1.5 rounded shadow transition-colors">準備中</button>
+    <div class="flex w-full justify-between items-center px-2 pt-1 pb-0.5 shrink-0">
+        <div class="flex gap-2" id="network-buttons">
+            <button onclick="window.createRoom()" class="bg-indigo-700 hover:bg-indigo-600 text-white font-bold text-[11px] px-3 py-1.5 rounded shadow transition-colors border border-indigo-500">🌐 卓を作る</button>
+            <button onclick="window.joinRoom()" class="bg-gray-700 hover:bg-gray-600 text-white font-bold text-[11px] px-3 py-1.5 rounded shadow transition-colors border border-gray-500">🚪 卓に入る</button>
         </div>
-        <div class="flex items-center gap-2">
-            <span class="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5">v1.4</span>
+        
+        <div id="scoreboard" class="hidden flex-1 mx-2 bg-gray-900 rounded border border-gray-700 px-2 py-1 flex justify-between items-center">
+            <span class="text-[10px] text-gray-400">ID:<span id="room-id-display" class="text-yellow-400 font-bold ml-1">----</span></span>
+            <div class="flex gap-2 text-[10px] font-bold">
+                <div class="text-red-400">A:<span id="score-0">25000</span></div>
+                <div class="text-blue-400">B:<span id="score-1">25000</span></div>
+                <div class="text-green-400">C:<span id="score-2">25000</span></div>
+                <div class="text-yellow-400">D:<span id="score-3">25000</span></div>
+            </div>
+            <button onclick="window.testSync()" class="bg-yellow-600 text-white px-2 py-0.5 rounded text-[9px]">テスト通信</button>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+            <span class="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5">v1.5</span>
             <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform" title="ルールを確認">📖</button>
         </div>
     </div>
 
-    <div class="flex flex-1 gap-2 p-2 pt-1 landscape:pt-2 flex-col landscape:flex-row min-h-0">
+    <div class="flex flex-1 gap-2 p-2 pt-1 flex-col landscape:flex-row min-h-0">
         
         <div class="bg-gray-800 rounded-lg p-2 flex flex-col gap-1.5 shadow-lg overflow-y-auto no-scrollbar border border-gray-700 w-full landscape:w-[30%] shrink-0 landscape:shrink">
             <div class="grid grid-cols-2 gap-1.5 mt-1">
@@ -117,7 +92,7 @@
                 </div>
             </div>
 
-            <div id="score-container" class="mt-auto bg-gray-900 p-2 rounded border border-gray-700 flex flex-col justify-center min-h-[4rem] cursor-pointer transition-colors active:bg-gray-800">
+            <div id="score-container" class="mt-auto bg-gray-900 p-2 rounded border border-gray-700 flex flex-col justify-center min-h-[4rem] cursor-pointer transition-colors active:bg-gray-800 relative">
                 <div id="result-score" class="text-center text-2xl font-bold text-yellow-400">--- 点</div>
                 <div id="result-yaku" class="text-center text-[10px] text-gray-300 mt-1 leading-tight whitespace-pre-wrap">役なし</div>
                 <div class="text-center text-[8px] text-gray-500 mt-0.5 portrait:hidden">※長押しで詳細を表示</div>
@@ -125,18 +100,6 @@
         </div>
 
         <div class="w-full landscape:w-[70%] flex flex-col flex-1 min-h-0 gap-2 landscape:gap-1.5">
-            
-            <div class="hidden landscape:flex w-full justify-between items-center shrink-0 pr-1">
-                <div class="flex gap-2">
-                    <button class="bg-gray-800 hover:bg-gray-700 text-gray-500 border border-gray-700 text-[10px] px-3 py-1.5 rounded shadow transition-colors">準備中</button>
-                    <button class="bg-gray-800 hover:bg-gray-700 text-gray-500 border border-gray-700 text-[10px] px-3 py-1.5 rounded shadow transition-colors">準備中</button>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5">v1.4</span>
-                    <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform" title="ルールを確認">📖</button>
-                </div>
-            </div>
-
             <div class="bg-gray-800 rounded-lg p-2 flex flex-col shadow-lg border border-gray-700 flex-1 min-h-0">
                 <div class="flex gap-1 mb-1.5 shrink-0">
                     <button onclick="renderPalette('man')" class="flex-1 py-1.5 rounded-t bg-blue-600 text-white text-xs font-bold tab-btn" data-type="man">萬子</button>
@@ -148,24 +111,16 @@
                 <div id="tile-container" class="grid grid-cols-9 gap-1 auto-rows-min overflow-y-auto flex-1 content-start p-1 bg-gray-900 rounded inner-shadow mb-2"></div>
                 
                 <div class="flex gap-1.5 shrink-0">
-                    <button onclick="openCamera()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 portrait:py-2.5 rounded font-bold text-sm shadow flex items-center justify-center gap-1 border border-blue-400 active:scale-95 transition-transform">
-                        📷 撮影
-                    </button>
-                    <button onclick="clearHand()" class="flex-1 bg-red-800 hover:bg-red-700 text-white py-2 portrait:py-2.5 rounded font-bold text-sm shadow border border-red-700 active:scale-95 transition-transform">
-                        クリア
-                    </button>
-                    <button onclick="calculateFull()" class="flex-[2] bg-yellow-600 hover:bg-yellow-500 text-white py-2 portrait:py-2.5 rounded font-bold text-base shadow border border-yellow-400 active:scale-95 transition-transform">
-                        計算する
-                    </button>
+                    <button onclick="openCamera()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 portrait:py-2.5 rounded font-bold text-sm shadow flex items-center justify-center gap-1 border border-blue-400 active:scale-95 transition-transform">📷 撮影</button>
+                    <button onclick="clearHand()" class="flex-1 bg-red-800 hover:bg-red-700 text-white py-2 portrait:py-2.5 rounded font-bold text-sm shadow border border-red-700 active:scale-95 transition-transform">クリア</button>
+                    <button onclick="calculateFull()" class="flex-[2] bg-yellow-600 hover:bg-yellow-500 text-white py-2 portrait:py-2.5 rounded font-bold text-base shadow border border-yellow-400 active:scale-95 transition-transform">計算する</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="shrink-0 w-full bg-green-900 border-t-4 border-green-950 shadow-[0_-4px_10px_rgba(0,0,0,0.3)] relative flex flex-col justify-center pt-2 pb-[max(12px,env(safe-area-inset-bottom))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))] z-20">
-        <div class="text-[9px] text-green-200 opacity-80 font-mono absolute top-0.5 left-[max(12px,env(safe-area-inset-left))] pointer-events-none">
-            TAP:上がり牌 / UP-FLICK:削除 <span class="portrait:inline hidden">/ 左右:スクロール</span>
-        </div>
+        <div class="text-[9px] text-green-200 opacity-80 font-mono absolute top-0.5 left-[max(12px,env(safe-area-inset-left))] pointer-events-none">TAP:上がり牌 / UP-FLICK:削除 <span class="portrait:inline hidden">/ 左右:スクロール</span></div>
         <div id="hand-scroll-view" class="w-full overflow-x-auto flex items-center landscape:justify-center mt-2 z-10">
             <div id="hand-container" class="flex gap-0.5 landscape:gap-1 px-2 pt-4 pb-2 flex-nowrap min-w-max"></div>
         </div>
@@ -176,123 +131,22 @@
         <div class="bg-gray-800 w-11/12 max-w-md rounded-lg p-3 shadow-xl border border-gray-700 relative max-h-[85vh] flex flex-col" onclick="event.stopPropagation()">
             <button onclick="closeRulebook()" class="absolute top-2 right-2 text-gray-400 hover:text-white bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center z-20">✕</button>
             <h3 class="text-base font-bold text-yellow-400 mb-2 text-center border-b border-gray-700 pb-2 shrink-0">📖 役・符計算ルール</h3>
-            
             <div class="flex-1 overflow-x-auto overflow-y-hidden snap-x-mandatory flex no-scrollbar" id="rule-scroll-container" onscroll="updateRuleDots()">
                 <div class="w-full shrink-0 snap-center overflow-y-auto px-2 max-h-full pb-4">
                     <h4 class="text-sm font-bold text-white bg-blue-900 px-2 py-1 rounded border border-blue-700 sticky top-0">🀄 役の飜数一覧表</h4>
-                    <div class="mt-2">
-                        <div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">1飜</div>
-                        <div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2">
-                            <span>立直 (リーチ)</span><span>一発</span>
-                            <span>門前清自摸和 (ツモ)</span><span>断幺九 (タンヤオ)</span>
-                            <span>平和 (ピンフ)</span><span>一盃口 (イーペーコー)</span>
-                            <span>役牌 (白/發/中/場風/自風)</span><span>嶺上開花 / 槍槓</span>
-                            <span>海底撈月 / 河底撈魚</span>
-                        </div>
-                        <div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">2飜</div>
-                        <div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2">
-                            <span>三色同順 <span class="text-gray-500">(鳴1)</span></span><span>一気通貫 <span class="text-gray-500">(鳴1)</span></span>
-                            <span>混全帯幺九 <span class="text-gray-500">(鳴1)</span></span><span>七対子 (チートイツ)</span>
-                            <span>対々和 (トイトイ)</span><span>三暗刻 (サンアンコウ)</span>
-                            <span>三色同刻</span><span>三槓子</span>
-                            <span>小三元</span><span>ダブル立直</span>
-                        </div>
-                        <div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">3飜</div>
-                        <div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2">
-                            <span>混一色 <span class="text-gray-500">(鳴2)</span></span><span>純全帯幺九 <span class="text-gray-500">(鳴2)</span></span>
-                            <span>二盃口 (リャンペーコー)</span>
-                        </div>
-                        <div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">6飜</div>
-                        <div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2">
-                            <span>清一色 (チンイツ) <span class="text-gray-500">(鳴5)</span></span>
-                        </div>
-                        <div class="text-xs font-bold text-red-400 mb-1 border-b border-gray-600">役満</div>
-                        <div class="text-[10px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5">
-                            <span>国士無双 / 四暗刻</span><span>大三元 / 字一色</span>
-                            <span>小四喜 / 大四喜</span><span>緑一色 / 清老頭</span>
-                            <span>九蓮宝燈 / 四槓子</span><span>天和 / 地和</span>
-                        </div>
-                    </div>
+                    <div class="mt-2"><div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">1飜</div><div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2"><span>立直 (リーチ)</span><span>一発</span><span>門前清自摸和 (ツモ)</span><span>断幺九 (タンヤオ)</span><span>平和 (ピンフ)</span><span>一盃口 (イーペーコー)</span><span>役牌 (白/發/中/場風/自風)</span><span>嶺上開花 / 槍槓</span><span>海底撈月 / 河底撈魚</span></div><div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">2飜</div><div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2"><span>三色同順 <span class="text-gray-500">(鳴1)</span></span><span>一気通貫 <span class="text-gray-500">(鳴1)</span></span><span>混全帯幺九 <span class="text-gray-500">(鳴1)</span></span><span>七対子 (チートイツ)</span><span>対々和 (トイトイ)</span><span>三暗刻 (サンアンコウ)</span><span>三色同刻</span><span>三槓子</span><span>小三元</span><span>ダブル立直</span></div><div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">3飜</div><div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2"><span>混一色 <span class="text-gray-500">(鳴2)</span></span><span>純全帯幺九 <span class="text-gray-500">(鳴2)</span></span><span>二盃口 (リャンペーコー)</span></div><div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">6飜</div><div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2"><span>清一色 (チンイツ) <span class="text-gray-500">(鳴5)</span></span></div><div class="text-xs font-bold text-red-400 mb-1 border-b border-gray-600">役満</div><div class="text-[10px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5"><span>国士無双 / 四暗刻</span><span>大三元 / 字一色</span><span>小四喜 / 大四喜</span><span>緑一色 / 清老頭</span><span>九蓮宝燈 / 四槓子</span><span>天和 / 地和</span></div></div>
                 </div>
-
                 <div class="w-full shrink-0 snap-center overflow-y-auto px-2 max-h-full pb-4">
                     <h4 class="text-sm font-bold text-white bg-green-900 px-2 py-1 rounded border border-green-700 sticky top-0">🧮 符計算のルール</h4>
-                    <div class="mt-2 space-y-2">
-                        <div class="bg-gray-700/50 p-1.5 rounded">
-                            <div class="text-xs font-bold text-yellow-300">① 基本符 (副底)</div>
-                            <div class="text-[11px] text-gray-300 pl-2">一律 <span class="font-bold text-white">20符</span></div>
-                        </div>
-                        <div class="bg-gray-700/50 p-1.5 rounded">
-                            <div class="text-xs font-bold text-yellow-300">② アガリ方</div>
-                            <div class="text-[11px] text-gray-300 pl-2 flex justify-between">
-                                <span>門前ロン: <span class="text-white font-bold">+10符</span></span>
-                                <span>ツモ: <span class="text-white font-bold">+2符</span></span>
-                            </div>
-                        </div>
-                        <div class="bg-gray-700/50 p-1.5 rounded">
-                            <div class="text-xs font-bold text-yellow-300 mb-1">③ 面子 (メンツ)</div>
-                            <table class="w-full text-[10px] text-center border-collapse">
-                                <tr class="bg-gray-600 text-gray-200">
-                                    <th class="p-0.5 border border-gray-500">種類</th><th class="p-0.5 border border-gray-500">明刻</th><th class="p-0.5 border border-gray-500">暗刻</th><th class="p-0.5 border border-gray-500">明槓</th><th class="p-0.5 border border-gray-500">暗槓</th>
-                                </tr>
-                                <tr class="text-gray-300">
-                                    <td class="p-0.5 border border-gray-600">中張牌<br><span class="text-[8px]">(2〜8)</span></td><td class="border border-gray-600">2</td><td class="border border-gray-600">4</td><td class="border border-gray-600">8</td><td class="border border-gray-600">16</td>
-                                </tr>
-                                <tr class="text-gray-300">
-                                    <td class="p-0.5 border border-gray-600">幺九牌<br><span class="text-[8px]">(1,9,字)</span></td><td class="border border-gray-600">4</td><td class="border border-gray-600">8</td><td class="border border-gray-600">16</td><td class="border border-gray-600">32</td>
-                                </tr>
-                            </table>
-                            <div class="text-[9px] text-gray-400 mt-0.5">※順子(シュンツ)はすべて0符</div>
-                        </div>
-                        <div class="bg-gray-700/50 p-1.5 rounded">
-                            <div class="text-xs font-bold text-yellow-300">④ 雀頭 (アタマ) と ⑤ 待ち</div>
-                            <div class="text-[11px] text-gray-300 pl-2">
-                                役牌の雀頭: <span class="text-white font-bold">+2符</span><br>
-                                嵌張/辺張/単騎 待ち: <span class="text-white font-bold">+2符</span><br>
-                                <span class="text-[9px] text-gray-400">※両面・双碰待ちは0符</span>
-                            </div>
-                        </div>
-                        <div class="bg-gray-700/50 p-1.5 rounded border border-red-900/50">
-                            <div class="text-xs font-bold text-red-400">⑥ 例外ルール</div>
-                            <div class="text-[11px] text-gray-300 pl-2">
-                                七対子 (チートイツ): <span class="text-white font-bold">25符固定</span><br>
-                                平和ツモ: <span class="text-white font-bold">20符固定</span>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="mt-2 space-y-2"><div class="bg-gray-700/50 p-1.5 rounded"><div class="text-xs font-bold text-yellow-300">① 基本符 (副底)</div><div class="text-[11px] text-gray-300 pl-2">一律 <span class="font-bold text-white">20符</span></div></div><div class="bg-gray-700/50 p-1.5 rounded"><div class="text-xs font-bold text-yellow-300">② アガリ方</div><div class="text-[11px] text-gray-300 pl-2 flex justify-between"><span>門前ロン: <span class="text-white font-bold">+10符</span></span><span>ツモ: <span class="text-white font-bold">+2符</span></span></div></div><div class="bg-gray-700/50 p-1.5 rounded"><div class="text-xs font-bold text-yellow-300 mb-1">③ 面子 (メンツ)</div><table class="w-full text-[10px] text-center border-collapse"><tr class="bg-gray-600 text-gray-200"><th class="p-0.5 border border-gray-500">種類</th><th class="p-0.5 border border-gray-500">明刻</th><th class="p-0.5 border border-gray-500">暗刻</th><th class="p-0.5 border border-gray-500">明槓</th><th class="p-0.5 border border-gray-500">暗槓</th></tr><tr class="text-gray-300"><td class="p-0.5 border border-gray-600">中張牌<br><span class="text-[8px]">(2〜8)</span></td><td class="border border-gray-600">2</td><td class="border border-gray-600">4</td><td class="border border-gray-600">8</td><td class="border border-gray-600">16</td></tr><tr class="text-gray-300"><td class="p-0.5 border border-gray-600">幺九牌<br><span class="text-[8px]">(1,9,字)</span></td><td class="border border-gray-600">4</td><td class="border border-gray-600">8</td><td class="border border-gray-600">16</td><td class="border border-gray-600">32</td></tr></table><div class="text-[9px] text-gray-400 mt-0.5">※順子(シュンツ)はすべて0符</div></div><div class="bg-gray-700/50 p-1.5 rounded"><div class="text-xs font-bold text-yellow-300">④ 雀頭 (アタマ) と ⑤ 待ち</div><div class="text-[11px] text-gray-300 pl-2">役牌の雀頭: <span class="text-white font-bold">+2符</span><br>嵌張/辺張/単騎 待ち: <span class="text-white font-bold">+2符</span><br><span class="text-[9px] text-gray-400">※両面・双碰待ちは0符</span></div></div><div class="bg-gray-700/50 p-1.5 rounded border border-red-900/50"><div class="text-xs font-bold text-red-400">⑥ 例外ルール</div><div class="text-[11px] text-gray-300 pl-2">七対子 (チートイツ): <span class="text-white font-bold">25符固定</span><br>平和ツモ: <span class="text-white font-bold">20符固定</span></div></div></div>
                 </div>
             </div>
-
-            <div class="flex justify-center items-center gap-2 pt-2 shrink-0 border-t border-gray-700" id="rule-dots">
-                <div class="w-2 h-2 rounded-full bg-yellow-400 transition-colors"></div>
-                <div class="w-2 h-2 rounded-full bg-gray-600 transition-colors"></div>
-            </div>
+            <div class="flex justify-center items-center gap-2 pt-2 shrink-0 border-t border-gray-700" id="rule-dots"><div class="w-2 h-2 rounded-full bg-yellow-400 transition-colors"></div><div class="w-2 h-2 rounded-full bg-gray-600 transition-colors"></div></div>
             <div class="text-center text-[9px] text-gray-400 mt-1 shrink-0">◀ 左右にフリックして切り替え ▶</div>
         </div>
     </div>
-
-    <div id="camera-modal" class="modal-overlay flex-col">
-        <video id="camera-video" class="w-full h-full object-cover" autoplay playsinline></video>
-        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div class="w-11/12 h-1/3 border-4 border-yellow-400 rounded-lg flex items-center justify-center bg-black/20 backdrop-blur-sm">
-                <span class="text-yellow-400 font-bold opacity-70 tracking-widest text-xl">枠内に牌を並べてください</span>
-            </div>
-        </div>
-        <div class="absolute bottom-8 w-full flex justify-around items-center px-8 pb-[env(safe-area-inset-bottom)]">
-            <button onclick="closeCamera()" class="text-white bg-gray-800 px-6 py-3 rounded-full font-bold shadow-lg">キャンセル</button>
-            <button onclick="takePhoto()" class="w-20 h-20 bg-white rounded-full border-4 border-gray-300 shadow-xl active:bg-gray-200"></button>
-            <div class="w-24"></div>
-        </div>
-        <canvas id="camera-canvas" class="hidden"></canvas>
-    </div>
-
-    <div id="detail-modal" class="modal-overlay" onclick="closeDetail()">
-        <div class="bg-gray-800 w-11/12 max-w-md rounded-lg p-4 shadow-xl border border-gray-700 relative max-h-[80vh] overflow-y-auto" onclick="event.stopPropagation()">
-            <button onclick="closeDetail()" class="absolute top-2 right-2 text-gray-400 hover:text-white bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center">✕</button>
-            <h3 class="text-lg font-bold text-yellow-400 mb-3 text-center border-b border-gray-700 pb-2">計算詳細</h3>
-            <div id="detail-content" class="text-sm space-y-4"></div>
-        </div>
-    </div>
+    <div id="camera-modal" class="modal-overlay flex-col"><video id="camera-video" class="w-full h-full object-cover" autoplay playsinline></video><div class="absolute inset-0 flex items-center justify-center pointer-events-none"><div class="w-11/12 h-1/3 border-4 border-yellow-400 rounded-lg flex items-center justify-center bg-black/20 backdrop-blur-sm"><span class="text-yellow-400 font-bold opacity-70 tracking-widest text-xl">枠内に牌を並べてください</span></div></div><div class="absolute bottom-8 w-full flex justify-around items-center px-8 pb-[env(safe-area-inset-bottom)]"><button onclick="closeCamera()" class="text-white bg-gray-800 px-6 py-3 rounded-full font-bold shadow-lg">キャンセル</button><button onclick="takePhoto()" class="w-20 h-20 bg-white rounded-full border-4 border-gray-300 shadow-xl active:bg-gray-200"></button><div class="w-24"></div></div><canvas id="camera-canvas" class="hidden"></canvas></div>
+    <div id="detail-modal" class="modal-overlay" onclick="closeDetail()"><div class="bg-gray-800 w-11/12 max-w-md rounded-lg p-4 shadow-xl border border-gray-700 relative max-h-[80vh] overflow-y-auto" onclick="event.stopPropagation()"><button onclick="closeDetail()" class="absolute top-2 right-2 text-gray-400 hover:text-white bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center">✕</button><h3 class="text-lg font-bold text-yellow-400 mb-3 text-center border-b border-gray-700 pb-2">計算詳細</h3><div id="detail-content" class="text-sm space-y-4"></div></div></div>
 
     <script>
         const TILES = { man: ['🀇','🀈','🀉','🀊','🀋','🀌','🀍','🀎','🀏'], pin: ['🀙','🀚','🀛','🀜','🀝','🀞','🀟','🀠','🀡'], sou: ['🀐','🀑','🀒','🀓','🀔','🀕','🀖','🀗','🀘'], ji: ['🀀','🀁','🀂','🀃','🀆','🀅','🀄'] };
@@ -303,297 +157,215 @@
         let lastCalculationResult = null; 
 
         function init() { renderPalette('man'); renderHand(); updateUI(); setupLongPress(); }
-
         function updateUI() {
             document.getElementById('btn-prevalent').textContent = WINDS[settings.prevalent] + "場";
-            const sBtn = document.getElementById('btn-seat');
-            sBtn.textContent = WINDS[settings.seat] + "家" + (settings.seat===0?"(親)":"(子)");
-            sBtn.className = settings.seat===0 ? "bg-red-900 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-700 transition-all" : "bg-blue-900 py-1.5 portrait:py-1 rounded text-xs font-bold border border-blue-700 transition-all";
-            const wBtn = document.getElementById('btn-win-type');
-            wBtn.textContent = settings.winType === 'ron' ? "ロンあがり" : "ツモあがり";
-            wBtn.className = settings.winType === 'ron' ? "bg-red-800 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-600 transition-all" : "bg-green-700 py-1.5 portrait:py-1 rounded text-xs font-bold border border-green-600 transition-all";
-            const rBtn = document.getElementById('btn-reach');
-            rBtn.textContent = ["立直なし", "立直(1飜)", "W立直(2飜)"][settings.reach];
-            rBtn.className = ["bg-gray-700 text-gray-400","bg-red-600 text-white","bg-yellow-600 text-white"][settings.reach] + " py-1.5 portrait:py-1 rounded text-xs font-bold border border-gray-600 transition-all";
-            document.getElementById('dora-disp').textContent = settings.dora;
-            document.getElementById('honba-disp').textContent = settings.honba;
+            const sBtn = document.getElementById('btn-seat'); sBtn.textContent = WINDS[settings.seat] + "家" + (settings.seat===0?"(親)":"(子)"); sBtn.className = settings.seat===0 ? "bg-red-900 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-700 transition-all" : "bg-blue-900 py-1.5 portrait:py-1 rounded text-xs font-bold border border-blue-700 transition-all";
+            const wBtn = document.getElementById('btn-win-type'); wBtn.textContent = settings.winType === 'ron' ? "ロンあがり" : "ツモあがり"; wBtn.className = settings.winType === 'ron' ? "bg-red-800 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-600 transition-all" : "bg-green-700 py-1.5 portrait:py-1 rounded text-xs font-bold border border-green-600 transition-all";
+            const rBtn = document.getElementById('btn-reach'); rBtn.textContent = ["立直なし", "立直(1飜)", "W立直(2飜)"][settings.reach]; rBtn.className = ["bg-gray-700 text-gray-400","bg-red-600 text-white","bg-yellow-600 text-white"][settings.reach] + " py-1.5 portrait:py-1 rounded text-xs font-bold border border-gray-600 transition-all";
+            document.getElementById('dora-disp').textContent = settings.dora; document.getElementById('honba-disp').textContent = settings.honba;
         }
         function togglePrevalent() { settings.prevalent = (settings.prevalent+1)%2; updateUI(); }
         function toggleSeat() { settings.seat = (settings.seat+1)%4; updateUI(); }
         function toggleWinType() { settings.winType = settings.winType==='ron'?'tsumo':'ron'; updateUI(); }
         function toggleReach() { settings.reach = (settings.reach+1)%3; updateUI(); }
         function updCnt(k, d) { settings[k] = Math.max(0, settings[k]+d); updateUI(); }
-
         function renderPalette(type) {
-            document.querySelectorAll('.tab-btn').forEach(b => {
-                b.className = b.dataset.type===type ? "flex-1 py-1.5 rounded-t bg-blue-600 text-white text-xs font-bold tab-btn transition-colors" : "flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn transition-colors";
-            });
+            document.querySelectorAll('.tab-btn').forEach(b => { b.className = b.dataset.type===type ? "flex-1 py-1.5 rounded-t bg-blue-600 text-white text-xs font-bold tab-btn transition-colors" : "flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn transition-colors"; });
             const c = document.getElementById('tile-container'); c.innerHTML = '';
-            TILES[type].forEach((char, i) => {
-                const d = document.createElement('div'); d.className = `palette-tile ${['tile-man','tile-pin','tile-sou','tile-ji'][TYPE_ORDER[type]]}`;
-                d.textContent = char; d.onclick = () => addTile(type, i+1, char); c.appendChild(d);
-            });
+            TILES[type].forEach((char, i) => { const d = document.createElement('div'); d.className = `palette-tile ${['tile-man','tile-pin','tile-sou','tile-ji'][TYPE_ORDER[type]]}`; d.textContent = char; d.onclick = () => addTile(type, i+1, char); c.appendChild(d); });
         }
         function addTile(type, val, char) {
-            if (currentHand.length < 14) {
-                currentHand.push({ type, value: val, char, id: idCounter++, isAgari: false });
-                currentHand.sort((a,b) => { if (TYPE_ORDER[a.type] !== TYPE_ORDER[b.type]) return TYPE_ORDER[a.type] - TYPE_ORDER[b.type]; return a.value - b.value; });
-                renderHand();
-            }
+            if (currentHand.length < 14) { currentHand.push({ type, value: val, char, id: idCounter++, isAgari: false }); currentHand.sort((a,b) => { if (TYPE_ORDER[a.type] !== TYPE_ORDER[b.type]) return TYPE_ORDER[a.type] - TYPE_ORDER[b.type]; return a.value - b.value; }); renderHand(); }
         }
-
         function renderHand() {
             const c = document.getElementById('hand-container'); c.innerHTML = '';
             currentHand.forEach(t => {
-                const d = document.createElement('div'); d.className = `tile ${['tile-man','tile-pin','tile-sou','tile-ji'][TYPE_ORDER[t.type]]}`;
-                if (t.isAgari) d.classList.add('agari-tile'); d.textContent = t.char;
-                
+                const d = document.createElement('div'); d.className = `tile ${['tile-man','tile-pin','tile-sou','tile-ji'][TYPE_ORDER[t.type]]}`; if (t.isAgari) d.classList.add('agari-tile'); d.textContent = t.char;
                 let sy=0, sx=0, isDrag=false;
                 d.addEventListener('touchstart', e=>{ sy=e.touches[0].clientY; sx=e.touches[0].clientX; isDrag=true; d.style.transition='none'; }, {passive:false});
-                d.addEventListener('touchmove', e=>{ 
-                    if(!isDrag)return; 
-                    let dy = e.touches[0].clientY - sy; let dx = e.touches[0].clientX - sx; 
-                    if(dy < 0 && Math.abs(dy) > Math.abs(dx)) { 
-                        e.preventDefault(); d.style.transform=`translateY(${dy}px)`; d.style.opacity = dy<-50?'0.5':'1'; 
-                    } 
-                }, {passive:false});
-                d.addEventListener('touchend', e=>{ 
-                    if(!isDrag)return; isDrag=false; 
-                    let dy = e.changedTouches[0].clientY - sy; let dx = e.changedTouches[0].clientX - sx;
-                    d.style.transition='transform 0.2s, opacity 0.2s'; 
-                    if(dy < -50 && Math.abs(dy) > Math.abs(dx)) { 
-                        d.style.transform='translateY(-100px)'; d.style.opacity='0'; 
-                        setTimeout(()=>{ currentHand = currentHand.filter(x=>x.id!==t.id); renderHand(); }, 200); 
-                    } else if(Math.abs(dy)<10 && Math.abs(dx)<10) { 
-                        d.style.transform=''; d.style.opacity='1'; 
-                        currentHand.forEach(x => x.isAgari = (x.id === t.id)); renderHand(); 
-                    } else { 
-                        d.style.transform=''; d.style.opacity='1'; 
-                    } 
-                });
+                d.addEventListener('touchmove', e=>{ if(!isDrag)return; let dy = e.touches[0].clientY - sy; let dx = e.touches[0].clientX - sx; if(dy < 0 && Math.abs(dy) > Math.abs(dx)) { e.preventDefault(); d.style.transform=`translateY(${dy}px)`; d.style.opacity = dy<-50?'0.5':'1'; } }, {passive:false});
+                d.addEventListener('touchend', e=>{ if(!isDrag)return; isDrag=false; let dy = e.changedTouches[0].clientY - sy; let dx = e.changedTouches[0].clientX - sx; d.style.transition='transform 0.2s, opacity 0.2s'; if(dy < -50 && Math.abs(dy) > Math.abs(dx)) { d.style.transform='translateY(-100px)'; d.style.opacity='0'; setTimeout(()=>{ currentHand = currentHand.filter(x=>x.id!==t.id); renderHand(); }, 200); } else if(Math.abs(dy)<10 && Math.abs(dx)<10) { d.style.transform=''; d.style.opacity='1'; currentHand.forEach(x => x.isAgari = (x.id === t.id)); renderHand(); } else { d.style.transform=''; d.style.opacity='1'; } });
                 c.appendChild(d);
             });
             for(let i=currentHand.length; i<14; i++){ const d = document.createElement('div'); d.className='tile tile-empty'; c.appendChild(d); }
             const scrollView = document.getElementById('hand-scroll-view'); scrollView.scrollLeft = scrollView.scrollWidth;
         }
-
         function clearHand() { currentHand=[]; renderHand(); document.getElementById('result-score').textContent="--- 点"; document.getElementById('result-yaku').textContent="役なし"; lastCalculationResult = null; }
-
         function openRulebook() { document.getElementById('rule-modal').classList.add('active'); }
         function closeRulebook() { document.getElementById('rule-modal').classList.remove('active'); }
-        function updateRuleDots() {
-            const container = document.getElementById('rule-scroll-container');
-            const dots = document.getElementById('rule-dots').children;
-            const pageIndex = Math.round(container.scrollLeft / container.clientWidth);
-            for(let i = 0; i < dots.length; i++) {
-                dots[i].className = i === pageIndex ? "w-2 h-2 rounded-full bg-yellow-400 transition-colors" : "w-2 h-2 rounded-full bg-gray-600 transition-colors";
-            }
-        }
+        function updateRuleDots() { const container = document.getElementById('rule-scroll-container'); const dots = document.getElementById('rule-dots').children; const pageIndex = Math.round(container.scrollLeft / container.clientWidth); for(let i = 0; i < dots.length; i++) { dots[i].className = i === pageIndex ? "w-2 h-2 rounded-full bg-yellow-400 transition-colors" : "w-2 h-2 rounded-full bg-gray-600 transition-colors"; } }
 
+        // カメラ（デモ）
         let videoStream = null;
-        async function openCamera() {
-            const modal = document.getElementById('camera-modal'); const video = document.getElementById('camera-video'); modal.classList.add('active');
-            try { videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }); video.srcObject = videoStream; } catch (err) { alert("カメラの起動に失敗しました。権限を確認してください。"); closeCamera(); }
-        }
-        function closeCamera() {
-            const modal = document.getElementById('camera-modal'); modal.classList.remove('active');
-            if (videoStream) { videoStream.getTracks().forEach(track => track.stop()); videoStream = null; }
-        }
-        function takePhoto() {
-            const video = document.getElementById('camera-video'); video.style.opacity = '0.2'; setTimeout(() => { video.style.opacity = '1'; }, 100);
-            simulateImageRecognition(); closeCamera();
-        }
-        function simulateImageRecognition() {
-            clearHand();
-            const mockTiles = [{t:'man', v:2}, {t:'man', v:3}, {t:'man', v:4}, {t:'pin', v:3}, {t:'pin', v:4}, {t:'pin', v:5}, {t:'sou', v:6}, {t:'sou', v:7}, {t:'sou', v:8}, {t:'sou', v:2}, {t:'sou', v:2}, {t:'sou', v:2}, {t:'man', v:8}, {t:'man', v:8}];
-            mockTiles.forEach(item => { addTile(item.t, item.v, TILES[item.t][item.v - 1]); });
-            if(currentHand.length>0) { currentHand[currentHand.length-1].isAgari=true; renderHand(); }
-            alert("📷 デモ: ダミーの手牌をセットしました");
-        }
+        async function openCamera() { const modal = document.getElementById('camera-modal'); const video = document.getElementById('camera-video'); modal.classList.add('active'); try { videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }); video.srcObject = videoStream; } catch (err) { alert("カメラの起動に失敗しました。権限を確認してください。"); closeCamera(); } }
+        function closeCamera() { const modal = document.getElementById('camera-modal'); modal.classList.remove('active'); if (videoStream) { videoStream.getTracks().forEach(track => track.stop()); videoStream = null; } }
+        function takePhoto() { const video = document.getElementById('camera-video'); video.style.opacity = '0.2'; setTimeout(() => { video.style.opacity = '1'; }, 100); simulateImageRecognition(); closeCamera(); }
+        function simulateImageRecognition() { clearHand(); const mockTiles = [{t:'man', v:2}, {t:'man', v:3}, {t:'man', v:4}, {t:'pin', v:3}, {t:'pin', v:4}, {t:'pin', v:5}, {t:'sou', v:6}, {t:'sou', v:7}, {t:'sou', v:8}, {t:'sou', v:2}, {t:'sou', v:2}, {t:'sou', v:2}, {t:'man', v:8}, {t:'man', v:8}]; mockTiles.forEach(item => { addTile(item.t, item.v, TILES[item.t][item.v - 1]); }); if(currentHand.length>0) { currentHand[currentHand.length-1].isAgari=true; renderHand(); } alert("📷 デモ: ダミーの手牌をセットしました"); }
 
+        // 長押し
         let pressTimer;
         function setupLongPress() {
             const target = document.getElementById('score-container');
-            target.addEventListener('touchstart', (e) => {
-                if (!lastCalculationResult) return;
-                target.classList.add('press-active');
-                pressTimer = setTimeout(() => { openDetail(lastCalculationResult); target.classList.remove('press-active'); }, 500); 
-            }, {passive: true});
-            ['touchend', 'touchmove', 'touchcancel'].forEach(evt => {
-                target.addEventListener(evt, () => { clearTimeout(pressTimer); target.classList.remove('press-active'); }, {passive: true});
-            });
+            target.addEventListener('touchstart', (e) => { if (!lastCalculationResult) return; target.classList.add('press-active'); pressTimer = setTimeout(() => { openDetail(lastCalculationResult); target.classList.remove('press-active'); }, 500); }, {passive: true});
+            ['touchend', 'touchmove', 'touchcancel'].forEach(evt => { target.addEventListener(evt, () => { clearTimeout(pressTimer); target.classList.remove('press-active'); }, {passive: true}); });
         }
         function openDetail(res) {
-            if(!res || !res.fuDetails) return;
-            const modal = document.getElementById('detail-modal');
-            const content = document.getElementById('detail-content');
-            
-            let html = `
-                <div class="bg-gray-900/50 p-2 rounded border border-gray-700">
-                    <h4 class="font-bold text-yellow-300 mb-1">🀄 符計算の内訳</h4>
-                    <ul class="list-disc list-inside text-gray-300 space-y-1">
-            `;
-            let totalFuRaw = 0;
-            res.fuDetails.forEach(d => { html += `<li class="flex justify-between"><span>${d.text}</span><span>+${d.points} 符</span></li>`; totalFuRaw += d.points; });
-            html += `</ul><div class="border-t border-gray-600 mt-2 pt-1 flex justify-between font-bold"><span>合計</span><span>${totalFuRaw} 符</span></div>`;
-            html += `<div class="flex justify-between text-yellow-400 mt-1"><span>切り上げ後</span><span class="text-lg">${res.fu} 符</span></div></div>`;
-            html += `
-                <div class="bg-gray-900/50 p-2 rounded border border-gray-700 flex justify-between items-center mt-3">
-                    <span class="font-bold text-yellow-300">🀅 飜数</span><span class="text-lg font-bold">${res.han} 飜</span>
-                </div>
-                <div class="text-center text-gray-400 text-xs mt-3">基本点 = 符 × 2^(飜数+2)<br>(満貫以上は固定点)</div>
-            `;
+            if(!res || !res.fuDetails) return; const modal = document.getElementById('detail-modal'); const content = document.getElementById('detail-content');
+            let html = `<div class="bg-gray-900/50 p-2 rounded border border-gray-700"><h4 class="font-bold text-yellow-300 mb-1">🀄 符計算の内訳</h4><ul class="list-disc list-inside text-gray-300 space-y-1">`;
+            let totalFuRaw = 0; res.fuDetails.forEach(d => { html += `<li class="flex justify-between"><span>${d.text}</span><span>+${d.points} 符</span></li>`; totalFuRaw += d.points; });
+            html += `</ul><div class="border-t border-gray-600 mt-2 pt-1 flex justify-between font-bold"><span>合計</span><span>${totalFuRaw} 符</span></div><div class="flex justify-between text-yellow-400 mt-1"><span>切り上げ後</span><span class="text-lg">${res.fu} 符</span></div></div><div class="bg-gray-900/50 p-2 rounded border border-gray-700 flex justify-between items-center mt-3"><span class="font-bold text-yellow-300">🀅 飜数</span><span class="text-lg font-bold">${res.han} 飜</span></div><div class="text-center text-gray-400 text-xs mt-3">基本点 = 符 × 2^(飜数+2)<br>(満貫以上は固定点)</div>`;
             content.innerHTML = html; modal.classList.add('active');
         }
         function closeDetail() { document.getElementById('detail-modal').classList.remove('active'); }
 
+        // 計算ロジック
         function calculateFull() {
             const resScore = document.getElementById('result-score'); const resYaku = document.getElementById('result-yaku');
             if (currentHand.length !== 14) { resScore.textContent = "枚数不足"; resYaku.textContent = "牌は14枚必要です"; lastCalculationResult = null; return; }
             const agariTileData = currentHand.find(t => t.isAgari);
             if (!agariTileData) { resScore.textContent = "指定なし"; resYaku.textContent = "上がり牌をタップしてください"; lastCalculationResult = null; return; }
             const agariTileStr = agariTileData.type + agariTileData.value;
-
             const counts = {}; currentHand.forEach(t => { const k = t.type + t.value; counts[k] = (counts[k]||0) + 1; });
             const pairs = Object.values(counts).filter(c => c === 2).length;
-            if (pairs === 7) {
-                const res = calcChiitoiResult(counts); displayResult(res, resScore, resYaku); lastCalculationResult = res; return;
-            }
+            if (pairs === 7) { const res = calcChiitoiResult(counts); displayResult(res, resScore, resYaku); lastCalculationResult = res; return; }
             const decompositions = decompose(counts);
-            if (decompositions.length === 0) {
-                if (isKokushi(counts)) {
-                    const score = settings.seat===0 ? 48000 : 32000;
-                    resScore.textContent = `${score}点`; resYaku.textContent = "役満 国士無双";
-                    lastCalculationResult = { han:13, fu:0, score: score+settings.honba*300, yakuNames:["国士無双"], fuDetails:[] }; return;
-                }
-                resScore.textContent = "役なし"; resYaku.textContent = "アガリ形になっていません"; lastCalculationResult = null; return;
-            }
-            
+            if (decompositions.length === 0) { if (isKokushi(counts)) { const score = settings.seat===0 ? 48000 : 32000; resScore.textContent = `${score}点`; resYaku.textContent = "役満 国士無双"; lastCalculationResult = { han:13, fu:0, score: score+settings.honba*300, yakuNames:["国士無双"], fuDetails:[] }; return; } resScore.textContent = "役なし"; resYaku.textContent = "アガリ形になっていません"; lastCalculationResult = null; return; }
             let bestResult = { han: 0, fu: 0, score: -1, yakuNames: [], fuDetails: [] };
-            decompositions.forEach(groups => { 
-                const res = evalHand(groups, counts, agariTileStr); 
-                if (res.score > bestResult.score || (res.score === bestResult.score && res.han > bestResult.han)) {
-                    bestResult = res; 
-                }
-            });
-
-            if (bestResult.score === -1 || bestResult.han === 0) { 
-                resScore.textContent = "役なし"; resYaku.textContent = "アガリ形ですが役がありません"; lastCalculationResult = null; 
-            } else { 
-                displayResult(bestResult, resScore, resYaku); lastCalculationResult = bestResult; 
-            }
+            decompositions.forEach(groups => { const res = evalHand(groups, counts, agariTileStr); if (res.score > bestResult.score || (res.score === bestResult.score && res.han > bestResult.han)) { bestResult = res; } });
+            if (bestResult.score === -1 || bestResult.han === 0) { resScore.textContent = "役なし"; resYaku.textContent = "アガリ形ですが役がありません"; lastCalculationResult = null; } else { displayResult(bestResult, resScore, resYaku); lastCalculationResult = bestResult; }
         }
-
         function decompose(counts) { const results = []; const keys = Object.keys(counts); keys.forEach(headKey => { if (counts[headKey] >= 2) { const workingCounts = {...counts}; workingCounts[headKey] -= 2; const headGroup = { type: 'head', tile: headKey }; const mentsuRes = decomposeMentsu(workingCounts); mentsuRes.forEach(mList => { results.push([headGroup, ...mList]); }); } }); return results; }
         function decomposeMentsu(c) { let first = null; const keys = ['man','pin','sou','ji']; for(let t of keys) { const limit = t==='ji'?7:9; for(let v=1; v<=limit; v++) { if (c[t+v] > 0) { first = t+v; break; } } if(first) break; } if (!first) return [[]]; const results = []; const type = first.substring(0, first.length-1); const val = parseInt(first.substring(first.length-1)); if (c[first] >= 3) { const nextC = {...c}; nextC[first] -= 3; const tails = decomposeMentsu(nextC); tails.forEach(t => { results.push([{type:'koutsu', tile:first}, ...t]); }); } if (type !== 'ji' && val <= 7) { const k1 = type + val; const k2 = type + (val+1); const k3 = type + (val+2); if (c[k1]>0 && c[k2]>0 && c[k3]>0) { const nextC = {...c}; nextC[k1]--; nextC[k2]--; nextC[k3]--; const tails = decomposeMentsu(nextC); tails.forEach(t => { results.push([{type:'shuntsu', tile:k1}, ...t]); }); } } return results; }
         function isKokushi(c) { const yaochu = ['man1','man9','pin1','pin9','sou1','sou9','ji1','ji2','ji3','ji4','ji5','ji6','ji7']; const keys = Object.keys(c); if(keys.length !== 13) return false; return keys.every(k => yaochu.includes(k)); }
-
         function evalHand(groups, counts, agariTileStr) {
             let bestRes = { han: 0, fu: 0, score: -1, yakuNames: [], fuDetails: [] };
-            const head = groups.find(g => g.type === 'head'); const mentsu = groups.filter(g => g.type !== 'head');
-            const shuntsu = mentsu.filter(g => g.type === 'shuntsu'); const koutsu = mentsu.filter(g => g.type === 'koutsu');
-
-            let possibleWaits = [];
-            if (head.tile === agariTileStr) possibleWaits.push({ type: 'tanki', fu: 2, pinfu: false, name: '単騎待ち' });
+            const head = groups.find(g => g.type === 'head'); const mentsu = groups.filter(g => g.type !== 'head'); const shuntsu = mentsu.filter(g => g.type === 'shuntsu'); const koutsu = mentsu.filter(g => g.type === 'koutsu');
+            let possibleWaits = []; if (head.tile === agariTileStr) possibleWaits.push({ type: 'tanki', fu: 2, pinfu: false, name: '単騎待ち' });
             koutsu.forEach(k => { if (k.tile === agariTileStr) possibleWaits.push({ type: 'shanpon', fu: 0, pinfu: false, name: '双碰待ち', targetGroup: k }); });
-            shuntsu.forEach(s => {
-                let t = s.tile.slice(0, -1), v = parseInt(s.tile.slice(-1));
-                let aT = agariTileStr.slice(0, -1), aV = parseInt(agariTileStr.slice(-1));
-                if (t === aT) {
-                    if (aV === v + 1) possibleWaits.push({ type: 'kanchan', fu: 2, pinfu: false, name: '嵌張待ち' });
-                    else if (aV === v && v === 7) possibleWaits.push({ type: 'penchan', fu: 2, pinfu: false, name: '辺張待ち' });
-                    else if (aV === v + 2 && v === 1) possibleWaits.push({ type: 'penchan', fu: 2, pinfu: false, name: '辺張待ち' });
-                    else if (aV === v || aV === v + 2) possibleWaits.push({ type: 'ryanmen', fu: 0, pinfu: true, name: '両面待ち' });
-                }
-            });
-
-            let baseHan = 0; let baseYaku = [];
-            if (settings.reach === 1) { baseHan+=1; baseYaku.push("立直(1)"); }
-            if (settings.reach === 2) { baseHan+=2; baseYaku.push("W立直(2)"); }
-            if (settings.winType === 'tsumo') { baseHan+=1; baseYaku.push("門前清自摸(1)"); }
-            if (settings.dora > 0) { baseHan+=settings.dora; baseYaku.push(`ドラ(${settings.dora})`); }
-
-            const isTanyao = Object.keys(counts).every(k => { const t = k.slice(0,-1), v=parseInt(k.slice(-1)); return t!=='ji' && v>1 && v<9; });
-            if (isTanyao) { baseHan+=1; baseYaku.push("断幺九(1)"); }
-
-            let yakuhaiHan = 0;
-            koutsu.forEach(k => { if (k.tile === 'ji5' || k.tile === 'ji6' || k.tile === 'ji7') yakuhaiHan++; if (k.tile === `ji${settings.prevalent+1}`) yakuhaiHan++; if (k.tile === `ji${settings.seat+1}`) yakuhaiHan++; });
-            if (yakuhaiHan>0) { baseHan+=yakuhaiHan; baseYaku.push(`役牌(${yakuhaiHan})`); }
-
-            const headVal = parseInt(head.tile.slice(-1)); const headType = head.tile.slice(0,-1);
-            const isHeadYakuhai = (headType==='ji' && (headVal>=5 || headVal===settings.prevalent+1 || headVal===settings.seat+1));
-
-            let iipeiko = 0; const seqStr = shuntsu.map(s => s.tile).sort(); for(let i=0; i<seqStr.length-1; i++) { if(seqStr[i] === seqStr[i+1]) { iipeiko++; i++; } }
-            if(iipeiko === 1) { baseHan+=1; baseYaku.push("一盃口(1)"); } if(iipeiko === 2) { baseHan+=3; baseYaku.push("二盃口(3)"); }
-
-            const types = new Set(Object.keys(counts).map(k=>k.slice(0,-1))); const hasJi = types.has('ji'); types.delete('ji');
-            if(types.size === 1) { if(hasJi) { baseHan+=3; baseYaku.push("混一色(3)"); } else { baseHan+=6; baseYaku.push("清一色(6)"); } }
-
+            shuntsu.forEach(s => { let t = s.tile.slice(0, -1), v = parseInt(s.tile.slice(-1)); let aT = agariTileStr.slice(0, -1), aV = parseInt(agariTileStr.slice(-1)); if (t === aT) { if (aV === v + 1) possibleWaits.push({ type: 'kanchan', fu: 2, pinfu: false, name: '嵌張待ち' }); else if (aV === v && v === 7) possibleWaits.push({ type: 'penchan', fu: 2, pinfu: false, name: '辺張待ち' }); else if (aV === v + 2 && v === 1) possibleWaits.push({ type: 'penchan', fu: 2, pinfu: false, name: '辺張待ち' }); else if (aV === v || aV === v + 2) possibleWaits.push({ type: 'ryanmen', fu: 0, pinfu: true, name: '両面待ち' }); } });
+            let baseHan = 0; let baseYaku = []; if (settings.reach === 1) { baseHan+=1; baseYaku.push("立直(1)"); } if (settings.reach === 2) { baseHan+=2; baseYaku.push("W立直(2)"); } if (settings.winType === 'tsumo') { baseHan+=1; baseYaku.push("門前清自摸(1)"); } if (settings.dora > 0) { baseHan+=settings.dora; baseYaku.push(`ドラ(${settings.dora})`); }
+            const isTanyao = Object.keys(counts).every(k => { const t = k.slice(0,-1), v=parseInt(k.slice(-1)); return t!=='ji' && v>1 && v<9; }); if (isTanyao) { baseHan+=1; baseYaku.push("断幺九(1)"); }
+            let yakuhaiHan = 0; koutsu.forEach(k => { if (k.tile === 'ji5' || k.tile === 'ji6' || k.tile === 'ji7') yakuhaiHan++; if (k.tile === `ji${settings.prevalent+1}`) yakuhaiHan++; if (k.tile === `ji${settings.seat+1}`) yakuhaiHan++; }); if (yakuhaiHan>0) { baseHan+=yakuhaiHan; baseYaku.push(`役牌(${yakuhaiHan})`); }
+            const headVal = parseInt(head.tile.slice(-1)); const headType = head.tile.slice(0,-1); const isHeadYakuhai = (headType==='ji' && (headVal>=5 || headVal===settings.prevalent+1 || headVal===settings.seat+1));
+            let iipeiko = 0; const seqStr = shuntsu.map(s => s.tile).sort(); for(let i=0; i<seqStr.length-1; i++) { if(seqStr[i] === seqStr[i+1]) { iipeiko++; i++; } } if(iipeiko === 1) { baseHan+=1; baseYaku.push("一盃口(1)"); } if(iipeiko === 2) { baseHan+=3; baseYaku.push("二盃口(3)"); }
+            const types = new Set(Object.keys(counts).map(k=>k.slice(0,-1))); const hasJi = types.has('ji'); types.delete('ji'); if(types.size === 1) { if(hasJi) { baseHan+=3; baseYaku.push("混一色(3)"); } else { baseHan+=6; baseYaku.push("清一色(6)"); } }
             if (koutsu.length === 4) { baseHan+=2; baseYaku.push("対々和(2)"); }
-
-            const sMap = {man:[], pin:[], sou:[]}; shuntsu.forEach(s => sMap[s.tile.slice(0,-1)].push(parseInt(s.tile.slice(-1)))); let sanshoku = false; sMap.man.forEach(v => { if(sMap.pin.includes(v) && sMap.sou.includes(v)) sanshoku = true; });
-            if(sanshoku) { baseHan+=2; baseYaku.push("三色同順(2)"); }
-
-            let ittsu = false; ['man','pin','sou'].forEach(t => { const vals = shuntsu.filter(s=>s.tile.startsWith(t)).map(s=>parseInt(s.tile.slice(-1))); if(vals.includes(1) && vals.includes(4) && vals.includes(7)) ittsu = true; });
-            if(ittsu) { baseHan+=2; baseYaku.push("一気通貫(2)"); }
-
+            const sMap = {man:[], pin:[], sou:[]}; shuntsu.forEach(s => sMap[s.tile.slice(0,-1)].push(parseInt(s.tile.slice(-1)))); let sanshoku = false; sMap.man.forEach(v => { if(sMap.pin.includes(v) && sMap.sou.includes(v)) sanshoku = true; }); if(sanshoku) { baseHan+=2; baseYaku.push("三色同順(2)"); }
+            let ittsu = false; ['man','pin','sou'].forEach(t => { const vals = shuntsu.filter(s=>s.tile.startsWith(t)).map(s=>parseInt(s.tile.slice(-1))); if(vals.includes(1) && vals.includes(4) && vals.includes(7)) ittsu = true; }); if(ittsu) { baseHan+=2; baseYaku.push("一気通貫(2)"); }
             possibleWaits.forEach(wait => {
                 let han = baseHan; let yaku = [...baseYaku]; let fuDetails = [{ text: '副底', points: 20 }]; let fu = 20;
-                const isPinfu = (shuntsu.length === 4 && !isHeadYakuhai && wait.pinfu);
-                if (isPinfu) { han += 1; yaku.push("平和(1)"); }
-
-                let ankouCount = 0;
-                koutsu.forEach(k => { let isAnkou = true; if (wait.type === 'shanpon' && wait.targetGroup === k && settings.winType === 'ron') { isAnkou = false; } if (isAnkou) ankouCount++; });
-                if (ankouCount === 3) { han += 2; yaku.push("三暗刻(2)"); }
-                if (ankouCount === 4) { han += 8; yaku.push("四暗刻(役満)"); }
-
-                if (settings.winType === 'ron') { fu += 10; fuDetails.push({ text: '門前加符', points: 10 }); }
-                if (settings.winType === 'tsumo') { fu += 2; fuDetails.push({ text: 'ツモ符', points: 2 }); }
-
-                koutsu.forEach(k => {
-                    const t = k.tile.slice(0,-1), v=parseInt(k.tile.slice(-1)); const isYaochu = (t==='ji' || v===1 || v===9);
-                    let isAnkou = true; if (wait.type === 'shanpon' && wait.targetGroup === k && settings.winType === 'ron') { isAnkou = false; }
-                    const p = isYaochu ? (isAnkou ? 8 : 4) : (isAnkou ? 4 : 2);
-                    fu += p; fuDetails.push({ text: `${isYaochu?'幺九':'中張'}${isAnkou?'暗刻':'明刻'}`, points: p });
-                });
-
-                if (isHeadYakuhai) { fu += 2; fuDetails.push({ text: '役牌雀頭', points: 2 }); }
-                if (wait.fu > 0) { fu += wait.fu; fuDetails.push({ text: wait.name, points: wait.fu }); }
-
-                if (isPinfu && settings.winType === 'tsumo') { fu = 20; fuDetails = [{ text: '平和ツモ(固定)', points: 20 }]; } 
-                else { fu = Math.ceil(fu/10)*10; }
-
-                let res = calculateFinalScore(han, fu, yaku, fuDetails);
-                if (res.score > bestRes.score || (res.score === bestRes.score && res.han > bestRes.han)) { bestRes = res; }
+                const isPinfu = (shuntsu.length === 4 && !isHeadYakuhai && wait.pinfu); if (isPinfu) { han += 1; yaku.push("平和(1)"); }
+                let ankouCount = 0; koutsu.forEach(k => { let isAnkou = true; if (wait.type === 'shanpon' && wait.targetGroup === k && settings.winType === 'ron') { isAnkou = false; } if (isAnkou) ankouCount++; });
+                if (ankouCount === 3) { han += 2; yaku.push("三暗刻(2)"); } if (ankouCount === 4) { han += 8; yaku.push("四暗刻(役満)"); }
+                if (settings.winType === 'ron') { fu += 10; fuDetails.push({ text: '門前加符', points: 10 }); } if (settings.winType === 'tsumo') { fu += 2; fuDetails.push({ text: 'ツモ符', points: 2 }); }
+                koutsu.forEach(k => { const t = k.tile.slice(0,-1), v=parseInt(k.tile.slice(-1)); const isYaochu = (t==='ji' || v===1 || v===9); let isAnkou = true; if (wait.type === 'shanpon' && wait.targetGroup === k && settings.winType === 'ron') { isAnkou = false; } const p = isYaochu ? (isAnkou ? 8 : 4) : (isAnkou ? 4 : 2); fu += p; fuDetails.push({ text: `${isYaochu?'幺九':'中張'}${isAnkou?'暗刻':'明刻'}`, points: p }); });
+                if (isHeadYakuhai) { fu += 2; fuDetails.push({ text: '役牌雀頭', points: 2 }); } if (wait.fu > 0) { fu += wait.fu; fuDetails.push({ text: wait.name, points: wait.fu }); }
+                if (isPinfu && settings.winType === 'tsumo') { fu = 20; fuDetails = [{ text: '平和ツモ(固定)', points: 20 }]; } else { fu = Math.ceil(fu/10)*10; }
+                let res = calculateFinalScore(han, fu, yaku, fuDetails); if (res.score > bestRes.score || (res.score === bestRes.score && res.han > bestRes.han)) { bestRes = res; }
             });
             return bestRes.score === -1 ? { han: 0, fu: 0, score: 0, yakuNames: [], fuDetails: [] } : bestRes;
         }
-
-        function calcChiitoiResult(counts) {
-            let han=2; let yaku=["七対子(2)"];
-            if(settings.reach===1) {han++; yaku.push("立直(1)");} if(settings.reach===2) {han+=2; yaku.push("W立直(2)");} if(settings.winType==='tsumo') {han++; yaku.push("門前清自摸(1)");} if(settings.dora>0) {han+=settings.dora; yaku.push(`ドラ(${settings.dora})`);}
-            const isTanyao = Object.keys(counts).every(k => { const t = k.slice(0,-1), v=parseInt(k.slice(-1)); return t!=='ji' && v>1 && v<9; }); if (isTanyao) { han++; yaku.push("断幺九(1)"); }
-            const types = new Set(Object.keys(counts).map(k=>k.slice(0,-1))); const hasJi = types.has('ji'); types.delete('ji'); if(types.size===1) { if(hasJi){han+=3;yaku.push("混一色(3)");} else{han+=6;yaku.push("清一色(6)");} }
-            const fuDetails = [{ text: '七対子(固定)', points: 25 }];
-            return calculateFinalScore(han, 25, yaku, fuDetails);
-        }
-
-        function calculateFinalScore(han, fu, yakuNames, fuDetails) {
-            let base = fu * Math.pow(2, han+2);
-            if(han>=5) base=2000; if(han>=6) base=3000; if(han>=8) base=4000; if(han>=11) base=6000; if(han>=13) base=8000;
-            let score=0;
-            if(settings.seat===0){ score = settings.winType==='ron' ? Math.ceil((base*6)/100)*100 : Math.ceil((base*2)/100)*100 * 3; }
-            else { score = settings.winType==='ron' ? Math.ceil((base*4)/100)*100 : Math.ceil((base*2)/100)*100 + Math.ceil((base*1)/100)*100*2; }
-            score += settings.honba * 300;
-            return { han, fu, score, yakuNames, fuDetails };
-        }
-
-        function displayResult(res, elScore, elYaku) {
-            elScore.textContent = `${res.score}点`;
-            elYaku.textContent = `${res.han}飜 ${res.fu}符\n${res.yakuNames.join(' ')}`;
-        }
-
+        function calcChiitoiResult(counts) { let han=2; let yaku=["七対子(2)"]; if(settings.reach===1) {han++; yaku.push("立直(1)");} if(settings.reach===2) {han+=2; yaku.push("W立直(2)");} if(settings.winType==='tsumo') {han++; yaku.push("門前清自摸(1)");} if(settings.dora>0) {han+=settings.dora; yaku.push(`ドラ(${settings.dora})`);} const isTanyao = Object.keys(counts).every(k => { const t = k.slice(0,-1), v=parseInt(k.slice(-1)); return t!=='ji' && v>1 && v<9; }); if (isTanyao) { han++; yaku.push("断幺九(1)"); } const types = new Set(Object.keys(counts).map(k=>k.slice(0,-1))); const hasJi = types.has('ji'); types.delete('ji'); if(types.size===1) { if(hasJi){han+=3;yaku.push("混一色(3)");} else{han+=6;yaku.push("清一色(6)");} } const fuDetails = [{ text: '七対子(固定)', points: 25 }]; return calculateFinalScore(han, 25, yaku, fuDetails); }
+        function calculateFinalScore(han, fu, yakuNames, fuDetails) { let base = fu * Math.pow(2, han+2); if(han>=5) base=2000; if(han>=6) base=3000; if(han>=8) base=4000; if(han>=11) base=6000; if(han>=13) base=8000; let score=0; if(settings.seat===0){ score = settings.winType==='ron' ? Math.ceil((base*6)/100)*100 : Math.ceil((base*2)/100)*100 * 3; } else { score = settings.winType==='ron' ? Math.ceil((base*4)/100)*100 : Math.ceil((base*2)/100)*100 + Math.ceil((base*1)/100)*100*2; } score += settings.honba * 300; return { han, fu, score, yakuNames, fuDetails }; }
+        function displayResult(res, elScore, elYaku) { elScore.textContent = `${res.score}点`; elYaku.textContent = `${res.han}飜 ${res.fu}符\n${res.yakuNames.join(' ')}`; }
         init();
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // ==========================================
+        // ★★★ ここを書き換える ★★★
+        // 先ほどコピーした firebaseConfig を下に貼り付けてください！
+        // ==========================================
+  const firebaseConfig = {
+    apiKey: "AIzaSyBNYx05vPh_8H217AP4sVYOq7Xu3k9vzVA",
+    authDomain: "mj-score-app.firebaseapp.com",
+    projectId: "mj-score-app",
+    storageBucket: "mj-score-app.firebasestorage.app",
+    messagingSenderId: "772380184697",
+    appId: "1:772380184697:web:e4f42a83baf9910bacc4a8"
+  };
+        // ==========================================
+
+        let app, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            console.log("Firebase 準備完了！");
+        } catch(e) {
+            console.error("Firebase 初期化エラー:", e);
+        }
+
+        let currentRoomId = null;
+
+        // 【卓を作る（ホスト）】
+        window.createRoom = async function() {
+            if (!db) return alert("データベースの設定が完了していません。");
+            
+            // 4桁のランダムな数字を作成
+            const roomId = Math.floor(1000 + Math.random() * 9000).toString(); 
+            try {
+                // クラウド上に初期スコア(25000)を保存
+                await setDoc(doc(db, "rooms", roomId), {
+                    scores: [25000, 25000, 25000, 25000]
+                });
+                // 自動でその部屋に入る
+                window.joinRoom(roomId);
+                alert(`卓を作りました！\nみんなに ルームID:【 ${roomId} 】を教えてください。`);
+            } catch(e) {
+                alert("エラーが発生しました: " + e.message);
+            }
+        }
+
+        // 【卓に入る（参加）】
+        window.joinRoom = function(id) {
+            if (!db) return alert("データベースの設定が完了していません。");
+            
+            const roomId = id || prompt("4桁のルームIDを入力してください");
+            if(!roomId) return;
+
+            currentRoomId = roomId;
+
+            // ★魔法のコード: クラウドのデータが変わるたびに自動でここが動く (リアルタイム同期)
+            onSnapshot(doc(db, "rooms", roomId), (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    // 画面のスコアを更新
+                    document.getElementById('score-0').textContent = data.scores[0];
+                    document.getElementById('score-1').textContent = data.scores[1];
+                    document.getElementById('score-2').textContent = data.scores[2];
+                    document.getElementById('score-3').textContent = data.scores[3];
+                } else {
+                    if(!id) alert("そのIDの卓は見つかりませんでした。");
+                }
+            });
+
+            // UIの切り替え（ボタンを隠してスコアボードを表示）
+            document.getElementById('network-buttons').classList.add('hidden');
+            document.getElementById('scoreboard').classList.remove('hidden');
+            document.getElementById('room-id-display').textContent = roomId;
+        }
+
+        // 【テスト通信（Aさんから1000点引いて、Bさんに1000点足す）】
+        window.testSync = async function() {
+            if (!currentRoomId) return;
+            try {
+                // 現在のスコアの数字を取得して計算
+                const s0 = parseInt(document.getElementById('score-0').textContent) - 1000;
+                const s1 = parseInt(document.getElementById('score-1').textContent) + 1000;
+                const s2 = parseInt(document.getElementById('score-2').textContent);
+                const s3 = parseInt(document.getElementById('score-3').textContent);
+                
+                // クラウドのデータを上書き（これが全員のスマホに一瞬で同期される）
+                await updateDoc(doc(db, "rooms", currentRoomId), {
+                    scores: [s0, s1, s2, s3]
+                });
+            } catch(e) {
+                alert("通信エラー: " + e.message);
+            }
+        }
     </script>
 </body>
 </html>
