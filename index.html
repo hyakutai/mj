@@ -9,7 +9,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1a202c">
     
-    <title>麻雀点数計算機 Pro</title>
+    <title>麻雀点数計算機 Pro v1.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -24,25 +24,15 @@
         }
     </script>
     <style>
-        /* ★修正：100dvh（動的ビューポート）を使い、スマホ特有の下部余白を完全に消す */
-        html {
-            background-color: #1a202c;
-        }
+        html { background-color: #1a202c; }
         body { 
             font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; 
-            background-color: #1a202c; 
-            color: white; 
-            height: 100vh; /* フォールバック */
-            height: 100dvh; /* スマホのバーを考慮した正確な高さ */
-            overflow: hidden; 
-            user-select: none; 
-            touch-action: manipulation; 
+            background-color: #1a202c; color: white; 
+            height: 100vh; height: 100dvh; 
+            overflow: hidden; user-select: none; touch-action: manipulation; 
             margin: 0; padding: 0;
         }
-
-        #app-container {
-            max-width: 1024px; margin: 0 auto; height: 100%; display: flex; flex-direction: column;
-        }
+        #app-container { max-width: 1024px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; }
 
         .tile {
             width: 2.6rem; height: 3.6rem;
@@ -50,8 +40,7 @@
             background-color: #f7fafc; border-radius: 0.25rem;
             font-size: 2rem; line-height: 1;
             box-shadow: 0 3px 5px rgba(0,0,0,0.4); cursor: pointer; position: relative; transition: transform 0.1s; 
-            touch-action: pan-x;
-            color: #333; flex-shrink: 0;
+            touch-action: pan-x; color: #333; flex-shrink: 0;
         }
         @media (orientation: portrait) {
             .tile { width: 2.2rem; height: 3.1rem; font-size: 1.7rem; }
@@ -69,10 +58,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        #hand-scroll-view {
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
-        }
+        #hand-scroll-view { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.4) transparent; }
         #hand-scroll-view::-webkit-scrollbar { height: 6px; }
         #hand-scroll-view::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.15); border-radius: 10px; }
         #hand-scroll-view::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.5); border-radius: 10px; }
@@ -89,7 +75,7 @@
     <div class="flex flex-1 gap-2 p-2 pt-[max(8px,env(safe-area-inset-top))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))] flex-col landscape:flex-row min-h-0">
         
         <div class="relative bg-gray-800 rounded-lg p-2 flex flex-col gap-1.5 shadow-lg overflow-y-auto no-scrollbar border border-gray-700 w-full landscape:w-[30%] shrink-0 landscape:shrink">
-            <div class="absolute top-1 right-2 text-[10px] text-gray-500 font-mono tracking-wider z-10 pointer-events-none">v1.1</div>
+            <div class="absolute top-1 right-2 text-[10px] text-gray-500 font-mono tracking-wider z-10 pointer-events-none">v1.2</div>
 
             <div class="grid grid-cols-2 gap-1.5 mt-2">
                 <button id="btn-prevalent" class="bg-gray-700 py-1.5 portrait:py-1 rounded text-xs font-bold border border-gray-600 transition-all" onclick="togglePrevalent()">東場</button>
@@ -151,16 +137,13 @@
     </div>
 
     <div class="shrink-0 w-full bg-green-900 border-t-4 border-green-950 shadow-[0_-4px_10px_rgba(0,0,0,0.3)] relative flex flex-col justify-center pt-2 pb-[max(12px,env(safe-area-inset-bottom))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))] z-20">
-        
         <div class="text-[9px] text-green-200 opacity-80 font-mono absolute top-0.5 left-[max(12px,env(safe-area-inset-left))] pointer-events-none">
             TAP:上がり牌 / UP-FLICK:削除 <span class="portrait:inline hidden">/ 左右:スクロール</span>
         </div>
-        
         <div id="hand-scroll-view" class="w-full overflow-x-auto flex items-center landscape:justify-center mt-2 z-10">
             <div id="hand-container" class="flex gap-0.5 landscape:gap-1 px-2 pt-4 pb-2 flex-nowrap min-w-max"></div>
         </div>
     </div>
-
 </div>
 
     <div id="camera-modal" class="modal-overlay flex-col">
@@ -242,22 +225,16 @@
                 
                 let sy=0, sx=0, isDrag=false;
                 d.addEventListener('touchstart', e=>{ sy=e.touches[0].clientY; sx=e.touches[0].clientX; isDrag=true; d.style.transition='none'; }, {passive:false});
-                
                 d.addEventListener('touchmove', e=>{ 
                     if(!isDrag)return; 
-                    let dy = e.touches[0].clientY - sy; 
-                    let dx = e.touches[0].clientX - sx; 
+                    let dy = e.touches[0].clientY - sy; let dx = e.touches[0].clientX - sx; 
                     if(dy < 0 && Math.abs(dy) > Math.abs(dx)) { 
-                        e.preventDefault(); 
-                        d.style.transform=`translateY(${dy}px)`; 
-                        d.style.opacity = dy<-50?'0.5':'1'; 
+                        e.preventDefault(); d.style.transform=`translateY(${dy}px)`; d.style.opacity = dy<-50?'0.5':'1'; 
                     } 
                 }, {passive:false});
-
                 d.addEventListener('touchend', e=>{ 
                     if(!isDrag)return; isDrag=false; 
-                    let dy = e.changedTouches[0].clientY - sy; 
-                    let dx = e.changedTouches[0].clientX - sx;
+                    let dy = e.changedTouches[0].clientY - sy; let dx = e.changedTouches[0].clientX - sx;
                     d.style.transition='transform 0.2s, opacity 0.2s'; 
                     if(dy < -50 && Math.abs(dy) > Math.abs(dx)) { 
                         d.style.transform='translateY(-100px)'; d.style.opacity='0'; 
@@ -324,11 +301,9 @@
             res.fuDetails.forEach(d => { html += `<li class="flex justify-between"><span>${d.text}</span><span>+${d.points} 符</span></li>`; totalFuRaw += d.points; });
             html += `</ul><div class="border-t border-gray-600 mt-2 pt-1 flex justify-between font-bold"><span>合計</span><span>${totalFuRaw} 符</span></div>`;
             html += `<div class="flex justify-between text-yellow-400 mt-1"><span>切り上げ後</span><span class="text-lg">${res.fu} 符</span></div></div>`;
-
             html += `
                 <div class="bg-gray-900/50 p-2 rounded border border-gray-700 flex justify-between items-center mt-3">
-                    <span class="font-bold text-yellow-300">🀅 飜数</span>
-                    <span class="text-lg font-bold">${res.han} 飜</span>
+                    <span class="font-bold text-yellow-300">🀅 飜数</span><span class="text-lg font-bold">${res.han} 飜</span>
                 </div>
                 <div class="text-center text-gray-400 text-xs mt-3">基本点 = 符 × 2^(飜数+2)<br>(満貫以上は固定点)</div>
             `;
@@ -336,6 +311,7 @@
         }
         function closeDetail() { document.getElementById('detail-modal').classList.remove('active'); }
 
+        // --- ★v1.2: 精密計算エンジン ---
         function calculateFull() {
             const resScore = document.getElementById('result-score'); const resYaku = document.getElementById('result-yaku');
             if (currentHand.length !== 14) { resScore.textContent = "枚数不足"; resYaku.textContent = "牌は14枚必要です"; lastCalculationResult = null; return; }
@@ -357,56 +333,135 @@
                 }
                 resScore.textContent = "役なし"; resYaku.textContent = "アガリ形になっていません"; lastCalculationResult = null; return;
             }
-            let bestResult = { han: 0, fu: 0, score: 0, yakuNames: [], fuDetails: [] };
-            decompositions.forEach(groups => { const res = evalHand(groups, counts, agariTileStr); if (res.score > bestResult.score) bestResult = res; });
-            if (bestResult.han === 0) { resScore.textContent = "役なし"; resYaku.textContent = "アガリ形ですが役がありません"; lastCalculationResult = null; }
-            else { displayResult(bestResult, resScore, resYaku); lastCalculationResult = bestResult; }
+            
+            let bestResult = { han: 0, fu: 0, score: -1, yakuNames: [], fuDetails: [] };
+            decompositions.forEach(groups => { 
+                const res = evalHand(groups, counts, agariTileStr); 
+                if (res.score > bestResult.score || (res.score === bestResult.score && res.han > bestResult.han)) {
+                    bestResult = res; 
+                }
+            });
+
+            if (bestResult.score === -1 || bestResult.han === 0) { 
+                resScore.textContent = "役なし"; resYaku.textContent = "アガリ形ですが役がありません"; lastCalculationResult = null; 
+            } else { 
+                displayResult(bestResult, resScore, resYaku); lastCalculationResult = bestResult; 
+            }
         }
 
         function decompose(counts) { const results = []; const keys = Object.keys(counts); keys.forEach(headKey => { if (counts[headKey] >= 2) { const workingCounts = {...counts}; workingCounts[headKey] -= 2; const headGroup = { type: 'head', tile: headKey }; const mentsuRes = decomposeMentsu(workingCounts); mentsuRes.forEach(mList => { results.push([headGroup, ...mList]); }); } }); return results; }
         function decomposeMentsu(c) { let first = null; const keys = ['man','pin','sou','ji']; for(let t of keys) { const limit = t==='ji'?7:9; for(let v=1; v<=limit; v++) { if (c[t+v] > 0) { first = t+v; break; } } if(first) break; } if (!first) return [[]]; const results = []; const type = first.substring(0, first.length-1); const val = parseInt(first.substring(first.length-1)); if (c[first] >= 3) { const nextC = {...c}; nextC[first] -= 3; const tails = decomposeMentsu(nextC); tails.forEach(t => { results.push([{type:'koutsu', tile:first}, ...t]); }); } if (type !== 'ji' && val <= 7) { const k1 = type + val; const k2 = type + (val+1); const k3 = type + (val+2); if (c[k1]>0 && c[k2]>0 && c[k3]>0) { const nextC = {...c}; nextC[k1]--; nextC[k2]--; nextC[k3]--; const tails = decomposeMentsu(nextC); tails.forEach(t => { results.push([{type:'shuntsu', tile:k1}, ...t]); }); } } return results; }
         function isKokushi(c) { const yaochu = ['man1','man9','pin1','pin9','sou1','sou9','ji1','ji2','ji3','ji4','ji5','ji6','ji7']; const keys = Object.keys(c); if(keys.length !== 13) return false; return keys.every(k => yaochu.includes(k)); }
 
+        // --- ★v1.2: 待ちの全パターン評価ロジック ---
         function evalHand(groups, counts, agariTileStr) {
-            let han = 0; let yaku = []; let fuDetails = [];
-            if (settings.reach === 1) { han+=1; yaku.push("立直(1)"); } if (settings.reach === 2) { han+=2; yaku.push("W立直(2)"); }
-            if (settings.winType === 'tsumo') { han+=1; yaku.push("門前清自摸(1)"); }
-            if (settings.dora > 0) { han+=settings.dora; yaku.push(`ドラ(${settings.dora})`); }
-            
-            const head = groups.find(g => g.type === 'head'); const mentsu = groups.filter(g => g.type !== 'head');
-            const shuntsu = mentsu.filter(g => g.type === 'shuntsu'); const koutsu = mentsu.filter(g => g.type === 'koutsu');
+            let bestRes = { han: 0, fu: 0, score: -1, yakuNames: [], fuDetails: [] };
 
-            const isTanyao = Object.keys(counts).every(k => { const t = k.slice(0,-1), v=parseInt(k.slice(-1)); return t!=='ji' && v>1 && v<9; }); if (isTanyao) { han+=1; yaku.push("断幺九(1)"); }
-            let yakuhaiHan = 0; koutsu.forEach(k => { if (k.tile === 'ji5' || k.tile === 'ji6' || k.tile === 'ji7') yakuhaiHan++; if (k.tile === `ji${settings.prevalent+1}`) yakuhaiHan++; if (k.tile === `ji${settings.seat+1}`) yakuhaiHan++; }); if (yakuhaiHan>0) { han+=yakuhaiHan; yaku.push(`役牌(${yakuhaiHan})`); }
-            const headVal = parseInt(head.tile.slice(-1)); const headType = head.tile.slice(0,-1); const isHeadYakuhai = (headType==='ji' && (headVal>=5 || headVal===settings.prevalent+1 || headVal===settings.seat+1));
-            const isPinfu = (shuntsu.length === 4 && !isHeadYakuhai); if (isPinfu) { han+=1; yaku.push("平和(1)"); }
-            let iipeiko = 0; const seqStr = shuntsu.map(s => s.tile).sort(); for(let i=0; i<seqStr.length-1; i++) { if(seqStr[i] === seqStr[i+1]) { iipeiko++; i++; } } if(iipeiko === 1) { han+=1; yaku.push("一盃口(1)"); } if(iipeiko === 2) { han+=3; yaku.push("二盃口(3)"); }
-            const types = new Set(Object.keys(counts).map(k=>k.slice(0,-1))); const hasJi = types.has('ji'); types.delete('ji'); if(types.size === 1) { if(hasJi) { han+=3; yaku.push("混一色(3)"); } else { han+=6; yaku.push("清一色(6)"); } }
-            if (koutsu.length === 4) { han+=2; yaku.push("対々和(2)"); } if (koutsu.length === 3) { han+=2; yaku.push("三暗刻(2)"); } if (koutsu.length === 4) { han+=8; yaku.push("四暗刻(役満)"); }
-            const sMap = {man:[], pin:[], sou:[]}; shuntsu.forEach(s => sMap[s.tile.slice(0,-1)].push(parseInt(s.tile.slice(-1)))); let sanshoku = false; sMap.man.forEach(v => { if(sMap.pin.includes(v) && sMap.sou.includes(v)) sanshoku = true; }); if(sanshoku) { han+=2; yaku.push("三色同順(2)"); }
-            let ittsu = false; ['man','pin','sou'].forEach(t => { const vals = shuntsu.filter(s=>s.tile.startsWith(t)).map(s=>parseInt(s.tile.slice(-1))); if(vals.includes(1) && vals.includes(4) && vals.includes(7)) ittsu = true; }); if(ittsu) { han+=2; yaku.push("一気通貫(2)"); }
+            const head = groups.find(g => g.type === 'head');
+            const mentsu = groups.filter(g => g.type !== 'head');
+            const shuntsu = mentsu.filter(g => g.type === 'shuntsu');
+            const koutsu = mentsu.filter(g => g.type === 'koutsu');
 
-            fuDetails.push({ text: '副底', points: 20 });
-            let fu = 20;
-            if (settings.winType === 'ron') { fu += 10; fuDetails.push({ text: '門前加符', points: 10 }); }
-            if (settings.winType === 'tsumo') { fu += 2; fuDetails.push({ text: 'ツモ符', points: 2 }); }
-
-            koutsu.forEach(k => {
-                const t = k.tile.slice(0,-1), v=parseInt(k.tile.slice(-1));
-                const isYaochu = (t==='ji' || v===1 || v===9);
-                const isAnkou = (settings.winType === 'tsumo' || k.tile !== agariTileStr);
-                const p = isYaochu ? (isAnkou ? 8 : 4) : (isAnkou ? 4 : 2);
-                fu += p;
-                fuDetails.push({ text: `${isYaochu?'幺九':'中張'}${isAnkou?'暗刻':'明刻'}`, points: p });
+            // 1. 上がり牌がどのメンツに属するか（待ちの形）を特定する
+            let possibleWaits = [];
+            if (head.tile === agariTileStr) possibleWaits.push({ type: 'tanki', fu: 2, pinfu: false, name: '単騎待ち' });
+            koutsu.forEach(k => { if (k.tile === agariTileStr) possibleWaits.push({ type: 'shanpon', fu: 0, pinfu: false, name: '双碰待ち', targetGroup: k }); });
+            shuntsu.forEach(s => {
+                let t = s.tile.slice(0, -1), v = parseInt(s.tile.slice(-1));
+                let aT = agariTileStr.slice(0, -1), aV = parseInt(agariTileStr.slice(-1));
+                if (t === aT) {
+                    if (aV === v + 1) possibleWaits.push({ type: 'kanchan', fu: 2, pinfu: false, name: '嵌張待ち' });
+                    else if (aV === v && v === 7) possibleWaits.push({ type: 'penchan', fu: 2, pinfu: false, name: '辺張待ち' });
+                    else if (aV === v + 2 && v === 1) possibleWaits.push({ type: 'penchan', fu: 2, pinfu: false, name: '辺張待ち' });
+                    else if (aV === v || aV === v + 2) possibleWaits.push({ type: 'ryanmen', fu: 0, pinfu: true, name: '両面待ち' });
+                }
             });
 
-            if (isHeadYakuhai) { fu += 2; fuDetails.push({ text: '役牌雀頭', points: 2 }); }
-            if (!isPinfu) { fu += 2; fuDetails.push({ text: '待ち(嵌張/辺張/単騎)', points: 2 }); }
+            // 2. 待ちに依存しない共通の役を計算
+            let baseHan = 0; let baseYaku = [];
+            if (settings.reach === 1) { baseHan+=1; baseYaku.push("立直(1)"); }
+            if (settings.reach === 2) { baseHan+=2; baseYaku.push("W立直(2)"); }
+            if (settings.winType === 'tsumo') { baseHan+=1; baseYaku.push("門前清自摸(1)"); }
+            if (settings.dora > 0) { baseHan+=settings.dora; baseYaku.push(`ドラ(${settings.dora})`); }
 
-            if (isPinfu && settings.winType==='tsumo') { fu = 20; fuDetails = [{ text: '平和ツモ(固定)', points: 20 }]; }
-            else { fu = Math.ceil(fu/10)*10; }
+            const isTanyao = Object.keys(counts).every(k => { const t = k.slice(0,-1), v=parseInt(k.slice(-1)); return t!=='ji' && v>1 && v<9; });
+            if (isTanyao) { baseHan+=1; baseYaku.push("断幺九(1)"); }
 
-            return calculateFinalScore(han, fu, yaku, fuDetails);
+            let yakuhaiHan = 0;
+            koutsu.forEach(k => { if (k.tile === 'ji5' || k.tile === 'ji6' || k.tile === 'ji7') yakuhaiHan++; if (k.tile === `ji${settings.prevalent+1}`) yakuhaiHan++; if (k.tile === `ji${settings.seat+1}`) yakuhaiHan++; });
+            if (yakuhaiHan>0) { baseHan+=yakuhaiHan; baseYaku.push(`役牌(${yakuhaiHan})`); }
+
+            const headVal = parseInt(head.tile.slice(-1)); const headType = head.tile.slice(0,-1);
+            const isHeadYakuhai = (headType==='ji' && (headVal>=5 || headVal===settings.prevalent+1 || headVal===settings.seat+1));
+
+            let iipeiko = 0; const seqStr = shuntsu.map(s => s.tile).sort(); for(let i=0; i<seqStr.length-1; i++) { if(seqStr[i] === seqStr[i+1]) { iipeiko++; i++; } }
+            if(iipeiko === 1) { baseHan+=1; baseYaku.push("一盃口(1)"); } if(iipeiko === 2) { baseHan+=3; baseYaku.push("二盃口(3)"); }
+
+            const types = new Set(Object.keys(counts).map(k=>k.slice(0,-1))); const hasJi = types.has('ji'); types.delete('ji');
+            if(types.size === 1) { if(hasJi) { baseHan+=3; baseYaku.push("混一色(3)"); } else { baseHan+=6; baseYaku.push("清一色(6)"); } }
+
+            if (koutsu.length === 4) { baseHan+=2; baseYaku.push("対々和(2)"); }
+
+            const sMap = {man:[], pin:[], sou:[]}; shuntsu.forEach(s => sMap[s.tile.slice(0,-1)].push(parseInt(s.tile.slice(-1)))); let sanshoku = false; sMap.man.forEach(v => { if(sMap.pin.includes(v) && sMap.sou.includes(v)) sanshoku = true; });
+            if(sanshoku) { baseHan+=2; baseYaku.push("三色同順(2)"); }
+
+            let ittsu = false; ['man','pin','sou'].forEach(t => { const vals = shuntsu.filter(s=>s.tile.startsWith(t)).map(s=>parseInt(s.tile.slice(-1))); if(vals.includes(1) && vals.includes(4) && vals.includes(7)) ittsu = true; });
+            if(ittsu) { baseHan+=2; baseYaku.push("一気通貫(2)"); }
+
+            // 3. 各待ちパターンについて「符」と「待ち依存の役（平和・三暗刻など）」を計算し、最高得点を出す
+            possibleWaits.forEach(wait => {
+                let han = baseHan;
+                let yaku = [...baseYaku];
+                let fuDetails = [{ text: '副底', points: 20 }];
+                let fu = 20;
+
+                const isPinfu = (shuntsu.length === 4 && !isHeadYakuhai && wait.pinfu);
+                if (isPinfu) { han += 1; yaku.push("平和(1)"); }
+
+                let ankouCount = 0;
+                koutsu.forEach(k => {
+                    let isAnkou = true;
+                    if (wait.type === 'shanpon' && wait.targetGroup === k && settings.winType === 'ron') { isAnkou = false; }
+                    if (isAnkou) ankouCount++;
+                });
+                if (ankouCount === 3) { han += 2; yaku.push("三暗刻(2)"); }
+                if (ankouCount === 4) { han += 8; yaku.push("四暗刻(役満)"); }
+
+                if (settings.winType === 'ron') { fu += 10; fuDetails.push({ text: '門前加符', points: 10 }); }
+                if (settings.winType === 'tsumo') { fu += 2; fuDetails.push({ text: 'ツモ符', points: 2 }); }
+
+                koutsu.forEach(k => {
+                    const t = k.tile.slice(0,-1), v=parseInt(k.tile.slice(-1));
+                    const isYaochu = (t==='ji' || v===1 || v===9);
+                    let isAnkou = true;
+                    if (wait.type === 'shanpon' && wait.targetGroup === k && settings.winType === 'ron') { isAnkou = false; }
+                    const p = isYaochu ? (isAnkou ? 8 : 4) : (isAnkou ? 4 : 2);
+                    fu += p;
+                    fuDetails.push({ text: `${isYaochu?'幺九':'中張'}${isAnkou?'暗刻':'明刻'}`, points: p });
+                });
+
+                if (isHeadYakuhai) { fu += 2; fuDetails.push({ text: '役牌雀頭', points: 2 }); }
+
+                if (wait.fu > 0) {
+                    fu += wait.fu;
+                    fuDetails.push({ text: wait.name, points: wait.fu });
+                }
+
+                if (isPinfu && settings.winType === 'tsumo') {
+                    fu = 20; fuDetails = [{ text: '平和ツモ(固定)', points: 20 }];
+                } else {
+                    fu = Math.ceil(fu/10)*10;
+                }
+
+                let res = calculateFinalScore(han, fu, yaku, fuDetails);
+                
+                // より高い点数、または同点でも飜数が高い待ちを採用する（高点法）
+                if (res.score > bestRes.score || (res.score === bestRes.score && res.han > bestRes.han)) {
+                    bestRes = res;
+                }
+            });
+
+            return bestRes.score === -1 ? { han: 0, fu: 0, score: 0, yakuNames: [], fuDetails: [] } : bestRes;
         }
 
         function calcChiitoiResult(counts) {
