@@ -24,36 +24,38 @@
         }
     </script>
     <style>
+        /* ★修正：100dvh（動的ビューポート）を使い、スマホ特有の下部余白を完全に消す */
+        html {
+            background-color: #1a202c;
+        }
         body { 
             font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; 
             background-color: #1a202c; 
             color: white; 
-            height: 100vh; 
-            height: -webkit-fill-available; 
+            height: 100vh; /* フォールバック */
+            height: 100dvh; /* スマホのバーを考慮した正確な高さ */
             overflow: hidden; 
             user-select: none; 
             touch-action: manipulation; 
             margin: 0; padding: 0;
         }
-        html { height: -webkit-fill-available; }
 
         #app-container {
             max-width: 1024px; margin: 0 auto; height: 100%; display: flex; flex-direction: column;
         }
 
-        /* 牌のスタイル（touch-action: pan-x に変更し、横スクロールを許可） */
         .tile {
             width: 2.6rem; height: 3.6rem;
             display: flex; align-items: center; justify-content: center;
             background-color: #f7fafc; border-radius: 0.25rem;
             font-size: 2rem; line-height: 1;
             box-shadow: 0 3px 5px rgba(0,0,0,0.4); cursor: pointer; position: relative; transition: transform 0.1s; 
-            touch-action: pan-x; /* 横スクロールはブラウザ標準に任せる */
+            touch-action: pan-x;
             color: #333; flex-shrink: 0;
         }
         @media (orientation: portrait) {
             .tile { width: 2.2rem; height: 3.1rem; font-size: 1.7rem; }
-            .palette-tile { font-size: 1.8rem !important; height: 3rem !important; }
+            .palette-tile { font-size: 1.8rem !important; height: 2.8rem !important; }
         }
 
         .tile-man { color: #c53030; } .tile-pin { color: #2b6cb0; } .tile-sou { color: #2f855a; } .tile-ji { color: #000; }
@@ -64,26 +66,16 @@
         
         .palette-tile { width: 100%; height: 3.2rem; display: flex; align-items: center; justify-content: center; background-color: #f7fafc; border-radius: 0.25rem; font-size: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         
-        /* スクロールバー非表示用クラス（手牌エリア以外で使用） */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* ★追加：手牌エリアの横スクロールバーを見やすくする設定★ */
         #hand-scroll-view {
             scrollbar-width: thin;
             scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
         }
-        #hand-scroll-view::-webkit-scrollbar {
-            height: 6px;
-        }
-        #hand-scroll-view::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.15);
-            border-radius: 10px;
-        }
-        #hand-scroll-view::-webkit-scrollbar-thumb {
-            background-color: rgba(255, 255, 255, 0.5);
-            border-radius: 10px;
-        }
+        #hand-scroll-view::-webkit-scrollbar { height: 6px; }
+        #hand-scroll-view::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.15); border-radius: 10px; }
+        #hand-scroll-view::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.5); border-radius: 10px; }
         
         .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.8); z-index: 50; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
         .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease-out; }
@@ -97,21 +89,20 @@
     <div class="flex flex-1 gap-2 p-2 pt-[max(8px,env(safe-area-inset-top))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))] flex-col landscape:flex-row min-h-0">
         
         <div class="relative bg-gray-800 rounded-lg p-2 flex flex-col gap-1.5 shadow-lg overflow-y-auto no-scrollbar border border-gray-700 w-full landscape:w-[30%] shrink-0 landscape:shrink">
-            
             <div class="absolute top-1 right-2 text-[10px] text-gray-500 font-mono tracking-wider z-10 pointer-events-none">v1.1</div>
 
             <div class="grid grid-cols-2 gap-1.5 mt-2">
-                <button id="btn-prevalent" class="bg-gray-700 py-1.5 rounded text-xs font-bold border border-gray-600 transition-all" onclick="togglePrevalent()">東場</button>
-                <button id="btn-seat" class="bg-red-900 py-1.5 rounded text-xs font-bold border border-red-700 transition-all" onclick="toggleSeat()">東家(親)</button>
+                <button id="btn-prevalent" class="bg-gray-700 py-1.5 portrait:py-1 rounded text-xs font-bold border border-gray-600 transition-all" onclick="togglePrevalent()">東場</button>
+                <button id="btn-seat" class="bg-red-900 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-700 transition-all" onclick="toggleSeat()">東家(親)</button>
             </div>
             <div class="grid grid-cols-2 gap-1.5">
-                <button id="btn-win-type" class="bg-red-800 py-1.5 rounded text-xs font-bold border border-red-600 transition-all" onclick="toggleWinType()">ロンあがり</button>
-                <button id="btn-reach" class="bg-gray-700 py-1.5 rounded text-xs font-bold border border-gray-600 text-gray-400 transition-all" onclick="toggleReach()">立直なし</button>
+                <button id="btn-win-type" class="bg-red-800 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-600 transition-all" onclick="toggleWinType()">ロンあがり</button>
+                <button id="btn-reach" class="bg-gray-700 py-1.5 portrait:py-1 rounded text-xs font-bold border border-gray-600 text-gray-400 transition-all" onclick="toggleReach()">立直なし</button>
             </div>
             
             <div class="flex gap-1.5">
                 <div class="flex-1 flex items-center justify-between bg-gray-700 px-2 py-1 rounded border border-gray-600">
-                    <span class="text-xs">ドラ</span>
+                    <span class="text-[11px] font-bold text-gray-300">ドラ</span>
                     <div class="flex items-center gap-1">
                         <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm active:bg-gray-500" onclick="updCnt('dora',-1)">-</button>
                         <span id="dora-disp" class="font-mono text-sm w-4 text-center text-yellow-400">0</span>
@@ -119,7 +110,7 @@
                     </div>
                 </div>
                 <div class="flex-1 flex items-center justify-between bg-gray-700 px-2 py-1 rounded border border-gray-600">
-                    <span class="text-xs">本場</span>
+                    <span class="text-[11px] font-bold text-gray-300">本場</span>
                     <div class="flex items-center gap-1">
                         <button class="w-6 h-6 bg-gray-600 rounded flex items-center justify-center text-sm active:bg-gray-500" onclick="updCnt('honba',-1)">-</button>
                         <span id="honba-disp" class="font-mono text-sm w-4 text-center">0</span>
@@ -142,30 +133,31 @@
                 <button onclick="renderPalette('sou')" class="flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="sou">索子</button>
                 <button onclick="renderPalette('ji')" class="flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn" data-type="ji">字牌</button>
             </div>
+            
             <div id="tile-container" class="grid grid-cols-9 gap-1 auto-rows-min overflow-y-auto flex-1 content-start p-1 bg-gray-900 rounded inner-shadow mb-2"></div>
             
             <div class="flex gap-1.5 shrink-0">
-                <button onclick="openCamera()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded font-bold text-sm shadow flex items-center justify-center gap-1 border border-blue-400 active:scale-95 transition-transform">
+                <button onclick="openCamera()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 portrait:py-2.5 rounded font-bold text-sm shadow flex items-center justify-center gap-1 border border-blue-400 active:scale-95 transition-transform">
                     📷 撮影
                 </button>
-                <button onclick="clearHand()" class="flex-1 bg-red-800 hover:bg-red-700 text-white py-2 rounded font-bold text-sm shadow border border-red-700 active:scale-95 transition-transform">
+                <button onclick="clearHand()" class="flex-1 bg-red-800 hover:bg-red-700 text-white py-2 portrait:py-2.5 rounded font-bold text-sm shadow border border-red-700 active:scale-95 transition-transform">
                     クリア
                 </button>
-                <button onclick="calculateFull()" class="flex-[2] bg-yellow-600 hover:bg-yellow-500 text-white py-2 rounded font-bold text-base shadow border border-yellow-400 active:scale-95 transition-transform">
+                <button onclick="calculateFull()" class="flex-[2] bg-yellow-600 hover:bg-yellow-500 text-white py-2 portrait:py-2.5 rounded font-bold text-base shadow border border-yellow-400 active:scale-95 transition-transform">
                     計算する
                 </button>
             </div>
         </div>
     </div>
 
-    <div class="portrait:h-[6.5rem] landscape:h-24 shrink-0 bg-green-900 border-t-4 border-green-950 shadow-[0_-4px_10px_rgba(0,0,0,0.3)] relative flex flex-col justify-center w-full pt-1 pb-[max(8px,env(safe-area-inset-bottom))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))]">
+    <div class="shrink-0 w-full bg-green-900 border-t-4 border-green-950 shadow-[0_-4px_10px_rgba(0,0,0,0.3)] relative flex flex-col justify-center pt-2 pb-[max(12px,env(safe-area-inset-bottom))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))] z-20">
         
-        <div class="text-[9px] text-green-200 opacity-80 font-mono absolute top-1 left-[max(12px,env(safe-area-inset-left))] z-20 pointer-events-none">
+        <div class="text-[9px] text-green-200 opacity-80 font-mono absolute top-0.5 left-[max(12px,env(safe-area-inset-left))] pointer-events-none">
             TAP:上がり牌 / UP-FLICK:削除 <span class="portrait:inline hidden">/ 左右:スクロール</span>
         </div>
         
-        <div id="hand-scroll-view" class="w-full overflow-x-auto flex items-center landscape:justify-center z-10 mt-1 pb-1">
-            <div id="hand-container" class="flex gap-0.5 landscape:gap-1 px-2 pt-4 flex-nowrap min-w-max"></div>
+        <div id="hand-scroll-view" class="w-full overflow-x-auto flex items-center landscape:justify-center mt-2 z-10">
+            <div id="hand-container" class="flex gap-0.5 landscape:gap-1 px-2 pt-4 pb-2 flex-nowrap min-w-max"></div>
         </div>
     </div>
 
@@ -208,13 +200,13 @@
             document.getElementById('btn-prevalent').textContent = WINDS[settings.prevalent] + "場";
             const sBtn = document.getElementById('btn-seat');
             sBtn.textContent = WINDS[settings.seat] + "家" + (settings.seat===0?"(親)":"(子)");
-            sBtn.className = settings.seat===0 ? "bg-red-900 py-1.5 rounded text-xs font-bold border border-red-700 transition-all" : "bg-blue-900 py-1.5 rounded text-xs font-bold border border-blue-700 transition-all";
+            sBtn.className = settings.seat===0 ? "bg-red-900 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-700 transition-all" : "bg-blue-900 py-1.5 portrait:py-1 rounded text-xs font-bold border border-blue-700 transition-all";
             const wBtn = document.getElementById('btn-win-type');
             wBtn.textContent = settings.winType === 'ron' ? "ロンあがり" : "ツモあがり";
-            wBtn.className = settings.winType === 'ron' ? "bg-red-800 py-1.5 rounded text-xs font-bold border border-red-600 transition-all" : "bg-green-700 py-1.5 rounded text-xs font-bold border border-green-600 transition-all";
+            wBtn.className = settings.winType === 'ron' ? "bg-red-800 py-1.5 portrait:py-1 rounded text-xs font-bold border border-red-600 transition-all" : "bg-green-700 py-1.5 portrait:py-1 rounded text-xs font-bold border border-green-600 transition-all";
             const rBtn = document.getElementById('btn-reach');
             rBtn.textContent = ["立直なし", "立直(1飜)", "W立直(2飜)"][settings.reach];
-            rBtn.className = ["bg-gray-700 text-gray-400","bg-red-600 text-white","bg-yellow-600 text-white"][settings.reach] + " py-1.5 rounded text-xs font-bold border border-gray-600 transition-all";
+            rBtn.className = ["bg-gray-700 text-gray-400","bg-red-600 text-white","bg-yellow-600 text-white"][settings.reach] + " py-1.5 portrait:py-1 rounded text-xs font-bold border border-gray-600 transition-all";
             document.getElementById('dora-disp').textContent = settings.dora;
             document.getElementById('honba-disp').textContent = settings.honba;
         }
@@ -249,22 +241,14 @@
                 if (t.isAgari) d.classList.add('agari-tile'); d.textContent = t.char;
                 
                 let sy=0, sx=0, isDrag=false;
-                d.addEventListener('touchstart', e=>{ 
-                    sy=e.touches[0].clientY; 
-                    sx=e.touches[0].clientX; // ★X軸も記録
-                    isDrag=true; 
-                    d.style.transition='none'; 
-                }, {passive:false});
+                d.addEventListener('touchstart', e=>{ sy=e.touches[0].clientY; sx=e.touches[0].clientX; isDrag=true; d.style.transition='none'; }, {passive:false});
                 
                 d.addEventListener('touchmove', e=>{ 
                     if(!isDrag)return; 
                     let dy = e.touches[0].clientY - sy; 
                     let dx = e.touches[0].clientX - sx; 
-                    
-                    // ★修正：縦方向への移動が横移動より大きく、かつ上方向（dy<0）の場合のみ「削除フリック」として処理
-                    // これにより横スクロール時の誤作動（混濁）を防ぎます。
                     if(dy < 0 && Math.abs(dy) > Math.abs(dx)) { 
-                        e.preventDefault(); // 縦フリックの時だけ画面全体のスクロールを止める
+                        e.preventDefault(); 
                         d.style.transform=`translateY(${dy}px)`; 
                         d.style.opacity = dy<-50?'0.5':'1'; 
                     } 
@@ -275,19 +259,13 @@
                     let dy = e.changedTouches[0].clientY - sy; 
                     let dx = e.changedTouches[0].clientX - sx;
                     d.style.transition='transform 0.2s, opacity 0.2s'; 
-                    
-                    // 削除判定
                     if(dy < -50 && Math.abs(dy) > Math.abs(dx)) { 
                         d.style.transform='translateY(-100px)'; d.style.opacity='0'; 
                         setTimeout(()=>{ currentHand = currentHand.filter(x=>x.id!==t.id); renderHand(); }, 200); 
-                    } 
-                    // タップ（上がり牌）判定（指の移動が上下左右ともに10px未満の場合）
-                    else if(Math.abs(dy)<10 && Math.abs(dx)<10) { 
+                    } else if(Math.abs(dy)<10 && Math.abs(dx)<10) { 
                         d.style.transform=''; d.style.opacity='1'; 
                         currentHand.forEach(x => x.isAgari = (x.id === t.id)); renderHand(); 
-                    } 
-                    // 元に戻す
-                    else { 
+                    } else { 
                         d.style.transform=''; d.style.opacity='1'; 
                     } 
                 });
