@@ -24,7 +24,6 @@
         }
     </script>
     <style>
-        /* Bodyの余白を完全撤廃し、画面端まで使い切る */
         body { 
             font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; 
             background-color: #1a202c; 
@@ -34,28 +33,23 @@
             overflow: hidden; 
             user-select: none; 
             touch-action: manipulation; 
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
         }
         html { height: -webkit-fill-available; }
 
-        /* 全体コンテナ（iPad等でも横に伸びすぎないように制限） */
         #app-container {
-            max-width: 1024px;
-            margin: 0 auto;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
+            max-width: 1024px; margin: 0 auto; height: 100%; display: flex; flex-direction: column;
         }
 
-        /* 牌のスタイル調整 */
+        /* 牌のスタイル（touch-action: pan-x に変更し、横スクロールを許可） */
         .tile {
             width: 2.6rem; height: 3.6rem;
             display: flex; align-items: center; justify-content: center;
             background-color: #f7fafc; border-radius: 0.25rem;
             font-size: 2rem; line-height: 1;
-            box-shadow: 0 3px 5px rgba(0,0,0,0.4); cursor: pointer; position: relative; transition: transform 0.1s; touch-action: none; color: #333;
-            flex-shrink: 0;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.4); cursor: pointer; position: relative; transition: transform 0.1s; 
+            touch-action: pan-x; /* 横スクロールはブラウザ標準に任せる */
+            color: #333; flex-shrink: 0;
         }
         @media (orientation: portrait) {
             .tile { width: 2.2rem; height: 3.1rem; font-size: 1.7rem; }
@@ -65,14 +59,31 @@
         .tile-man { color: #c53030; } .tile-pin { color: #2b6cb0; } .tile-sou { color: #2f855a; } .tile-ji { color: #000; }
         .tile-empty { background-color: transparent; border: 2px dashed #4a5568; box-shadow: none; color: transparent; }
         
-        /* 上がり牌のマーク（上に飛び出す分、親要素でPadding-topを確保する） */
         .agari-tile { border: 3px solid #ecc94b; transform: translateY(-4px); z-index: 10; }
         .agari-tile::after { content: '和'; position: absolute; top: -10px; right: -8px; background-color: #e53e3e; color: white; font-size: 0.6rem; width: 1.2rem; height: 1.2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid white; font-weight: bold; }
         
         .palette-tile { width: 100%; height: 3.2rem; display: flex; align-items: center; justify-content: center; background-color: #f7fafc; border-radius: 0.25rem; font-size: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         
+        /* スクロールバー非表示用クラス（手牌エリア以外で使用） */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* ★追加：手牌エリアの横スクロールバーを見やすくする設定★ */
+        #hand-scroll-view {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
+        }
+        #hand-scroll-view::-webkit-scrollbar {
+            height: 6px;
+        }
+        #hand-scroll-view::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+        }
+        #hand-scroll-view::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+        }
         
         .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.8); z-index: 50; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
         .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease-out; }
@@ -85,8 +96,11 @@
 
     <div class="flex flex-1 gap-2 p-2 pt-[max(8px,env(safe-area-inset-top))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))] flex-col landscape:flex-row min-h-0">
         
-        <div class="bg-gray-800 rounded-lg p-2 flex flex-col gap-1.5 shadow-lg overflow-y-auto no-scrollbar border border-gray-700 w-full landscape:w-[30%] shrink-0 landscape:shrink">
-            <div class="grid grid-cols-2 gap-1.5">
+        <div class="relative bg-gray-800 rounded-lg p-2 flex flex-col gap-1.5 shadow-lg overflow-y-auto no-scrollbar border border-gray-700 w-full landscape:w-[30%] shrink-0 landscape:shrink">
+            
+            <div class="absolute top-1 right-2 text-[10px] text-gray-500 font-mono tracking-wider z-10 pointer-events-none">v1.1</div>
+
+            <div class="grid grid-cols-2 gap-1.5 mt-2">
                 <button id="btn-prevalent" class="bg-gray-700 py-1.5 rounded text-xs font-bold border border-gray-600 transition-all" onclick="togglePrevalent()">東場</button>
                 <button id="btn-seat" class="bg-red-900 py-1.5 rounded text-xs font-bold border border-red-700 transition-all" onclick="toggleSeat()">東家(親)</button>
             </div>
@@ -144,19 +158,20 @@
         </div>
     </div>
 
-    <div class="bg-green-900 border-t-4 border-green-950 shadow-[0_-4px_10px_rgba(0,0,0,0.3)] relative flex flex-col justify-center shrink-0 w-full pt-1 pb-[max(8px,env(safe-area-inset-bottom))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))]">
+    <div class="portrait:h-[6.5rem] landscape:h-24 shrink-0 bg-green-900 border-t-4 border-green-950 shadow-[0_-4px_10px_rgba(0,0,0,0.3)] relative flex flex-col justify-center w-full pt-1 pb-[max(8px,env(safe-area-inset-bottom))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))]">
         
-        <div class="text-[9px] text-green-200 opacity-80 font-mono absolute top-1 left-[max(12px,env(safe-area-inset-left))] z-20">
-            TAP:上がり牌 / UP-FLICK:削除 <span class="portrait:inline hidden">/ 横フリック:スクロール</span>
+        <div class="text-[9px] text-green-200 opacity-80 font-mono absolute top-1 left-[max(12px,env(safe-area-inset-left))] z-20 pointer-events-none">
+            TAP:上がり牌 / UP-FLICK:削除 <span class="portrait:inline hidden">/ 左右:スクロール</span>
         </div>
         
-        <div id="hand-scroll-view" class="w-full overflow-x-auto no-scrollbar flex items-center landscape:justify-center z-10 mt-2">
-            <div id="hand-container" class="flex gap-0.5 landscape:gap-1 px-2 pt-4 pb-2 flex-nowrap">
-                </div>
+        <div id="hand-scroll-view" class="w-full overflow-x-auto flex items-center landscape:justify-center z-10 mt-1 pb-1">
+            <div id="hand-container" class="flex gap-0.5 landscape:gap-1 px-2 pt-4 flex-nowrap min-w-max"></div>
         </div>
     </div>
 
-</div> <div id="camera-modal" class="modal-overlay flex-col">
+</div>
+
+    <div id="camera-modal" class="modal-overlay flex-col">
         <video id="camera-video" class="w-full h-full object-cover" autoplay playsinline></video>
         <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div class="w-11/12 h-1/3 border-4 border-yellow-400 rounded-lg flex items-center justify-center bg-black/20 backdrop-blur-sm">
@@ -180,7 +195,6 @@
     </div>
 
     <script>
-        // --- 1. 定数・状態管理 ---
         const TILES = { man: ['🀇','🀈','🀉','🀊','🀋','🀌','🀍','🀎','🀏'], pin: ['🀙','🀚','🀛','🀜','🀝','🀞','🀟','🀠','🀡'], sou: ['🀐','🀑','🀒','🀓','🀔','🀕','🀖','🀗','🀘'], ji: ['🀀','🀁','🀂','🀃','🀆','🀅','🀄'] };
         const TYPE_ORDER = { 'man':0, 'pin':1, 'sou':2, 'ji':3 };
         const WINDS = ['東','南','西','北'];
@@ -190,7 +204,6 @@
 
         function init() { renderPalette('man'); renderHand(); updateUI(); setupLongPress(); }
 
-        // --- 2. UI操作系 ---
         function updateUI() {
             document.getElementById('btn-prevalent').textContent = WINDS[settings.prevalent] + "場";
             const sBtn = document.getElementById('btn-seat');
@@ -211,7 +224,6 @@
         function toggleReach() { settings.reach = (settings.reach+1)%3; updateUI(); }
         function updCnt(k, d) { settings[k] = Math.max(0, settings[k]+d); updateUI(); }
 
-        // --- 3. 手牌・パレット操作 ---
         function renderPalette(type) {
             document.querySelectorAll('.tab-btn').forEach(b => {
                 b.className = b.dataset.type===type ? "flex-1 py-1.5 rounded-t bg-blue-600 text-white text-xs font-bold tab-btn transition-colors" : "flex-1 py-1.5 rounded-t bg-gray-700 text-gray-300 text-xs font-bold tab-btn transition-colors";
@@ -229,23 +241,64 @@
                 renderHand();
             }
         }
+
         function renderHand() {
             const c = document.getElementById('hand-container'); c.innerHTML = '';
             currentHand.forEach(t => {
                 const d = document.createElement('div'); d.className = `tile ${['tile-man','tile-pin','tile-sou','tile-ji'][TYPE_ORDER[t.type]]}`;
                 if (t.isAgari) d.classList.add('agari-tile'); d.textContent = t.char;
-                let sy=0, isDrag=false;
-                d.addEventListener('touchstart', e=>{ sy=e.touches[0].clientY; isDrag=true; d.style.transition='none'; }, {passive:false});
-                d.addEventListener('touchmove', e=>{ if(!isDrag)return; let dy = e.touches[0].clientY - sy; if(dy<0) { e.preventDefault(); d.style.transform=`translateY(${dy}px)`; d.style.opacity = dy<-50?'0.5':'1'; } }, {passive:false});
-                d.addEventListener('touchend', e=>{ if(!isDrag)return; isDrag=false; let dy = e.changedTouches[0].clientY - sy; d.style.transition='transform 0.2s, opacity 0.2s'; if(dy < -50) { d.style.transform='translateY(-100px)'; d.style.opacity='0'; setTimeout(()=>{ currentHand = currentHand.filter(x=>x.id!==t.id); renderHand(); }, 200); } else if(Math.abs(dy)<10) { d.style.transform=''; d.style.opacity='1'; currentHand.forEach(x => x.isAgari = (x.id === t.id)); renderHand(); } else { d.style.transform=''; d.style.opacity='1'; } });
+                
+                let sy=0, sx=0, isDrag=false;
+                d.addEventListener('touchstart', e=>{ 
+                    sy=e.touches[0].clientY; 
+                    sx=e.touches[0].clientX; // ★X軸も記録
+                    isDrag=true; 
+                    d.style.transition='none'; 
+                }, {passive:false});
+                
+                d.addEventListener('touchmove', e=>{ 
+                    if(!isDrag)return; 
+                    let dy = e.touches[0].clientY - sy; 
+                    let dx = e.touches[0].clientX - sx; 
+                    
+                    // ★修正：縦方向への移動が横移動より大きく、かつ上方向（dy<0）の場合のみ「削除フリック」として処理
+                    // これにより横スクロール時の誤作動（混濁）を防ぎます。
+                    if(dy < 0 && Math.abs(dy) > Math.abs(dx)) { 
+                        e.preventDefault(); // 縦フリックの時だけ画面全体のスクロールを止める
+                        d.style.transform=`translateY(${dy}px)`; 
+                        d.style.opacity = dy<-50?'0.5':'1'; 
+                    } 
+                }, {passive:false});
+
+                d.addEventListener('touchend', e=>{ 
+                    if(!isDrag)return; isDrag=false; 
+                    let dy = e.changedTouches[0].clientY - sy; 
+                    let dx = e.changedTouches[0].clientX - sx;
+                    d.style.transition='transform 0.2s, opacity 0.2s'; 
+                    
+                    // 削除判定
+                    if(dy < -50 && Math.abs(dy) > Math.abs(dx)) { 
+                        d.style.transform='translateY(-100px)'; d.style.opacity='0'; 
+                        setTimeout(()=>{ currentHand = currentHand.filter(x=>x.id!==t.id); renderHand(); }, 200); 
+                    } 
+                    // タップ（上がり牌）判定（指の移動が上下左右ともに10px未満の場合）
+                    else if(Math.abs(dy)<10 && Math.abs(dx)<10) { 
+                        d.style.transform=''; d.style.opacity='1'; 
+                        currentHand.forEach(x => x.isAgari = (x.id === t.id)); renderHand(); 
+                    } 
+                    // 元に戻す
+                    else { 
+                        d.style.transform=''; d.style.opacity='1'; 
+                    } 
+                });
                 c.appendChild(d);
             });
             for(let i=currentHand.length; i<14; i++){ const d = document.createElement('div'); d.className='tile tile-empty'; c.appendChild(d); }
             const scrollView = document.getElementById('hand-scroll-view'); scrollView.scrollLeft = scrollView.scrollWidth;
         }
+
         function clearHand() { currentHand=[]; renderHand(); document.getElementById('result-score').textContent="--- 点"; document.getElementById('result-yaku').textContent="役なし"; lastCalculationResult = null; }
 
-        // --- 4. カメラ機能（デモ） ---
         let videoStream = null;
         async function openCamera() {
             const modal = document.getElementById('camera-modal'); const video = document.getElementById('camera-video'); modal.classList.add('active');
@@ -267,7 +320,6 @@
             alert("📷 デモ: ダミーの手牌をセットしました");
         }
 
-        // --- 5. 詳細表示モーダル制御（長押し） ---
         let pressTimer;
         function setupLongPress() {
             const target = document.getElementById('score-container');
@@ -291,10 +343,7 @@
                     <ul class="list-disc list-inside text-gray-300 space-y-1">
             `;
             let totalFuRaw = 0;
-            res.fuDetails.forEach(d => {
-                html += `<li class="flex justify-between"><span>${d.text}</span><span>+${d.points} 符</span></li>`;
-                totalFuRaw += d.points;
-            });
+            res.fuDetails.forEach(d => { html += `<li class="flex justify-between"><span>${d.text}</span><span>+${d.points} 符</span></li>`; totalFuRaw += d.points; });
             html += `</ul><div class="border-t border-gray-600 mt-2 pt-1 flex justify-between font-bold"><span>合計</span><span>${totalFuRaw} 符</span></div>`;
             html += `<div class="flex justify-between text-yellow-400 mt-1"><span>切り上げ後</span><span class="text-lg">${res.fu} 符</span></div></div>`;
 
@@ -303,17 +352,12 @@
                     <span class="font-bold text-yellow-300">🀅 飜数</span>
                     <span class="text-lg font-bold">${res.han} 飜</span>
                 </div>
-                <div class="text-center text-gray-400 text-xs mt-3">
-                    基本点 = 符 × 2^(飜数+2)<br>
-                    (満貫以上は固定点)
-                </div>
+                <div class="text-center text-gray-400 text-xs mt-3">基本点 = 符 × 2^(飜数+2)<br>(満貫以上は固定点)</div>
             `;
-            content.innerHTML = html;
-            modal.classList.add('active');
+            content.innerHTML = html; modal.classList.add('active');
         }
         function closeDetail() { document.getElementById('detail-modal').classList.remove('active'); }
 
-        // --- 6. 計算ロジック・コア ---
         function calculateFull() {
             const resScore = document.getElementById('result-score'); const resYaku = document.getElementById('result-yaku');
             if (currentHand.length !== 14) { resScore.textContent = "枚数不足"; resYaku.textContent = "牌は14枚必要です"; lastCalculationResult = null; return; }
@@ -324,8 +368,7 @@
             const counts = {}; currentHand.forEach(t => { const k = t.type + t.value; counts[k] = (counts[k]||0) + 1; });
             const pairs = Object.values(counts).filter(c => c === 2).length;
             if (pairs === 7) {
-                const res = calcChiitoiResult(counts);
-                displayResult(res, resScore, resYaku); lastCalculationResult = res; return;
+                const res = calcChiitoiResult(counts); displayResult(res, resScore, resYaku); lastCalculationResult = res; return;
             }
             const decompositions = decompose(counts);
             if (decompositions.length === 0) {
@@ -337,10 +380,7 @@
                 resScore.textContent = "役なし"; resYaku.textContent = "アガリ形になっていません"; lastCalculationResult = null; return;
             }
             let bestResult = { han: 0, fu: 0, score: 0, yakuNames: [], fuDetails: [] };
-            decompositions.forEach(groups => {
-                const res = evalHand(groups, counts, agariTileStr); 
-                if (res.score > bestResult.score) bestResult = res;
-            });
+            decompositions.forEach(groups => { const res = evalHand(groups, counts, agariTileStr); if (res.score > bestResult.score) bestResult = res; });
             if (bestResult.han === 0) { resScore.textContent = "役なし"; resYaku.textContent = "アガリ形ですが役がありません"; lastCalculationResult = null; }
             else { displayResult(bestResult, resScore, resYaku); lastCalculationResult = bestResult; }
         }
