@@ -24,7 +24,7 @@
         }
     </script>
     <style>
-        /* ノッチ（内カメラ）を避けるためのSafe Area設定と基本スタイル */
+        /* Bodyの余白を完全撤廃し、画面端まで使い切る */
         body { 
             font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; 
             background-color: #1a202c; 
@@ -34,16 +34,12 @@
             overflow: hidden; 
             user-select: none; 
             touch-action: manipulation; 
-            box-sizing: border-box;
-            /* OSが定義する安全領域（ノッチ回避）＋ 最低8pxの余白を確保 */
-            padding-top: max(8px, env(safe-area-inset-top));
-            padding-right: max(8px, env(safe-area-inset-right));
-            padding-bottom: max(8px, env(safe-area-inset-bottom));
-            padding-left: max(8px, env(safe-area-inset-left));
+            margin: 0;
+            padding: 0;
         }
         html { height: -webkit-fill-available; }
 
-        /* 全体コンテナ（画面が大きすぎる場合に間延びするのを防ぐ） */
+        /* 全体コンテナ（iPad等でも横に伸びすぎないように制限） */
         #app-container {
             max-width: 1024px;
             margin: 0 auto;
@@ -68,8 +64,11 @@
 
         .tile-man { color: #c53030; } .tile-pin { color: #2b6cb0; } .tile-sou { color: #2f855a; } .tile-ji { color: #000; }
         .tile-empty { background-color: transparent; border: 2px dashed #4a5568; box-shadow: none; color: transparent; }
+        
+        /* 上がり牌のマーク（上に飛び出す分、親要素でPadding-topを確保する） */
         .agari-tile { border: 3px solid #ecc94b; transform: translateY(-4px); z-index: 10; }
         .agari-tile::after { content: '和'; position: absolute; top: -10px; right: -8px; background-color: #e53e3e; color: white; font-size: 0.6rem; width: 1.2rem; height: 1.2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid white; font-weight: bold; }
+        
         .palette-tile { width: 100%; height: 3.2rem; display: flex; align-items: center; justify-content: center; background-color: #f7fafc; border-radius: 0.25rem; font-size: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -84,7 +83,7 @@
 <body>
 <div id="app-container">
 
-    <div class="flex flex-1 gap-2 mb-2 min-h-0 flex-col landscape:flex-row">
+    <div class="flex flex-1 gap-2 p-2 pt-[max(8px,env(safe-area-inset-top))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))] flex-col landscape:flex-row min-h-0">
         
         <div class="bg-gray-800 rounded-lg p-2 flex flex-col gap-1.5 shadow-lg overflow-y-auto no-scrollbar border border-gray-700 w-full landscape:w-[30%] shrink-0 landscape:shrink">
             <div class="grid grid-cols-2 gap-1.5">
@@ -145,11 +144,15 @@
         </div>
     </div>
 
-    <div class="portrait:h-[5.5rem] landscape:h-24 shrink-0 bg-green-900 rounded-lg p-1 flex flex-col justify-center relative border-b-4 border-green-950 shadow-inner overflow-hidden">
-        <div class="text-[9px] text-green-200 opacity-60 font-mono absolute top-0.5 left-2">TAP:上がり牌 / UP-FLICK:削除 <span class="portrait:inline hidden">/ 横フリック:スクロール</span></div>
+    <div class="bg-green-900 border-t-4 border-green-950 shadow-[0_-4px_10px_rgba(0,0,0,0.3)] relative flex flex-col justify-center shrink-0 w-full pt-1 pb-[max(8px,env(safe-area-inset-bottom))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))]">
         
-        <div id="hand-scroll-view" class="w-full overflow-x-auto no-scrollbar flex items-center landscape:justify-center mt-3 z-10">
-            <div id="hand-container" class="flex gap-0.5 landscape:gap-1 px-1 flex-nowrap"></div>
+        <div class="text-[9px] text-green-200 opacity-80 font-mono absolute top-1 left-[max(12px,env(safe-area-inset-left))] z-20">
+            TAP:上がり牌 / UP-FLICK:削除 <span class="portrait:inline hidden">/ 横フリック:スクロール</span>
+        </div>
+        
+        <div id="hand-scroll-view" class="w-full overflow-x-auto no-scrollbar flex items-center landscape:justify-center z-10 mt-2">
+            <div id="hand-container" class="flex gap-0.5 landscape:gap-1 px-2 pt-4 pb-2 flex-nowrap">
+                </div>
         </div>
     </div>
 
