@@ -12,7 +12,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:90px;%22>🀄</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231a202c%22/><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:75px;%22>🀄</text></svg>">
 
-    <title>麻雀点数計算機 Pro v2.4</title>
+    <title>麻雀点数計算機 Pro v2.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
@@ -43,9 +43,7 @@
 
         /* エントランスアニメーション用 */
         .entrance-tile-anim {
-            animation: tileDrop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            opacity: 0;
-            transform: translateY(-20px) scale(0.8);
+            animation: tileDrop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
         @keyframes tileDrop {
             to { opacity: 1; transform: translateY(0) scale(1); }
@@ -74,8 +72,8 @@
         <div class="text-[10px] text-yellow-500 font-bold tracking-[0.4em] animate-pulse pointer-events-none">TAP TO ENTER</div>
     </div>
 
-    <div class="flex-1 flex items-start justify-center pt-2 pb-6 px-4">
-        <div id="entrance-tiles-container" class="flex gap-1 flex-wrap justify-center content-start max-w-[320px] landscape:max-w-xl"></div>
+    <div class="flex-1 flex items-start justify-center pt-2 pb-[max(16px,env(safe-area-inset-bottom)+12px)] px-2 w-full overflow-hidden">
+        <div id="entrance-tiles-container" class="flex gap-0.5 landscape:gap-1 flex-nowrap justify-center"></div>
     </div>
     
 </div>
@@ -92,6 +90,7 @@
             </button>
 
             <div id="scoreboard" class="flex-1 bg-gray-900 rounded border border-gray-700 px-2 py-1 flex items-center shadow-inner overflow-hidden h-full">
+                
                 <div class="flex flex-col items-start justify-center shrink-0 pr-2 border-r border-gray-700 h-full">
                     <div class="flex items-center gap-1 mb-1">
                         <span class="text-[9px] text-gray-400 font-mono leading-none">ID:</span>
@@ -126,7 +125,7 @@
             </div>
 
             <div class="flex items-center justify-center gap-2 shrink-0 pl-1">
-                <span class="text-[10px] text-gray-500 font-mono tracking-wider hidden landscape:inline">v2.4</span>
+                <span class="text-[10px] text-gray-500 font-mono tracking-wider hidden landscape:inline">v2.5</span>
                 <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform" title="ルールを確認">📖</button>
             </div>
         </div>
@@ -257,7 +256,6 @@
             const container = document.getElementById('entrance-tiles-container');
             container.innerHTML = ''; 
 
-            // 指定された牌 (123m 123m 123s 123p 99p)
             const seq = [
                 { c: '🀇', cls: 'tile-man' }, { c: '🀈', cls: 'tile-man' }, { c: '🀉', cls: 'tile-man' },
                 { c: '🀇', cls: 'tile-man' }, { c: '🀈', cls: 'tile-man' }, { c: '🀉', cls: 'tile-man' },
@@ -266,30 +264,37 @@
                 { c: '🀡', cls: 'tile-pin' }, { c: '🀡', cls: 'tile-pin' }
             ];
 
+            // ★変更: 最初に14枚分のプレースホルダー（透明状態）を配置してレイアウトを固定
+            seq.forEach((tile, index) => {
+                const d = document.createElement('div');
+                // スマホ縦画面でも綺麗に収まるようレスポンシブなサイズ指定
+                d.className = `tile ${tile.cls} w-[6vw] h-[8.5vw] max-w-[2.2rem] max-h-[3rem] text-[5vw] landscape:w-9 landscape:h-12 landscape:text-3xl landscape:max-w-none landscape:max-h-none shadow-lg border-b-2 border-gray-300 opacity-0`;
+                d.style.transform = 'translateY(-20px) scale(0.8)';
+                d.textContent = tile.c;
+                d.id = `entrance-tile-${index}`;
+                container.appendChild(d);
+            });
+
             let delay = 0;
             seq.forEach((tile, index) => {
                 setTimeout(() => {
-                    const d = document.createElement('div');
-                    // メインの牌より少し小さめに調整
-                    d.className = `tile ${tile.cls} entrance-tile-anim w-9 h-12 text-3xl shadow-lg border-b-2 border-gray-300`;
-                    d.textContent = tile.c;
-                    container.appendChild(d);
+                    const d = document.getElementById(`entrance-tile-${index}`);
+                    d.classList.add('entrance-tile-anim'); // 左から順番にフェードイン
 
-                    // 最後の牌が置かれたら画面遷移
                     if (index === seq.length - 1) {
                         setTimeout(() => {
                             const screen = document.getElementById('entrance-screen');
-                            screen.style.opacity = '0'; // フェードアウト
+                            screen.style.opacity = '0'; 
                             setTimeout(() => {
                                 screen.classList.add('hidden');
                                 const app = document.getElementById('app-container');
                                 app.classList.remove('hidden');
-                                app.classList.add('flex'); // 本画面表示
-                            }, 700); // 0.7秒後に完全に消す
-                        }, 1000); // 最後の牌から1秒待つ
+                                app.classList.add('flex'); 
+                            }, 700); 
+                        }, 1000); 
                     }
                 }, delay);
-                delay += 120; // 0.12秒間隔でパパパッと出す
+                delay += 120; 
             });
         };
 
@@ -657,7 +662,6 @@
             let next_honba = window.globalGameState.honba;
             let next_oya = window.globalGameState.oya;
 
-            // 画面の並び順を取得
             const gridChildren = Array.from(document.getElementById('player-grid').children);
             const currentOrder = gridChildren.map(child => {
                 return parseInt(child.querySelector('[id^="name-"]').id.split('-')[1]);
@@ -666,10 +670,8 @@
             let currentOyaGridIndex = currentOrder.indexOf(window.globalGameState.oya);
 
             if (t_agari === window.globalGameState.oya) {
-                // 連荘
                 next_honba++;
             } else {
-                // 親流れ（画面上の右隣へ）
                 let nextOyaGridIndex = (currentOyaGridIndex + 1) % 4;
                 next_oya = currentOrder[nextOyaGridIndex];
                 next_honba = 0;
