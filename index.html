@@ -12,7 +12,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:90px;%22>🀄</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231a202c%22/><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:75px;%22>🀄</text></svg>">
 
-    <title>麻雀点数計算機 Pro v2.7</title>
+    <title>麻雀点数計算機 Pro v2.7.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
@@ -133,7 +133,7 @@
                     <button onclick="openRulebook()" class="text-base hover:scale-110 transition-transform leading-none mt-0.5" title="ルールを確認">📖</button>
                     <button onclick="returnToEntrance()" class="text-base hover:scale-110 transition-transform leading-none mt-0.5" title="エントランスへ戻る">🏠</button>
                 </div>
-                <span class="text-[8px] text-gray-500 font-mono leading-none mt-1">v2.7</span>
+                <span class="text-[8px] text-gray-500 font-mono leading-none mt-1">v2.7.1</span>
             </div>
         </div>
 
@@ -235,15 +235,19 @@
         <div class="bg-gray-800 w-11/12 max-w-md rounded-lg p-3 shadow-xl border border-gray-700 relative max-h-[85vh] flex flex-col" onclick="event.stopPropagation()">
             <button onclick="closeRulebook()" class="absolute top-2 right-2 text-gray-400 hover:text-white bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center z-20">✕</button>
             <h3 class="text-base font-bold text-yellow-400 mb-2 text-center border-b border-gray-700 pb-2 shrink-0">📖 役・符計算ルール</h3>
+            
             <div class="flex-1 overflow-x-auto overflow-y-hidden snap-x-mandatory flex no-scrollbar" id="rule-scroll-container" onscroll="updateRuleDots()">
+                
                 <div class="w-full shrink-0 snap-center overflow-y-auto px-2 max-h-full pb-4">
                     <h4 class="text-sm font-bold text-white bg-blue-900 px-2 py-1 rounded border border-blue-700 sticky top-0">🀄 役の飜数一覧表</h4>
                     <div class="mt-2"><div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">1飜</div><div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2"><span>立直 (リーチ)</span><span>一発</span><span>門前清自摸和 (ツモ)</span><span>断幺九 (タンヤオ)</span><span>平和 (ピンフ)</span><span>一盃口 (イーペーコー)</span><span>役牌 (白/發/中/場風/自風)</span><span>嶺上開花 / 槍槓</span><span>海底撈月 / 河底撈魚</span></div><div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">2飜</div><div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2"><span>三色同順 <span class="text-gray-500">(鳴1)</span></span><span>一気通貫 <span class="text-gray-500">(鳴1)</span></span><span>混全帯幺九 <span class="text-gray-500">(鳴1)</span></span><span>七対子 (チートイツ)</span><span>対々和 (トイトイ)</span><span>三暗刻 (サンアンコウ)</span><span>三色同刻</span><span>三槓子</span><span>小三元</span><span>ダブル立直</span></div><div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">3飜</div><div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2"><span>混一色 <span class="text-gray-500">(鳴2)</span></span><span>純全帯幺九 <span class="text-gray-500">(鳴2)</span></span><span>二盃口 (リャンペーコー)</span></div><div class="text-xs font-bold text-yellow-300 mb-1 border-b border-gray-600">6飜</div><div class="text-[11px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5 mb-2"><span>清一色 (チンイツ) <span class="text-gray-500">(鳴5)</span></span></div><div class="text-xs font-bold text-red-400 mb-1 border-b border-gray-600">役満</div><div class="text-[10px] text-gray-300 grid grid-cols-2 gap-x-1 gap-y-0.5"><span>国士無双 / 四暗刻</span><span>大三元 / 字一色</span><span>小四喜 / 大四喜</span><span>緑一色 / 清老頭</span><span>九蓮宝燈 / 四槓子</span><span>天和 / 地和</span></div></div>
                 </div>
+                
                 <div class="w-full shrink-0 snap-center overflow-y-auto px-2 max-h-full pb-4">
                     <h4 class="text-sm font-bold text-white bg-green-900 px-2 py-1 rounded border border-green-700 sticky top-0">🧮 符計算のルール</h4>
                     <div class="mt-2 space-y-2"><div class="bg-gray-700/50 p-1.5 rounded"><div class="text-xs font-bold text-yellow-300">① 基本符 (副底)</div><div class="text-[11px] text-gray-300 pl-2">一律 <span class="font-bold text-white">20符</span></div></div><div class="bg-gray-700/50 p-1.5 rounded"><div class="text-xs font-bold text-yellow-300">② アガリ方</div><div class="text-[11px] text-gray-300 pl-2 flex justify-between"><span>門前ロン: <span class="text-white font-bold">+10符</span></span><span>ツモ: <span class="text-white font-bold">+2符</span></span></div></div><div class="bg-gray-700/50 p-1.5 rounded"><div class="text-xs font-bold text-yellow-300 mb-1">③ 面子 (メンツ)</div><table class="w-full text-[10px] text-center border-collapse"><tr class="bg-gray-600 text-gray-200"><th class="p-0.5 border border-gray-500">種類</th><th class="p-0.5 border border-gray-500">明刻</th><th class="p-0.5 border border-gray-500">暗刻</th><th class="p-0.5 border border-gray-500">明槓</th><th class="p-0.5 border border-gray-500">暗槓</th></tr><tr class="text-gray-300"><td class="p-0.5 border border-gray-600">中張牌<br><span class="text-[8px]">(2〜8)</span></td><td class="border border-gray-600">2</td><td class="border border-gray-600">4</td><td class="border border-gray-600">8</td><td class="border border-gray-600">16</td></tr><tr class="text-gray-300"><td class="p-0.5 border border-gray-600">幺九牌<br><span class="text-[8px]">(1,9,字)</span></td><td class="border border-gray-600">4</td><td class="border border-gray-600">8</td><td class="border border-gray-600">16</td><td class="border border-gray-600">32</td></tr></table><div class="text-[9px] text-gray-400 mt-0.5">※順子(シュンツ)はすべて0符</div></div><div class="bg-gray-700/50 p-1.5 rounded"><div class="text-xs font-bold text-yellow-300">④ 雀頭 (アタマ) と ⑤ 待ち</div><div class="text-[11px] text-gray-300 pl-2">役牌の雀頭: <span class="text-white font-bold">+2符</span><br>嵌張/辺張/単騎 待ち: <span class="text-white font-bold">+2符</span><br><span class="text-[9px] text-gray-400">※両面・双碰待ちは0符</span></div></div><div class="bg-gray-700/50 p-1.5 rounded border border-red-900/50"><div class="text-xs font-bold text-red-400">⑥ 例外ルール</div><div class="text-[11px] text-gray-300 pl-2">七対子 (チートイツ): <span class="text-white font-bold">25符固定</span><br>平和ツモ: <span class="text-white font-bold">20符固定</span></div></div></div>
                 </div>
+                
                 <div class="w-full shrink-0 snap-center overflow-y-auto px-2 max-h-full pb-4">
                     <h4 class="text-sm font-bold text-white bg-red-900 px-2 py-1 rounded border border-red-700 sticky top-0">📊 点数早見表 (子 / 親)</h4>
                     <div class="mt-2 text-[10px] text-gray-300">
@@ -252,10 +256,14 @@
                                 <th class="p-1 border border-gray-600">符</th><th class="p-1 border border-gray-600">1飜</th><th class="p-1 border border-gray-600">2飜</th><th class="p-1 border border-gray-600">3飜</th><th class="p-1 border border-gray-600">4飜</th>
                             </tr>
                             <tr>
-                                <td class="p-1 border border-gray-600 font-bold text-white">20</td><td class="border border-gray-600">- / -</td><td class="border border-gray-600">700 / 1000<br><span class="text-[8px] text-gray-500">※ツモのみ</span></td><td class="border border-gray-600">1300 / 2000</td><td class="border border-gray-600">2600 / 3900</td>
+                                <td class="p-1 border border-gray-600 font-bold text-white">20</td>
+                                <td class="border border-gray-600">- / -</td>
+                                <td class="border border-gray-600">1500 / 2100<br><span class="text-[8px] text-gray-500">※ツモのみ</span></td>
+                                <td class="border border-gray-600">2700 / 3900</td>
+                                <td class="border border-gray-600 text-yellow-100 font-bold">5200 / 7800</td>
                             </tr>
                             <tr class="bg-gray-800/50">
-                                <td class="p-1 border border-gray-600 font-bold text-white">30</td><td class="border border-gray-600">1000 / 1500</td><td class="border border-gray-600">2000 / 2900</td><td class="border border-gray-600 text-yellow-100 font-bold">3900 / 5800</td><td class="border border-gray-600">7700 / 11600</td>
+                                <td class="p-1 border border-gray-600 font-bold text-white">30</td><td class="border border-gray-600">1000 / 1500</td><td class="border border-gray-600">2000 / 2900</td><td class="border border-gray-600">3900 / 5800</td><td class="border border-gray-600">7700 / 11600</td>
                             </tr>
                             <tr>
                                 <td class="p-1 border border-gray-600 font-bold text-white">40</td><td class="border border-gray-600">1300 / 2000</td><td class="border border-gray-600">2600 / 3900</td><td class="border border-gray-600">5200 / 7700</td><td class="border border-gray-600 text-red-300 font-bold">満貫</td>
@@ -274,7 +282,9 @@
                         </div>
                     </div>
                 </div>
+
             </div>
+            
             <div class="flex justify-center items-center gap-2 pt-2 shrink-0 border-t border-gray-700" id="rule-dots">
                 <div class="w-2 h-2 rounded-full bg-yellow-400 transition-colors"></div>
                 <div class="w-2 h-2 rounded-full bg-gray-600 transition-colors"></div>
@@ -284,37 +294,7 @@
         </div>
     </div>
     
-    <div id="transfer-modal" class="modal-overlay" onclick="closeTransferModal()">
-        <div class="bg-gray-800 w-11/12 max-w-sm rounded-lg p-4 shadow-xl border border-gray-700 relative" onclick="event.stopPropagation()">
-            <h3 class="text-lg font-bold text-yellow-400 mb-3 text-center border-b border-gray-700 pb-2">点数の移動</h3>
-            <div class="mb-3"><div class="text-xs text-gray-400 mb-1">🀄 アガった人 <span class="text-[8px]">(👑は現在の親)</span></div>
-            <div class="flex gap-1">
-                <button id="ta-0" onclick="setTransferAgari(0)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold active text-xs">Aさん</button>
-                <button id="ta-1" onclick="setTransferAgari(1)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs">Bさん</button>
-                <button id="ta-2" onclick="setTransferAgari(2)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs">Cさん</button>
-                <button id="ta-3" onclick="setTransferAgari(3)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs">Dさん</button>
-            </div></div>
-            <div id="transfer-furi-section" class="mb-3"><div class="text-xs text-gray-400 mb-1">😭 振り込んだ人</div>
-            <div class="flex gap-1">
-                <button id="tf-0" onclick="setTransferFuri(0)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs">Aさん</button>
-                <button id="tf-1" onclick="setTransferFuri(1)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold active text-xs">Bさん</button>
-                <button id="tf-2" onclick="setTransferFuri(2)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs">Cさん</button>
-                <button id="tf-3" onclick="setTransferFuri(3)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs">Dさん</button>
-            </div></div>
-            <div id="transfer-oya-section" class="mb-3 hidden"><div class="text-xs text-gray-400 mb-1">👑 親は誰？ (自動選択済)</div>
-            <div class="flex gap-1">
-                <button id="to-0" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs pointer-events-none">Aさん</button>
-                <button id="to-1" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold active text-xs pointer-events-none">Bさん</button>
-                <button id="to-2" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs pointer-events-none">Cさん</button>
-                <button id="to-3" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs pointer-events-none">Dさん</button>
-            </div></div>
-            <div class="text-center font-bold text-yellow-400 text-2xl my-3" id="transfer-amount-text">0 点</div>
-            <div class="flex gap-2">
-                <button onclick="closeTransferModal()" class="w-1/3 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded shadow border border-gray-600">キャンセル</button>
-                <button onclick="window.executeTransfer()" class="w-2/3 bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded shadow-lg border border-yellow-400 active:scale-95 transition-transform">決定して反映</button>
-            </div>
-        </div>
-    </div>
+    <div id="transfer-modal" class="modal-overlay" onclick="closeTransferModal()"><div class="bg-gray-800 w-11/12 max-w-sm rounded-lg p-4 shadow-xl border border-gray-700 relative" onclick="event.stopPropagation()"><h3 class="text-lg font-bold text-yellow-400 mb-3 text-center border-b border-gray-700 pb-2">点数の移動</h3><div class="mb-3"><div class="text-xs text-gray-400 mb-1">🀄 アガった人 <span class="text-[8px]">(👑は現在の親)</span></div><div class="flex gap-1"><button id="ta-0" onclick="setTransferAgari(0)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold active text-xs">Aさん</button><button id="ta-1" onclick="setTransferAgari(1)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs">Bさん</button><button id="ta-2" onclick="setTransferAgari(2)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs">Cさん</button><button id="ta-3" onclick="setTransferAgari(3)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs">Dさん</button></div></div><div id="transfer-furi-section" class="mb-3"><div class="text-xs text-gray-400 mb-1">😭 振り込んだ人</div><div class="flex gap-1"><button id="tf-0" onclick="setTransferFuri(0)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs">Aさん</button><button id="tf-1" onclick="setTransferFuri(1)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold active text-xs">Bさん</button><button id="tf-2" onclick="setTransferFuri(2)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs">Cさん</button><button id="tf-3" onclick="setTransferFuri(3)" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs">Dさん</button></div></div><div id="transfer-oya-section" class="mb-3 hidden"><div class="text-xs text-gray-400 mb-1">👑 親は誰？ (自動選択済)</div><div class="flex gap-1"><button id="to-0" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs pointer-events-none">Aさん</button><button id="to-1" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold active text-xs pointer-events-none">Bさん</button><button id="to-2" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs pointer-events-none">Cさん</button><button id="to-3" class="btn-select flex-1 py-2 bg-gray-700 text-gray-300 rounded border border-gray-600 font-bold text-xs pointer-events-none">Dさん</button></div></div><div class="text-center font-bold text-yellow-400 text-2xl my-3" id="transfer-amount-text">0 点</div><div class="flex gap-2"><button onclick="closeTransferModal()" class="w-1/3 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded shadow border border-gray-600">キャンセル</button><button onclick="window.executeTransfer()" class="w-2/3 bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded shadow-lg border border-yellow-400 active:scale-95 transition-transform">決定して反映</button></div></div></div>
 
     <div id="camera-modal" class="modal-overlay flex-col"><video id="camera-video" class="w-full h-full object-cover" autoplay playsinline></video><div class="absolute inset-0 flex items-center justify-center pointer-events-none"><div class="w-11/12 h-1/3 border-4 border-yellow-400 rounded-lg flex items-center justify-center bg-black/20 backdrop-blur-sm"><span class="text-yellow-400 font-bold opacity-70 tracking-widest text-xl">枠内に牌を並べてください</span></div></div><div class="absolute bottom-8 w-full flex justify-around items-center px-8 pb-[env(safe-area-inset-bottom)]"><button onclick="closeCamera()" class="text-white bg-gray-800 px-6 py-3 rounded-full font-bold shadow-lg">キャンセル</button><button onclick="takePhoto()" class="w-20 h-20 bg-white rounded-full border-4 border-gray-300 shadow-xl active:bg-gray-200"></button><div class="w-24"></div></div><canvas id="camera-canvas" class="hidden"></canvas></div>
     <div id="detail-modal" class="modal-overlay" onclick="closeDetail()"><div class="bg-gray-800 w-11/12 max-w-md rounded-lg p-4 shadow-xl border border-gray-700 relative max-h-[80vh] overflow-y-auto" onclick="event.stopPropagation()"><button onclick="closeDetail()" class="absolute top-2 right-2 text-gray-400 hover:text-white bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center">✕</button><h3 class="text-lg font-bold text-yellow-400 mb-3 text-center border-b border-gray-700 pb-2">計算詳細</h3><div id="detail-content" class="text-sm space-y-4"></div></div></div>
@@ -407,7 +387,6 @@
             btn.classList.add('active:scale-95');
         }
 
-        // ★追加: 退室アクション
         window.handleHeaderAction = function() {
             if (window.currentRoomId) {
                 if (confirm("対戦ルームから退室しますか？")) {
@@ -536,7 +515,6 @@
         window.takePhoto = takePhoto;
         function simulateImageRecognition() { clearHand(); const mockTiles = [{t:'man', v:2}, {t:'man', v:3}, {t:'man', v:4}, {t:'pin', v:3}, {t:'pin', v:4}, {t:'pin', v:5}, {t:'sou', v:6}, {t:'sou', v:7}, {t:'sou', v:8}, {t:'sou', v:2}, {t:'sou', v:2}, {t:'sou', v:2}, {t:'man', v:8}, {t:'man', v:8}]; mockTiles.forEach(item => { addTile(item.t, item.v, TILES[item.t][item.v - 1]); }); if(currentHand.length>0) { currentHand[currentHand.length-1].isAgari=true; renderHand(); } alert("📷 デモ: ダミーの手牌をセットしました"); }
 
-        // ★修正: タップで詳細表示
         window.openDetailBtn = function(e) {
             if (e && e.target.id === 'btn-transfer') return;
             openDetail(lastCalculationResult);
@@ -619,7 +597,6 @@
         }
         function calcChiitoiResult(counts) { let han=2; let yaku=["七対子(2)"]; if(settings.reach===1) {han++; yaku.push("立直(1)");} if(settings.reach===2) {han+=2; yaku.push("W立直(2)");} if(settings.winType==='tsumo') {han++; yaku.push("門前清自摸(1)");} if(settings.dora>0) {han+=settings.dora; yaku.push(`ドラ(${settings.dora})`);} const isTanyao = Object.keys(counts).every(k => { const t = k.slice(0,-1), v=parseInt(k.slice(-1)); return t!=='ji' && v>1 && v<9; }); if (isTanyao) { han++; yaku.push("断幺九(1)"); } const types = new Set(Object.keys(counts).map(k=>k.slice(0,-1))); const hasJi = types.has('ji'); types.delete('ji'); if(types.size===1) { if(hasJi){han+=3;yaku.push("混一色(3)");} else{han+=6;yaku.push("清一色(6)");} } const fuDetails = [{ text: '七対子(固定)', points: 25 }]; return calculateFinalScore(han, 25, yaku, fuDetails); }
         
-        // ★修正: 親・子の点数を両方保持して返すように計算ロジックを強化 (満貫ストップ修正済)
         function calculateFinalScore(han, fu, yakuNames, fuDetails) { 
             let base = fu * Math.pow(2, han+2); 
             if(han>=5) {
@@ -692,7 +669,6 @@
             window.dbInstance = getFirestore(app); 
         } catch(e) { console.error(e); }
 
-        // ★追加: 並び替え順を全員で共有するリスナー
         new Sortable(document.getElementById('player-grid'), {
             animation: 150, delay: 200, delayOnTouchOnly: true, ghostClass: 'sortable-ghost',
             onEnd: async function (evt) {
@@ -779,7 +755,6 @@
                         document.getElementById(`name-${i}`).textContent = window.globalNames[i];
                         elements[i] = document.getElementById(`player-box-${i}`);
                     }
-                    // 並べ替え順序を適用
                     window.globalSeatOrder.forEach(idx => { grid.appendChild(elements[idx]); });
                     
                     document.getElementById('room-id-display').textContent = roomId;
@@ -817,7 +792,6 @@
             }
         }
 
-        // ★追加: アガった人が親か子かによって点数を動的に切り替える
         window.updateTransferModalDisplay = function() {
             if(!lastCalculationResult) return;
             const isOya = (t_agari === window.globalGameState.oya);
@@ -882,9 +856,8 @@
             const currentOyaPos = window.globalSeatOrder.indexOf(window.globalGameState.oya);
 
             if (t_agari === window.globalGameState.oya) {
-                next_honba++; // 連荘
+                next_honba++;
             } else {
-                // 親流れ
                 let nextOyaPos = (currentOyaPos + 1) % 4;
                 next_oya = window.globalSeatOrder[nextOyaPos];
                 next_honba = 0;
