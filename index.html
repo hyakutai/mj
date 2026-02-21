@@ -12,7 +12,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:90px;%22>🀄</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231a202c%22/><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:75px;%22>🀄</text></svg>">
 
-    <title>麻雀点数計算機 Pro v2.5</title>
+    <title>麻雀点数計算機 Pro v2.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
@@ -41,7 +41,6 @@
         .btn-select.active { background-color: #ecc94b; color: #1a202c; border-color: #d69e2e; }
         .sortable-ghost { opacity: 0.4; background-color: #2d3748; border-radius: 0.5rem; }
 
-        /* エントランスアニメーション用 */
         .entrance-tile-anim {
             animation: tileDrop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
@@ -54,6 +53,12 @@
 
 <div id="entrance-screen" class="fixed inset-0 z-[100] bg-[#1a202c] flex flex-col transition-opacity duration-700 ease-in-out">
     
+    <div class="absolute top-[max(16px,env(safe-area-inset-top))] right-4 flex items-center gap-1.5 bg-gray-800/80 pl-3 pr-2 py-1.5 rounded-full border border-gray-600 shadow-lg z-10">
+        <span class="text-[10px] text-gray-400 font-bold">Name:</span>
+        <span id="entrance-username-display" class="text-sm text-white font-bold max-w-[80px] truncate">ゲスト</span>
+        <button onclick="editUsername()" class="text-sm bg-gray-700 hover:bg-gray-600 w-6 h-6 rounded-full flex items-center justify-center transition-transform active:scale-90 ml-1">✏️</button>
+    </div>
+
     <div class="flex-[2] flex items-center justify-center p-6 border-b border-gray-800">
         <div class="w-full max-w-sm aspect-video border-2 border-dashed border-gray-600 rounded-xl flex items-center justify-center flex-col gap-3 text-gray-500 bg-gray-800/30">
             <span class="text-4xl">🖼️</span>
@@ -72,10 +77,9 @@
         <div class="text-[10px] text-yellow-500 font-bold tracking-[0.4em] animate-pulse pointer-events-none">TAP TO ENTER</div>
     </div>
 
-    <div class="flex-1 flex items-start justify-center pt-2 pb-[max(16px,env(safe-area-inset-bottom)+12px)] px-2 w-full overflow-hidden">
-        <div id="entrance-tiles-container" class="flex gap-0.5 landscape:gap-1 flex-nowrap justify-center"></div>
+    <div class="flex-1 flex justify-center w-full overflow-hidden relative">
+        <div id="entrance-tiles-container" class="flex gap-0.5 landscape:gap-1 flex-nowrap justify-center absolute bottom-[max(20px,env(safe-area-inset-bottom)+20px)]"></div>
     </div>
-    
 </div>
 
 <div id="app-container" class="hidden pt-[max(8px,env(safe-area-inset-top))] pl-[max(8px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))] flex-col h-full">
@@ -89,12 +93,16 @@
                 <span class="text-[9px] leading-none whitespace-nowrap">局開始</span>
             </button>
 
-            <div id="scoreboard" class="flex-1 bg-gray-900 rounded border border-gray-700 px-2 py-1 flex items-center shadow-inner overflow-hidden h-full">
-                
+            <div id="local-header" class="flex-1 bg-gray-800 rounded border border-gray-700 px-3 flex items-center justify-center shadow-inner overflow-hidden h-full">
+                <span class="text-[10px] text-gray-400 font-bold mr-2">Player:</span>
+                <span id="local-username-display" class="text-sm font-bold text-white truncate max-w-[120px]">ゲスト</span>
+            </div>
+
+            <div id="scoreboard" class="hidden flex-1 bg-gray-900 rounded border border-gray-700 px-2 py-1 items-center shadow-inner overflow-hidden h-full">
                 <div class="flex flex-col items-start justify-center shrink-0 pr-2 border-r border-gray-700 h-full">
                     <div class="flex items-center gap-1 mb-1">
                         <span class="text-[9px] text-gray-400 font-mono leading-none">ID:</span>
-                        <span id="room-id-display" class="text-[10px] text-white font-bold leading-none">ローカル</span>
+                        <span id="room-id-display" class="text-[10px] text-white font-bold leading-none">----</span>
                         <span id="room-type-display" class="text-[8px] text-gray-500 leading-none"></span>
                     </div>
                     <span id="game-status-display" class="text-[10px] text-yellow-300 font-bold leading-none whitespace-nowrap">東1局 0本場</span>
@@ -124,9 +132,12 @@
                 </div>
             </div>
 
-            <div class="flex items-center justify-center gap-2 shrink-0 pl-1">
-                <span class="text-[10px] text-gray-500 font-mono tracking-wider hidden landscape:inline">v2.5</span>
-                <button onclick="openRulebook()" class="text-xl hover:scale-110 transition-transform" title="ルールを確認">📖</button>
+            <div class="flex flex-col items-center justify-center gap-0.5 shrink-0 px-1 w-[3.5rem] bg-gray-800 rounded border border-gray-700 h-full shadow-inner">
+                <div class="flex gap-2">
+                    <button onclick="openRulebook()" class="text-base hover:scale-110 transition-transform leading-none mt-0.5" title="ルールを確認">📖</button>
+                    <button onclick="returnToEntrance()" class="text-base hover:scale-110 transition-transform leading-none mt-0.5" title="エントランスへ戻る">🏠</button>
+                </div>
+                <span class="text-[8px] text-gray-500 font-mono leading-none mt-1">v2.6</span>
             </div>
         </div>
 
@@ -196,13 +207,8 @@
     <div id="room-modal" class="modal-overlay" onclick="closeRoomModal()">
         <div class="bg-gray-800 w-11/12 max-w-sm landscape:max-w-2xl rounded-lg p-4 landscape:p-5 shadow-xl border border-gray-700 relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
             <button onclick="closeRoomModal()" class="absolute top-2 right-2 text-gray-400 hover:text-white bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center z-20">✕</button>
-            <h3 class="text-lg landscape:text-base font-bold text-indigo-400 mb-3 landscape:mb-2 text-center border-b border-gray-700 pb-2">🎮 局の開始</h3>
+            <h3 class="text-lg landscape:text-base font-bold text-indigo-400 mb-4 text-center border-b border-gray-700 pb-2">🎮 局の開始</h3>
             
-            <div class="mb-4 landscape:mb-3">
-                <label class="block text-xs text-gray-300 mb-1 font-bold">👤 ユーザーネーム (最大4文字)</label>
-                <input type="text" id="player-name" maxlength="4" placeholder="名前を入力" class="w-full bg-gray-900 text-white rounded p-2.5 landscape:p-2 border border-gray-600 focus:outline-none focus:border-indigo-500 text-center text-lg landscape:text-base shadow-inner">
-            </div>
-
             <div class="flex flex-col landscape:flex-row gap-3">
                 <div class="flex-1 border border-gray-600 p-3 landscape:p-2 rounded-lg bg-gray-700/50 relative overflow-hidden flex flex-col justify-between">
                     <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
@@ -247,7 +253,26 @@
         window.globalGameState = { bakaze: 0, oya: 0, honba: 0 };
         window.globalNames = ["Aさん", "Bさん", "Cさん", "Dさん"];
 
-        // ★追加: エントランス用アニメーションロジック
+        // ★追加: ユーザーネーム管理ロジック
+        window.myUsername = localStorage.getItem('mj_username') || "ゲスト";
+        
+        function updateUsernameDisplay() {
+            document.getElementById('entrance-username-display').textContent = window.myUsername;
+            document.getElementById('local-username-display').textContent = window.myUsername;
+        }
+
+        window.editUsername = function() {
+            let newName = prompt("ユーザーネームを入力してください (最大4文字)", window.myUsername);
+            if (newName !== null) {
+                newName = newName.trim().substring(0, 4);
+                if (newName === "") newName = "ゲスト";
+                window.myUsername = newName;
+                localStorage.setItem('mj_username', window.myUsername);
+                updateUsernameDisplay();
+            }
+        }
+
+        // --- エントランス用アニメーションロジック ---
         window.startEntrance = function() {
             const btn = document.getElementById('btn-entrance');
             btn.disabled = true;
@@ -264,10 +289,9 @@
                 { c: '🀡', cls: 'tile-pin' }, { c: '🀡', cls: 'tile-pin' }
             ];
 
-            // ★変更: 最初に14枚分のプレースホルダー（透明状態）を配置してレイアウトを固定
+            // 最初から14枚分のスペースを確保し、ブレないようにする
             seq.forEach((tile, index) => {
                 const d = document.createElement('div');
-                // スマホ縦画面でも綺麗に収まるようレスポンシブなサイズ指定
                 d.className = `tile ${tile.cls} w-[6vw] h-[8.5vw] max-w-[2.2rem] max-h-[3rem] text-[5vw] landscape:w-9 landscape:h-12 landscape:text-3xl landscape:max-w-none landscape:max-h-none shadow-lg border-b-2 border-gray-300 opacity-0`;
                 d.style.transform = 'translateY(-20px) scale(0.8)';
                 d.textContent = tile.c;
@@ -279,7 +303,7 @@
             seq.forEach((tile, index) => {
                 setTimeout(() => {
                     const d = document.getElementById(`entrance-tile-${index}`);
-                    d.classList.add('entrance-tile-anim'); // 左から順番にフェードイン
+                    d.classList.add('entrance-tile-anim');
 
                     if (index === seq.length - 1) {
                         setTimeout(() => {
@@ -298,7 +322,23 @@
             });
         };
 
+        // ★追加: エントランスへ戻る機能
+        window.returnToEntrance = function() {
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('flex');
+            
+            const screen = document.getElementById('entrance-screen');
+            screen.classList.remove('hidden');
+            screen.style.opacity = '1';
+            
+            document.getElementById('entrance-tiles-container').innerHTML = '';
+            const btn = document.getElementById('btn-entrance');
+            btn.disabled = false;
+            btn.classList.add('active:scale-95');
+        }
+
         function init() { 
+            updateUsernameDisplay();
             renderPalette('man'); 
             renderHand(); 
             updateUI(); 
@@ -528,14 +568,13 @@
 
         window.createRoomFromModal = async function() {
             if (!window.dbInstance) return alert("データベースの設定が未完了です。");
-            const nameInput = document.getElementById('player-name').value.trim();
-            const name = nameInput || "Aさん";
+            const name = window.myUsername; // 保存された名前を使用
             
             const roomId = Math.floor(1000 + Math.random() * 9000).toString(); 
             try {
                 await setDoc(doc(window.dbInstance, "rooms", roomId), { 
                     scores: [25000, 25000, 25000, 25000],
-                    names: [name, "Bさん", "Cさん", "Dさん"],
+                    names: [name, "参加待", "参加待", "参加待"],
                     gameType: selectedGameType,
                     gameState: { bakaze: 0, oya: 0, honba: 0 } 
                 });
@@ -547,8 +586,7 @@
 
         window.joinRoomFromModal = async function() {
             if (!window.dbInstance) return alert("データベースの設定が未完了です。");
-            const nameInput = document.getElementById('player-name').value.trim();
-            const name = nameInput || "ゲスト";
+            const name = window.myUsername; // 保存された名前を使用
             
             const roomId = prompt("教えてもらった4桁のルームIDを入力してください");
             if(!roomId) return;
@@ -561,7 +599,7 @@
                     const data = docSnap.data();
                     let names = data.names || ["", "", "", ""];
                     
-                    let seatIndex = names.findIndex(n => n === "Bさん" || n === "Cさん" || n === "Dさん" || n === "");
+                    let seatIndex = names.findIndex(n => n === "参加待" || n === "ゲスト" || n === "");
                     if (seatIndex === -1) {
                         alert("すでに4人参加しており、満席です！"); return;
                     }
@@ -578,6 +616,12 @@
 
         function startListening(roomId) {
             window.currentRoomId = roomId;
+            
+            // ★追加: 対戦モードUIへの切り替え
+            document.getElementById('local-header').classList.add('hidden');
+            document.getElementById('scoreboard').classList.remove('hidden');
+            document.getElementById('scoreboard').classList.add('flex');
+
             onSnapshot(doc(window.dbInstance, "rooms", roomId), (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
