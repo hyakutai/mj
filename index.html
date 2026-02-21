@@ -12,7 +12,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:90px;%22>🀄</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231a202c%22/><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:75px;%22>🀄</text></svg>">
 
-    <title>麻雀点数計算機 Pro v2.8.5</title>
+    <title>麻雀点数計算機 Pro v2.8.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
@@ -44,12 +44,20 @@
         .entrance-tile-anim { animation: tileDrop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes tileDrop { to { opacity: 1; transform: translateY(0) scale(1); } }
 
-        #title-image {
+        /* ★変更: 複数画像を重ねてフェードさせるためのスタイル */
+        .title-img-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             mask-image: radial-gradient(circle at center, black 35%, transparent 100%);
             -webkit-mask-image: radial-gradient(circle at center, black 35%, transparent 100%);
             transition: opacity 1.5s ease-in-out;
         }
-        #title-image.opacity-0 { opacity: 0; }
+        @media (orientation: landscape) {
+            .title-img-layer { object-fit: contain; }
+        }
     </style>
 </head>
 <body>
@@ -64,7 +72,9 @@
 
     <div class="flex-[3] landscape:flex-[2] flex items-center justify-center p-4 border-b border-gray-800 relative overflow-hidden mt-12 landscape:mt-[max(8px,env(safe-area-inset-top))]">
         <div class="w-full h-full max-w-3xl relative flex items-center justify-center">
-            <img id="title-image" src="" alt="Mahjong App Title Image" class="w-full h-full object-cover landscape:object-contain opacity-0">
+            <img id="bg-img-0" src="image1.jpg" alt="Title Image 1" class="title-img-layer opacity-100">
+            <img id="bg-img-1" src="image2.jpg" alt="Title Image 2" class="title-img-layer opacity-0">
+            <img id="bg-img-2" src="image3.jpg" alt="Title Image 3" class="title-img-layer opacity-0">
         </div>
         <div class="absolute inset-0 bg-gradient-to-t from-[#1a202c] via-transparent to-transparent pointer-events-none"></div>
     </div>
@@ -140,7 +150,7 @@
                     <button onclick="openRulebook()" class="text-base hover:scale-110 transition-transform leading-none mt-0.5" title="ルールを確認">📖</button>
                     <button onclick="returnToEntrance()" class="text-base hover:scale-110 transition-transform leading-none mt-0.5" title="エントランスへ戻る">🏠</button>
                 </div>
-                <span class="text-[8px] text-gray-500 font-mono leading-none mt-1">v2.8.5</span>
+                <span class="text-[8px] text-gray-500 font-mono leading-none mt-1">v2.8.6</span>
             </div>
         </div>
 
@@ -393,22 +403,22 @@
         window.globalGameType = 'tonpu';
         window.myUsername = localStorage.getItem('mj_username') || "ゲスト";
 
-        const titleImages = ["image1.jpg", "image2.jpg", "image3.jpg"]; 
+        // ★スライドショーのロジック
         let currentImageIndex = 0;
-        const titleImageElement = document.getElementById('title-image');
         let imageCycleTimer = null;
+        // キャッシュクリア用のクエリパラメータを付与して画像を確実に入れ替える
+        const titleImages = ["image1.jpg", "image2.jpg", "image3.jpg"];
 
         function cycleTitleImage() {
-            titleImageElement.classList.add('opacity-0');
-            setTimeout(() => {
-                currentImageIndex = (currentImageIndex + 1) % titleImages.length;
-                titleImageElement.src = titleImages[currentImageIndex];
-                titleImageElement.classList.remove('opacity-0');
-            }, 1500); 
+            const nextIndex = (currentImageIndex + 1) % 3;
+            document.getElementById(`bg-img-${currentImageIndex}`).classList.remove('opacity-100');
+            document.getElementById(`bg-img-${currentImageIndex}`).classList.add('opacity-0');
+            
+            document.getElementById(`bg-img-${nextIndex}`).classList.remove('opacity-0');
+            document.getElementById(`bg-img-${nextIndex}`).classList.add('opacity-100');
+            
+            currentImageIndex = nextIndex;
         }
-
-        titleImageElement.src = titleImages[currentImageIndex];
-        setTimeout(() => { titleImageElement.classList.remove('opacity-0'); }, 100);
 
         function startImageCycle() {
             if (imageCycleTimer) clearInterval(imageCycleTimer); 
@@ -417,7 +427,6 @@
         
         startImageCycle();
 
-        
         function updateUsernameDisplay() {
             document.getElementById('entrance-username-display').textContent = window.myUsername;
             document.getElementById('local-username-display').textContent = window.myUsername;
