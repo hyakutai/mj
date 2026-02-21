@@ -12,7 +12,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:90px;%22>🀄</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231a202c%22/><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:75px;%22>🀄</text></svg>">
 
-    <title>麻雀点数計算機 Pro v2.8</title>
+    <title>麻雀点数計算機 Pro v2.8.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
@@ -133,7 +133,7 @@
                     <button onclick="openRulebook()" class="text-base hover:scale-110 transition-transform leading-none mt-0.5" title="ルールを確認">📖</button>
                     <button onclick="returnToEntrance()" class="text-base hover:scale-110 transition-transform leading-none mt-0.5" title="エントランスへ戻る">🏠</button>
                 </div>
-                <span class="text-[8px] text-gray-500 font-mono leading-none mt-1">v2.8</span>
+                <span class="text-[8px] text-gray-500 font-mono leading-none mt-1">v2.8.1</span>
             </div>
         </div>
 
@@ -270,7 +270,7 @@
                             <tr class="bg-gray-800/50">
                                 <td class="p-0.5 border border-gray-600 font-bold text-white leading-tight">25<br><span class="text-[7px] text-gray-400 font-normal">七対子</span></td>
                                 <td class="p-0.5 border border-gray-600">-</td>
-                                <td class="p-0.5 border border-gray-600 leading-tight">1600<br><span class="text-[7px] text-gray-400">ツモ 400/800</span></td>
+                                <td class="p-0.5 border border-gray-600 leading-tight">1600<br><span class="text-[7px] text-gray-400">ロンのみ</span></td>
                                 <td class="p-0.5 border border-gray-600 leading-tight">3200<br><span class="text-[7px] text-gray-400">ツモ 800/1600</span></td>
                                 <td class="p-0.5 border border-gray-600 leading-tight">6400<br><span class="text-[7px] text-gray-400">ツモ 1600/3200</span></td>
                             </tr>
@@ -318,7 +318,7 @@
                             <tr class="bg-gray-800/50">
                                 <td class="p-0.5 border border-gray-600 font-bold text-white leading-tight">25<br><span class="text-[7px] text-gray-400 font-normal">七対子</span></td>
                                 <td class="p-0.5 border border-gray-600">-</td>
-                                <td class="p-0.5 border border-gray-600 leading-tight">2400<br><span class="text-[7px] text-gray-400">ツモ 800ｵｰﾙ</span></td>
+                                <td class="p-0.5 border border-gray-600 leading-tight">2400<br><span class="text-[7px] text-gray-400">ロンのみ</span></td>
                                 <td class="p-0.5 border border-gray-600 leading-tight">4800<br><span class="text-[7px] text-gray-400">ツモ 1600ｵｰﾙ</span></td>
                                 <td class="p-0.5 border border-gray-600 leading-tight">9600<br><span class="text-[7px] text-gray-400">ツモ 3200ｵｰﾙ</span></td>
                             </tr>
@@ -722,8 +722,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // ==========================================
-        // ★★★ ここを書き換える ★★★
   const firebaseConfig = {
     apiKey: "AIzaSyBNYx05vPh_8H217AP4sVYOq7Xu3k9vzVA",
     authDomain: "mj-score-app.firebaseapp.com",
@@ -732,7 +730,6 @@
     messagingSenderId: "772380184697",
     appId: "1:772380184697:web:e4f42a83baf9910bacc4a8"
   };
-        // ==========================================
 
         let app;
         window.currentRoomId = null;
@@ -741,6 +738,18 @@
             app = initializeApp(firebaseConfig); 
             window.dbInstance = getFirestore(app); 
         } catch(e) { console.error(e); }
+
+        new Sortable(document.getElementById('player-grid'), {
+            animation: 150, delay: 200, delayOnTouchOnly: true, ghostClass: 'sortable-ghost',
+            onEnd: async function (evt) {
+                if (!window.currentRoomId || !window.dbInstance) return;
+                const gridChildren = Array.from(document.getElementById('player-grid').children);
+                const newOrder = gridChildren.map(child => parseInt(child.id.split('-')[2]));
+                try {
+                    await updateDoc(doc(window.dbInstance, "rooms", window.currentRoomId), { seatOrder: newOrder });
+                } catch(e) { console.error(e); }
+            }
+        });
 
         let selectedGameType = 'tonpu';
         window.setGameType = function(type) {
