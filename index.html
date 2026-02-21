@@ -12,7 +12,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:90px;%22>🀄</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231a202c%22/><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:75px;%22>🀄</text></svg>">
 
-    <title>麻雀点数計算機 Pro v2.8.4</title>
+    <title>麻雀点数計算機 Pro v2.8.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
@@ -44,10 +44,9 @@
         .entrance-tile-anim { animation: tileDrop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes tileDrop { to { opacity: 1; transform: translateY(0) scale(1); } }
 
-        /* タイトル画像のスタイル */
         #title-image {
-            mask-image: radial-gradient(circle at center, black 30%, transparent 100%);
-            -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 100%);
+            mask-image: radial-gradient(circle at center, black 35%, transparent 100%);
+            -webkit-mask-image: radial-gradient(circle at center, black 35%, transparent 100%);
             transition: opacity 1.5s ease-in-out;
         }
         #title-image.opacity-0 { opacity: 0; }
@@ -63,9 +62,9 @@
         <button onclick="editUsername()" class="text-sm bg-gray-700 hover:bg-gray-600 w-6 h-6 rounded-full flex items-center justify-center transition-transform active:scale-90 ml-1">✏️</button>
     </div>
 
-    <div class="flex-[3] flex items-center justify-center p-4 border-b border-gray-800 relative overflow-hidden mt-12">
-        <div class="w-full max-w-3xl aspect-video relative flex items-center justify-center">
-            <img id="title-image" src="" alt="Mahjong App Title Image" class="w-full h-full object-cover opacity-0">
+    <div class="flex-[3] landscape:flex-[2] flex items-center justify-center p-4 border-b border-gray-800 relative overflow-hidden mt-12 landscape:mt-[max(8px,env(safe-area-inset-top))]">
+        <div class="w-full h-full max-w-3xl relative flex items-center justify-center">
+            <img id="title-image" src="" alt="Mahjong App Title Image" class="w-full h-full object-cover landscape:object-contain opacity-0">
         </div>
         <div class="absolute inset-0 bg-gradient-to-t from-[#1a202c] via-transparent to-transparent pointer-events-none"></div>
     </div>
@@ -141,7 +140,7 @@
                     <button onclick="openRulebook()" class="text-base hover:scale-110 transition-transform leading-none mt-0.5" title="ルールを確認">📖</button>
                     <button onclick="returnToEntrance()" class="text-base hover:scale-110 transition-transform leading-none mt-0.5" title="エントランスへ戻る">🏠</button>
                 </div>
-                <span class="text-[8px] text-gray-500 font-mono leading-none mt-1">v2.8.4</span>
+                <span class="text-[8px] text-gray-500 font-mono leading-none mt-1">v2.8.5</span>
             </div>
         </div>
 
@@ -338,7 +337,8 @@
                                 <td class="p-0.5 border border-gray-600 leading-tight">11600<br><span class="text-[7px] text-gray-400">ツモ 3900ｵｰﾙ</span></td>
                             </tr>
                             <tr class="bg-gray-800/50">
-                                <td class="p-0.5 border border-gray-600 font-bold text-white leading-tight">2000<br><span class="text-[7px] text-gray-400">ツモ 700ｵｰﾙ</span></td>
+                                <td class="p-0.5 border border-gray-600 font-bold text-white leading-tight">40</td>
+                                <td class="p-0.5 border border-gray-600 leading-tight">2000<br><span class="text-[7px] text-gray-400">ツモ 700ｵｰﾙ</span></td>
                                 <td class="p-0.5 border border-gray-600 leading-tight">3900<br><span class="text-[7px] text-gray-400">ツモ 1300ｵｰﾙ</span></td>
                                 <td class="p-0.5 border border-gray-600 leading-tight">7700<br><span class="text-[7px] text-gray-400">ツモ 2600ｵｰﾙ</span></td>
                                 <td class="p-0.5 border border-gray-600 text-red-300 font-bold leading-tight">満貫<br><span class="text-[7px] text-gray-400 font-normal">ツモ 4000ｵｰﾙ</span></td>
@@ -393,37 +393,28 @@
         window.globalGameType = 'tonpu';
         window.myUsername = localStorage.getItem('mj_username') || "ゲスト";
 
-        // ★修正: タイトル画像のファイル名を変更
         const titleImages = ["image1.jpg", "image2.jpg", "image3.jpg"]; 
         let currentImageIndex = 0;
         const titleImageElement = document.getElementById('title-image');
         let imageCycleTimer = null;
 
         function cycleTitleImage() {
-            // フェードアウト開始
             titleImageElement.classList.add('opacity-0');
-            
             setTimeout(() => {
-                // 画像ソースを切り替え
                 currentImageIndex = (currentImageIndex + 1) % titleImages.length;
                 titleImageElement.src = titleImages[currentImageIndex];
-                // フェードイン開始
                 titleImageElement.classList.remove('opacity-0');
-            }, 1500); // CSSのtransition時間(1.5s)と合わせる
+            }, 1500); 
         }
 
-        // 初期画像の表示設定
         titleImageElement.src = titleImages[currentImageIndex];
-        // 少し待ってからフェードインさせることで、初期表示も滑らかにする
         setTimeout(() => { titleImageElement.classList.remove('opacity-0'); }, 100);
 
-        // タイマーを開始する関数
         function startImageCycle() {
-            if (imageCycleTimer) clearInterval(imageCycleTimer); // 念のため既存のタイマーをクリア
-            imageCycleTimer = setInterval(cycleTitleImage, 5000); // 5秒ごとに切り替え
+            if (imageCycleTimer) clearInterval(imageCycleTimer); 
+            imageCycleTimer = setInterval(cycleTitleImage, 5000); 
         }
         
-        // ページ読み込み時にタイマー開始
         startImageCycle();
 
         
@@ -444,7 +435,6 @@
         }
 
         window.startEntrance = function() {
-            // エントランスを抜けるときにタイマーを停止
             clearInterval(imageCycleTimer);
 
             const btn = document.getElementById('btn-entrance');
@@ -493,7 +483,6 @@
         };
 
         window.returnToEntrance = function() {
-            // エントランスに戻ったときにタイマーを再開
             startImageCycle();
 
             document.getElementById('app-container').classList.add('hidden');
