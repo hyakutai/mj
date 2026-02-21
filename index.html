@@ -9,10 +9,14 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1a202c">
     
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:90px;%22>🀄</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231a202c%22/><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:75px;%22>🀄</text></svg>">
 
-    <title>麻雀点数計算機 Pro v2.8.7</title>
+    <title>麻雀点数計算機 Pro v2.8.8</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
@@ -44,20 +48,23 @@
         .entrance-tile-anim { animation: tileDrop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes tileDrop { to { opacity: 1; transform: translateY(0) scale(1); } }
 
-        /* 複数画像を重ねてフェードさせるためのスタイル */
+        /* ★変更: 横画面でも幅いっぱいにしつつ、綺麗な楕円形でぼかす */
         .title-img-layer {
             position: absolute;
             inset: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            mask-image: radial-gradient(circle at center, black 35%, transparent 100%);
-            -webkit-mask-image: radial-gradient(circle at center, black 35%, transparent 100%);
+            object-fit: cover; /* 常に画面幅いっぱいに広げる */
+            mask-image: radial-gradient(circle at center, black 30%, transparent 85%);
+            -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 85%);
             transition: opacity 1.5s ease-in-out;
         }
         @media (orientation: landscape) {
-            /* 横画面ではアスペクト比を維持して全体を表示 */
-            .title-img-layer { object-fit: contain; }
+            .title-img-layer {
+                /* 横画面専用のマスク: 左右は広く、上下は早く透明になる楕円形 */
+                mask-image: radial-gradient(ellipse 60% 80% at center, black 20%, transparent 100%);
+                -webkit-mask-image: radial-gradient(ellipse 60% 80% at center, black 20%, transparent 100%);
+            }
         }
     </style>
 </head>
@@ -71,27 +78,26 @@
         <button onclick="editUsername()" class="text-sm bg-gray-700 hover:bg-gray-600 w-6 h-6 rounded-full flex items-center justify-center transition-transform active:scale-90 ml-1">✏️</button>
     </div>
 
-    <div class="flex-[3] landscape:flex-[4] flex items-center justify-center p-4 landscape:p-0 border-b border-gray-800 relative overflow-hidden mt-12 landscape:mt-[max(8px,env(safe-area-inset-top))] w-full">
-        <div class="w-full h-full max-w-3xl landscape:max-w-none relative flex items-center justify-center">
-            <img id="bg-img-0" src="image1.jpg?v=1" alt="Title Image 1" class="title-img-layer opacity-100">
-            <img id="bg-img-1" src="image2.jpg?v=1" alt="Title Image 2" class="title-img-layer opacity-0">
-            <img id="bg-img-2" src="image3.jpg?v=1" alt="Title Image 3" class="title-img-layer opacity-0">
+    <div class="flex-[3] landscape:flex-[4] flex items-center justify-center relative overflow-hidden mt-10 landscape:mt-[max(16px,env(safe-area-inset-top))] w-full landscape:mb-4">
+        <div class="w-full h-full relative flex items-center justify-center">
+            <img id="bg-img-0" src="image1.jpg?v=2" alt="Title Image 1" class="title-img-layer opacity-100">
+            <img id="bg-img-1" src="image2.jpg?v=2" alt="Title Image 2" class="title-img-layer opacity-0">
+            <img id="bg-img-2" src="image3.jpg?v=2" alt="Title Image 3" class="title-img-layer opacity-0">
         </div>
-        <div class="absolute inset-0 bg-gradient-to-t from-[#1a202c] via-transparent to-transparent pointer-events-none"></div>
     </div>
     
-    <div class="flex-1 flex flex-col items-center justify-center landscape:justify-start landscape:mt-6 gap-4 relative shrink-0">
-        <button id="btn-entrance" onclick="startEntrance()" class="w-56 h-7 bg-gradient-to-b from-[#fefcf6] to-[#e6e1d6] rounded-sm shadow-[0_5px_15px_rgba(0,0,0,0.6)] border border-[#c4bcac] flex items-center justify-center relative transition-transform active:scale-95 cursor-pointer">
+    <div class="flex-1 flex flex-col items-center justify-center landscape:justify-end gap-3 relative shrink-0 z-10 landscape:mb-2">
+        <button id="btn-entrance" onclick="startEntrance()" class="w-56 h-7 bg-gradient-to-b from-[#fefcf6] to-[#e6e1d6] rounded-sm shadow-[0_5px_15px_rgba(0,0,0,0.8)] border border-[#c4bcac] flex items-center justify-center relative transition-transform active:scale-95 cursor-pointer">
             <div class="w-2.5 h-2.5 bg-red-600 rounded-full shadow-inner"></div>
             <div class="absolute left-3 w-0.5 h-full bg-black/20"></div>
             <div class="absolute left-5 w-0.5 h-full bg-black/20"></div>
             <div class="absolute right-3 w-0.5 h-full bg-black/20"></div>
             <div class="absolute right-5 w-0.5 h-full bg-black/20"></div>
         </button>
-        <div class="text-[10px] text-yellow-500 font-bold tracking-[0.4em] animate-pulse pointer-events-none mt-2">TAP TO ENTER</div>
+        <div class="text-[10px] text-yellow-500 font-bold tracking-[0.4em] animate-pulse pointer-events-none mt-1">TAP TO ENTER</div>
     </div>
 
-    <div class="flex-1 flex flex-col justify-end w-full pb-[max(40px,env(safe-area-inset-bottom)+40px)] px-2 shrink-0">
+    <div class="flex-1 flex flex-col justify-end w-full pb-[max(35px,env(safe-area-inset-bottom)+20px)] landscape:pb-[max(25px,env(safe-area-inset-bottom)+10px)] px-2 shrink-0 z-10">
         <div id="entrance-tiles-container" class="flex gap-0.5 landscape:gap-1 flex-nowrap justify-center w-full"></div>
     </div>
 </div>
@@ -151,7 +157,7 @@
                     <button onclick="openRulebook()" class="text-base hover:scale-110 transition-transform leading-none mt-0.5" title="ルールを確認">📖</button>
                     <button onclick="returnToEntrance()" class="text-base hover:scale-110 transition-transform leading-none mt-0.5" title="エントランスへ戻る">🏠</button>
                 </div>
-                <span class="text-[8px] text-gray-500 font-mono leading-none mt-1">v2.8.7</span>
+                <span class="text-[8px] text-gray-500 font-mono leading-none mt-1">v2.8.8</span>
             </div>
         </div>
 
@@ -407,9 +413,7 @@
         // ★スライドショーのロジック
         let currentImageIndex = 0;
         let imageCycleTimer = null;
-        // キャッシュクリア用のクエリパラメータを付与して画像を確実に入れ替える
-        const titleImages = ["image1.jpg", "image2.jpg", "image3.jpg"];
-
+        
         function cycleTitleImage() {
             const nextIndex = (currentImageIndex + 1) % 3;
             document.getElementById(`bg-img-${currentImageIndex}`).classList.remove('opacity-100');
